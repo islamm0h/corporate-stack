@@ -1,0 +1,333 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ma/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(uuid()) @db.Uuid
+  username      String    @unique @db.VarChar(50)
+  email         String    @unique @db.VarChar(100)
+  passwordHash  String    @map("password_hash") @db.VarChar(255)
+  firstName     String    @map("first_name") @db.VarChar(50)
+  lastName      String    @map("last_name") @db.VarChar(50)
+  phone         String?   @db.VarChar(20)
+  role          Role      @default(USER)
+  isActive      Boolean   @default(true) @map("is_active")
+  emailVerified Boolean   @default(false) @map("email_verified")
+  lastLogin     DateTime? @map("last_login")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  assignedLeads    Lead[]           @relation("AssignedTo")
+  assignedRequests QuoteRequest[]   @relation("AssignedTo")
+  responses        Response[]
+  activityLogs     ActivityLog[]
+  fileUploads      FileUpload[]
+  backups          Backup[]
+  systemFiles      SystemFile[]     @relation("SystemFileUploader")
+
+  @@map("users")
+}
+
+model Lead {
+  id            String      @id @default(uuid()) @db.Uuid
+  companyName   String      @map("company_name") @db.VarChar(100)
+  contactPerson String      @map("contact_person") @db.VarChar(100)
+  email         String      @db.VarChar(100)
+  phone         String?     @db.VarChar(20)
+  industry      String?     @db.VarChar(50)
+  companySize   CompanySize? @map("company_size")
+  region        String?     @db.VarChar(50)
+  city          String?     @db.VarChar(50)
+  source        LeadSource  @default(WEBSITE)
+  status        LeadStatus  @default(NEW)
+  leadScore     Int         @default(0) @map("lead_score")
+  notes         String?
+  assignedToId  String?     @map("assigned_to") @db.Uuid
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+
+  // Relations
+  assignedTo    User?          @relation("AssignedTo", fields: [assignedToId], references: [id])
+  quoteRequests QuoteRequest[]
+
+  @@map("leads")
+}
+
+model System {
+  id               String    @id @default(uuid()) @db.Uuid
+  name             String    @db.VarChar(100)
+  slug             String    @unique @db.VarChar(100)
+  description      String?
+  shortDescription String?   @map("short_description") @db.VarChar(255)
+  category         String?   @db.VarChar(50)
+  price            Decimal?  @db.Decimal(10, 2)
+  currency         String    @default("SAR") @db.VarChar(3)
+  features         Json?
+  specifications   Json?
+  images           Json?
+  isActive         Boolean   @default(true) @map("is_active")
+  isFeatured       Boolean   @default(false) @map("is_featured")
+  sortOrder        Int       @default(0) @map("sort_order")
+  seoTitle         String?   @map("seo_title") @db.VarChar(255)
+  seoDescription   String?   @map("seo_description") @db.VarChar(500)
+  seoKeywords      String[]  @map("seo_keywords")
+  // إضافة حقول إدارة الأنظمة
+  version          String?   @default("1.0.0") @db.VarChar(20)
+  icon             String?   @default("fas fa-cog") @db.VarChar(50)
+  color            String?   @default("#0066cc") @db.VarChar(20)
+  status           String?   @default("active") @db.VarChar(20) // active, inactive, maintenance, updating
+  users            Int?      @default(0)
+  uptime           String?   @default("99.9%") @db.VarChar(10)
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  quoteRequests QuoteRequest[]
+  systemFiles   SystemFile[]
+
+  @@map("systems")
+}
+
+model SystemFile {
+  id           String   @id @default(uuid()) @db.Uuid
+  systemId     String   @map("system_id") @db.Uuid
+  fileName     String   @map("file_name") @db.VarChar(255)
+  originalName String   @map("original_name") @db.VarChar(255)
+  fileType     String   @map("file_type") @db.VarChar(20) // pdf, image, video
+  fileSize     BigInt   @map("file_size")
+  filePath     String   @map("file_path") @db.VarChar(500)
+  mimeType     String   @map("mime_type") @db.VarChar(100)
+  uploadedBy   String?  @map("uploaded_by") @db.Uuid
+  isActive     Boolean  @default(true) @map("is_active")
+  sortOrder    Int      @default(0) @map("sort_order")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  system     System @relation(fields: [systemId], references: [id], onDelete: Cascade)
+  uploader   User?  @relation("SystemFileUploader", fields: [uploadedBy], references: [id])
+
+  @@map("system_files")
+}
+
+model QuoteRequest {
+  id           String      @id @default(uuid()) @db.Uuid
+  leadId       String      @map("lead_id") @db.Uuid
+  systemId     String?     @map("system_id") @db.Uuid
+  requestType  RequestType @default(QUOTE) @map("request_type")
+  message      String?
+  budgetRange  String?     @map("budget_range") @db.VarChar(50)
+  timeline     String?     @db.VarChar(50)
+  requirements Json?
+  status       RequestStatus @default(PENDING)
+  priority     Priority    @default(MEDIUM)
+  assignedToId String?     @map("assigned_to") @db.Uuid
+  createdAt    DateTime    @default(now()) @map("created_at")
+  updatedAt    DateTime    @updatedAt @map("updated_at")
+
+  // Relations
+  lead       Lead       @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  system     System?    @relation(fields: [systemId], references: [id])
+  assignedTo User?      @relation("AssignedTo", fields: [assignedToId], references: [id])
+  responses  Response[]
+
+  @@map("quote_requests")
+}
+
+model Response {
+  id           String       @id @default(uuid()) @db.Uuid
+  requestId    String       @map("request_id") @db.Uuid
+  userId       String       @map("user_id") @db.Uuid
+  responseType ResponseType @default(EMAIL) @map("response_type")
+  subject      String?      @db.VarChar(255)
+  content      String
+  attachments  Json?
+  status       ResponseStatus @default(SENT)
+  followUpDate DateTime?    @map("follow_up_date") @db.Date
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  // Relations
+  request QuoteRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  user    User         @relation(fields: [userId], references: [id])
+
+  @@map("responses")
+}
+
+model SystemSetting {
+  id          String   @id @default(uuid()) @db.Uuid
+  category    String   @db.VarChar(50)
+  key         String   @db.VarChar(100)
+  value       Json?
+  description String?
+  isPublic    Boolean  @default(false) @map("is_public")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@unique([category, key])
+  @@map("system_settings")
+}
+
+model ActivityLog {
+  id         String   @id @default(uuid()) @db.Uuid
+  userId     String?  @map("user_id") @db.Uuid
+  action     String   @db.VarChar(100)
+  entityType String?  @map("entity_type") @db.VarChar(50)
+  entityId   String?  @map("entity_id") @db.Uuid
+  details    Json?
+  ipAddress  String?  @map("ip_address")
+  userAgent  String?  @map("user_agent")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  // Relations
+  user User? @relation(fields: [userId], references: [id])
+
+  @@map("activity_logs")
+}
+
+model DailyStat {
+  id                   String   @id @default(uuid()) @db.Uuid
+  date                 DateTime @unique @db.Date
+  totalLeads           Int      @default(0) @map("total_leads")
+  newLeads             Int      @default(0) @map("new_leads")
+  qualifiedLeads       Int      @default(0) @map("qualified_leads")
+  convertedLeads       Int      @default(0) @map("converted_leads")
+  totalRequests        Int      @default(0) @map("total_requests")
+  pendingRequests      Int      @default(0) @map("pending_requests")
+  completedRequests    Int      @default(0) @map("completed_requests")
+  totalResponses       Int      @default(0) @map("total_responses")
+  websiteVisits        Int      @default(0) @map("website_visits")
+  pageViews            Int      @default(0) @map("page_views")
+  bounceRate           Decimal? @map("bounce_rate") @db.Decimal(5, 2)
+  avgSessionDuration   Int?     @map("avg_session_duration")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  @@map("daily_stats")
+}
+
+model FileUpload {
+  id           String   @id @default(uuid()) @db.Uuid
+  originalName String   @map("original_name") @db.VarChar(255)
+  fileName     String   @map("file_name") @db.VarChar(255)
+  filePath     String   @map("file_path") @db.VarChar(500)
+  fileSize     BigInt?  @map("file_size")
+  mimeType     String?  @map("mime_type") @db.VarChar(100)
+  entityType   String?  @map("entity_type") @db.VarChar(50)
+  entityId     String?  @map("entity_id") @db.Uuid
+  uploadedById String?  @map("uploaded_by") @db.Uuid
+  isPublic     Boolean  @default(false) @map("is_public")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  // Relations
+  uploadedBy User? @relation(fields: [uploadedById], references: [id])
+
+  @@map("file_uploads")
+}
+
+model Backup {
+  id         String     @id @default(uuid()) @db.Uuid
+  backupName String     @map("backup_name") @db.VarChar(255)
+  backupType BackupType @default(FULL) @map("backup_type")
+  filePath   String     @map("file_path") @db.VarChar(500)
+  fileSize   BigInt?    @map("file_size")
+  status     BackupStatus @default(COMPLETED)
+  createdById String?   @map("created_by") @db.Uuid
+  createdAt  DateTime   @default(now()) @map("created_at")
+
+  // Relations
+  createdBy User? @relation(fields: [createdById], references: [id])
+
+  @@map("backups")
+}
+
+// Enums
+enum Role {
+  ADMIN  @map("admin")
+  MANAGER @map("manager")
+  USER   @map("user")
+}
+
+enum CompanySize {
+  SMALL      @map("small")
+  MEDIUM     @map("medium")
+  LARGE      @map("large")
+  ENTERPRISE @map("enterprise")
+}
+
+enum LeadSource {
+  WEBSITE      @map("website")
+  SOCIAL_MEDIA @map("social_media")
+  REFERRAL     @map("referral")
+  ADVERTISING  @map("advertising")
+  COLD_CALL    @map("cold_call")
+  OTHER        @map("other")
+}
+
+enum LeadStatus {
+  NEW          @map("new")
+  CONTACTED    @map("contacted")
+  QUALIFIED    @map("qualified")
+  PROPOSAL     @map("proposal")
+  NEGOTIATION  @map("negotiation")
+  CLOSED_WON   @map("closed_won")
+  CLOSED_LOST  @map("closed_lost")
+}
+
+enum RequestType {
+  QUOTE        @map("quote")
+  DEMO         @map("demo")
+  CONSULTATION @map("consultation")
+  INFORMATION  @map("information")
+}
+
+enum RequestStatus {
+  PENDING     @map("pending")
+  IN_PROGRESS @map("in_progress")
+  COMPLETED   @map("completed")
+  CANCELLED   @map("cancelled")
+}
+
+enum Priority {
+  LOW    @map("low")
+  MEDIUM @map("medium")
+  HIGH   @map("high")
+  URGENT @map("urgent")
+}
+
+enum ResponseType {
+  EMAIL    @map("email")
+  PHONE    @map("phone")
+  MEETING  @map("meeting")
+  PROPOSAL @map("proposal")
+  QUOTE    @map("quote")
+}
+
+enum ResponseStatus {
+  DRAFT     @map("draft")
+  SENT      @map("sent")
+  DELIVERED @map("delivered")
+  READ      @map("read")
+  REPLIED   @map("replied")
+}
+
+enum BackupType {
+  FULL         @map("full")
+  INCREMENTAL  @map("incremental")
+  DIFFERENTIAL @map("differential")
+}
+
+enum BackupStatus {
+  IN_PROGRESS @map("in_progress")
+  COMPLETED   @map("completed")
+  FAILED      @map("failed")
+}

@@ -1,0 +1,62 @@
+{
+  "name": "corporatestack-next",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:setup": "chmod +x scripts/setup-database.sh && ./scripts/setup-database.sh",
+    "db:start": "cd database && docker-compose up -d",
+    "db:stop": "cd database && docker-compose down",
+    "db:restart": "cd database && docker-compose restart",
+    "db:logs": "cd database && docker-compose logs -f",
+    "db:clean": "cd database && docker-compose down -v",
+    "db:backup": "docker exec corporate_stack_db pg_dump -U postgres corporate_stack_db > backups/backup_$(date +%Y%m%d_%H%M%S).sql",
+    "db:generate": "npx prisma generate",
+    "db:push": "npx prisma db push",
+    "db:studio": "npx prisma studio",
+    "db:migrate": "npx prisma migrate dev",
+    "db:reset": "npx prisma migrate reset",
+    "db:seed": "npx prisma db seed",
+    "db:quick": "docker run -d --name corporate_stack_db -e POSTGRES_DB=corporate_stack_db -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres123 -p 5432:5432 postgres:15-alpine",
+    "db:connect": "docker exec -it corporate_stack_db psql -U postgres -d corporate_stack_db",
+    "db:status": "docker ps | grep corporate_stack_db"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.8.2",
+    "bcryptjs": "^2.4.3",
+    "date-fns": "^2.30.0",
+    "jsonwebtoken": "^9.0.2",
+    "lodash": "^4.17.21",
+    "next": "15.1.0",
+    "nodemailer": "^6.9.7",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "redis": "^4.6.11",
+    "uuid": "^9.0.1",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/jsonwebtoken": "^9.0.5",
+    "@types/lodash": "^4.14.202",
+    "@types/node": "^20",
+    "@types/nodemailer": "^6.4.14",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@types/uuid": "^9.0.7",
+    "eslint": "^8",
+    "eslint-config-next": "15.1.0",
+    "postcss": "^8",
+    "prisma": "^6.8.2",
+    "tailwindcss": "^3.4.0",
+    "tsx": "^4.6.2",
+    "typescript": "^5"
+  },
+  "prisma": {
+    "schema": "database/prisma/schema.prisma",
+    "seed": "tsx database/prisma/seed.ts"
+  }
+}
