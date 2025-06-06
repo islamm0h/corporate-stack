@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { startOfDay, endOfDay, subDays, startOfMonth, endOfMonth } from 'date-fns'
+import { PrismaClient } from '@prisma/client'
 import fs from 'fs'
 import path from 'path'
+
+const prisma = new PrismaClient()
 
 // Helper function to read data from file
 async function readFromFile(filename: string) {

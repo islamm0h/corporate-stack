@@ -6,6 +6,12 @@ import Link from 'next/link'
 export default function Home() {
   const [showSplash, setShowSplash] = useState(true)
   const [progress, setProgress] = useState(0)
+  const [stats, setStats] = useState({
+    happyClients: 1250,
+    integratedSystems: 6,
+    yearsExperience: 15,
+    technicalSupport: 24
+  })
 
   useEffect(() => {
     // تحريك شريط التحميل
@@ -25,6 +31,27 @@ export default function Home() {
 
     return () => clearInterval(interval)
   }, [])
+
+  // جلب الإحصائيات الحقيقية
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await fetch('/api/dashboard/stats?type=counters')
+        const result = await response.json()
+
+        if (result.success) {
+          setStats(result.data)
+        }
+      } catch (error) {
+        console.error('Error fetching stats:', error)
+        // استخدام القيم الافتراضية في حالة الخطأ
+      }
+    }
+
+    if (!showSplash) {
+      fetchStats()
+    }
+  }, [showSplash])
 
   // عرض صفحة التحميل
   if (showSplash) {
@@ -192,7 +219,7 @@ export default function Home() {
               <div className="stat-icon">
                 <i className="fas fa-users"></i>
               </div>
-              <div className="stat-number" data-suffix="+">1250</div>
+              <div className="stat-number" data-suffix="+">{stats.happyClients}</div>
               <div className="stat-title">عميل سعيد</div>
             </div>
 
@@ -200,7 +227,7 @@ export default function Home() {
               <div className="stat-icon">
                 <i className="fas fa-layer-group"></i>
               </div>
-              <div className="stat-number" data-suffix="+">6</div>
+              <div className="stat-number" data-suffix="+">{stats.integratedSystems}</div>
               <div className="stat-title">نظام متكامل</div>
             </div>
 
@@ -208,7 +235,7 @@ export default function Home() {
               <div className="stat-icon">
                 <i className="fas fa-calendar-alt"></i>
               </div>
-              <div className="stat-number" data-suffix="+">15</div>
+              <div className="stat-number" data-suffix="+">{stats.yearsExperience}</div>
               <div className="stat-title">سنوات خبرة</div>
             </div>
 
@@ -216,7 +243,7 @@ export default function Home() {
               <div className="stat-icon">
                 <i className="fas fa-headset"></i>
               </div>
-              <div className="stat-number" data-suffix="/7">24</div>
+              <div className="stat-number" data-suffix="/7">{stats.technicalSupport}</div>
               <div className="stat-title">دعم فني متميز</div>
             </div>
           </div>
