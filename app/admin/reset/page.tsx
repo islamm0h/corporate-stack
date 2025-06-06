@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 
 export default function ResetDatabasePage() {
   const [loading, setLoading] = useState(false)
@@ -93,12 +94,12 @@ export default function ResetDatabasePage() {
           )}
 
           <div className="mt-8 text-center">
-            <a
+            <Link
               href="/"
               className="text-sm text-blue-600 hover:text-blue-500"
             >
               ← العودة إلى الموقع
-            </a>
+            </Link>
           </div>
         </div>
       </div>

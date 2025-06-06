@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 
 export default function ResetDatabasePage() {
   const [loading, setLoading] = useState(false)
@@ -133,19 +134,19 @@ export default function ResetDatabasePage() {
           )}
 
           <div className="mt-8 text-center space-y-2">
-            <a
+            <Link
               href="/"
               className="inline-block text-sm text-blue-600 hover:text-blue-500 underline"
             >
               ← العودة إلى الموقع الرئيسي
-            </a>
+            </Link>
             <br />
-            <a
+            <Link
               href="/login"
               className="inline-block text-sm text-green-600 hover:text-green-500 underline"
             >
               🔐 الذهاب إلى صفحة تسجيل الدخول
-            </a>
+            </Link>
           </div>
         </div>
       </div>
