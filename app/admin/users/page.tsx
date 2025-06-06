@@ -124,11 +124,29 @@ export default function UsersManagement() {
   ]
 
   useEffect(() => {
-    // محاكاة تحميل البيانات
-    setTimeout(() => {
-      setUsers(mockUsers)
-      setLoading(false)
-    }, 1000)
+    // جلب المستخدمين من قاعدة البيانات
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch('/api/users')
+        const result = await response.json()
+
+        if (result.success) {
+          setUsers(result.data)
+        } else {
+          console.error('Failed to fetch users:', result.message)
+          // في حالة الفشل، استخدم البيانات التجريبية
+          setUsers(mockUsers)
+        }
+      } catch (error) {
+        console.error('Error fetching users:', error)
+        // في حالة الخطأ، استخدم البيانات التجريبية
+        setUsers(mockUsers)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchUsers()
   }, [])
 
   const [searchTerm, setSearchTerm] = useState('')
