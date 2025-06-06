@@ -1,9 +1,55 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+
+interface QuoteRequest {
+  id: string
+  lead: {
+    companyName: string
+    contactPerson: string
+    email: string
+    phone: string
+  }
+  system: {
+    name: string
+  }
+  requestType: string
+  description: string
+  budget: string
+  timeline: string
+  status: string
+  priority: string
+  createdAt: string
+}
 
 export default function RequestsManagement() {
-  const [requests] = useState([
+  const [requests, setRequests] = useState<QuoteRequest[]>([])
+  const [loading, setLoading] = useState(true)
+
+  // جلب الطلبات من قاعدة البيانات
+  useEffect(() => {
+    const fetchRequests = async () => {
+      try {
+        const response = await fetch('/api/quote-requests')
+        const result = await response.json()
+
+        if (result.success) {
+          setRequests(result.data)
+        } else {
+          console.error('Failed to fetch requests:', result.message)
+        }
+      } catch (error) {
+        console.error('Error fetching requests:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchRequests()
+  }, [])
+
+  // البيانات التجريبية كـ fallback
+  const mockRequests = [
     {
       id: 1,
       companyName: 'شركة الرياض للتجارة',

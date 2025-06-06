@@ -1,17 +1,18 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export default function AnalyticsPage() {
   const [timeRange, setTimeRange] = useState('6months')
-  
-  const [analyticsData] = useState({
+  const [loading, setLoading] = useState(true)
+
+  const [analyticsData, setAnalyticsData] = useState({
     overview: {
-      totalLeads: 1250,
-      totalRequests: 425,
-      totalResponses: 387,
-      conversionRate: 15.2,
-      avgResponseTime: 2.1,
+      totalLeads: 0,
+      totalRequests: 0,
+      totalResponses: 0,
+      conversionRate: 0,
+      avgResponseTime: 0,
       customerSatisfaction: 4.6
     },
     monthlyTrends: [
@@ -44,6 +45,37 @@ export default function AnalyticsPage() {
       { region: 'القصيم', leads: 150, conversions: 19, rate: 12.7 }
     ]
   })
+
+  // جلب الإحصائيات الحقيقية
+  useEffect(() => {
+    const fetchAnalytics = async () => {
+      try {
+        const response = await fetch('/api/dashboard/stats?type=overview')
+        const result = await response.json()
+
+        if (result.success) {
+          const data = result.data.overview
+          setAnalyticsData(prev => ({
+            ...prev,
+            overview: {
+              ...prev.overview,
+              totalLeads: data.totalLeads || 0,
+              totalRequests: data.totalRequests || 0,
+              totalResponses: data.totalResponses || 0,
+              conversionRate: data.conversionRate || 0,
+              avgResponseTime: data.avgResponseTime || 0
+            }
+          }))
+        }
+      } catch (error) {
+        console.error('Error fetching analytics:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchAnalytics()
+  }, [])
 
   const getMaxValue = (data: any[], key: string) => {
     return Math.max(...data.map(item => item[key]))
