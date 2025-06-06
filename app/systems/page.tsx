@@ -1,9 +1,45 @@
 'use client'
 
 import Link from 'next/link'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+
+interface System {
+  id: string
+  name: string
+  description: string
+  category: string
+  price: number
+  features: string[]
+  isActive: boolean
+}
 
 export default function Systems() {
+  const [systems, setSystems] = useState<System[]>([])
+  const [loading, setLoading] = useState(true)
+  const [activeFilter, setActiveFilter] = useState('all')
+
+  // جلب الأنظمة من قاعدة البيانات
+  useEffect(() => {
+    const fetchSystems = async () => {
+      try {
+        const response = await fetch('/api/systems')
+        const result = await response.json()
+
+        if (result.success) {
+          setSystems(result.data)
+        } else {
+          console.error('Failed to fetch systems:', result.message)
+        }
+      } catch (error) {
+        console.error('Error fetching systems:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchSystems()
+  }, [])
+
   useEffect(() => {
     // تهيئة تأثير الجزيئات المتحركة
     if (typeof window !== 'undefined' && window.particlesJS) {
