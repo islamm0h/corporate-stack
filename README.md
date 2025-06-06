@@ -389,3 +389,5 @@ The Settings page (`/admin/settings`) provides comprehensive system configuratio
 ## License
 
 MIT License
+#   B u i l d   f i x e d   f o r   V e r c e l  
+ 
