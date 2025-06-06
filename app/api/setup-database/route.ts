@@ -124,8 +124,8 @@ export async function POST(request: NextRequest) {
         companySize: 'MEDIUM',
         region: 'الرياض',
         city: 'الرياض',
-        source: 'موقع الويب',
-        status: 'جديد',
+        source: 'WEBSITE',
+        status: 'NEW',
         leadScore: 85,
         notes: 'مهتم بنظام CRM'
       }
