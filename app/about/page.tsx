@@ -396,7 +396,18 @@ export default function About() {
             <Link href="/contact" className="nav-link">تواصل معنا</Link>
           </nav>
           <div className="header-actions">
-            {/* تم إلغاء زر لوحة التحكم */}
+            <a
+              href="#"
+              className="btn btn-free-trial"
+              onClick={(e) => {
+                e.preventDefault()
+                // سيتم ربطه بدومين آخر لاحقاً
+                alert('سيتم توجيهك لصفحة التسجيل قريباً')
+              }}
+            >
+              <i className="fas fa-gift"></i>
+              تجربة مجانية
+            </a>
           </div>
         </div>
       </header>

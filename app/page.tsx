@@ -119,10 +119,21 @@ export default function Home() {
               نقدم حلولاً متكاملة لإدارة الأعمال تساعدك على تحسين الكفاءة وزيادة الإنتاجية وتحقيق النمو المستدام.
             </p>
             <div className="hero-buttons">
-              <a href="#" className="btn btn-primary">
+              <a
+                href="#"
+                className="btn btn-primary btn-free-trial"
+                onClick={(e) => {
+                  e.preventDefault()
+                  // سيتم ربطه بدومين آخر لاحقاً
+                  alert('سيتم توجيهك لصفحة التسجيل قريباً')
+                }}
+              >
+                <i className="fas fa-gift"></i> تجربة مجانية 14 يوم
+              </a>
+              <a href="/systems" className="btn btn-secondary">
                 <i className="fas fa-th-large"></i> استكشف الأنظمة
               </a>
-              <a href="#" className="btn btn-outline">
+              <a href="/contact" className="btn btn-outline">
                 <i className="fas fa-headset"></i> تواصل معنا
               </a>
             </div>
