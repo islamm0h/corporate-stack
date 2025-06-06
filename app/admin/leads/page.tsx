@@ -1,9 +1,53 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+
+interface Lead {
+  id: string
+  companyName: string
+  contactPerson: string
+  email: string
+  phone: string
+  industry: string
+  companySize: string
+  region: string
+  city: string
+  source: string
+  status: string
+  leadScore: number
+  notes?: string
+  createdAt: string
+  updatedAt: string
+}
 
 export default function LeadsManagement() {
-  const [leads] = useState([
+  const [leads, setLeads] = useState<Lead[]>([])
+  const [loading, setLoading] = useState(true)
+
+  // جلب العملاء المحتملين من قاعدة البيانات
+  useEffect(() => {
+    const fetchLeads = async () => {
+      try {
+        const response = await fetch('/api/leads')
+        const result = await response.json()
+
+        if (result.success) {
+          setLeads(result.data)
+        } else {
+          console.error('Failed to fetch leads:', result.message)
+        }
+      } catch (error) {
+        console.error('Error fetching leads:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchLeads()
+  }, [])
+
+  // البيانات التجريبية كـ fallback
+  const mockLeads = [
     {
       id: 1,
       companyName: 'شركة الرياض للتجارة',

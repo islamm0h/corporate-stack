@@ -4,11 +4,45 @@ import { useEffect, useState } from 'react'
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
-    totalLeads: 1250,
-    newRequests: 45,
-    pendingResponses: 23,
-    convertedLeads: 187
+    totalLeads: 0,
+    newRequests: 0,
+    pendingResponses: 0,
+    convertedLeads: 0
   })
+  const [loading, setLoading] = useState(true)
+
+  // جلب الإحصائيات الحقيقية
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await fetch('/api/dashboard/stats?type=overview')
+        const result = await response.json()
+
+        if (result.success) {
+          const data = result.data.overview
+          setStats({
+            totalLeads: data.totalLeads || 0,
+            newRequests: data.totalRequests || 0,
+            pendingResponses: data.pendingRequests || 0,
+            convertedLeads: data.completedRequests || 0
+          })
+        }
+      } catch (error) {
+        console.error('Error fetching stats:', error)
+        // استخدام القيم الافتراضية في حالة الخطأ
+        setStats({
+          totalLeads: 1250,
+          newRequests: 45,
+          pendingResponses: 23,
+          convertedLeads: 187
+        })
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchStats()
+  }, [])
 
   const [recentActivities] = useState([
     { id: 1, user: 'شركة الرياض للتجارة', action: 'طلب عرض سعر لنظام المحاسبة', time: 'منذ 5 دقائق', type: 'request' },
