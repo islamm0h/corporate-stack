@@ -164,3 +164,35 @@ export async function POST(request: NextRequest) {
     }, { status: 500 })
   }
 }
+
+// GET method للتحقق من حالة قاعدة البيانات
+export async function GET() {
+  try {
+    await prisma.$connect()
+
+    const userCount = await prisma.user.count()
+    const systemCount = await prisma.system.count()
+    const leadCount = await prisma.lead.count()
+
+    await prisma.$disconnect()
+
+    return NextResponse.json({
+      success: true,
+      message: 'حالة قاعدة البيانات',
+      data: {
+        users: userCount,
+        systems: systemCount,
+        leads: leadCount,
+        isEmpty: userCount === 0 && systemCount === 0 && leadCount === 0
+      }
+    })
+
+  } catch (error) {
+    await prisma.$disconnect()
+    return NextResponse.json({
+      success: false,
+      message: 'فشل في الاتصال بقاعدة البيانات',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 })
+  }
+}
