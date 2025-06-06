@@ -40,6 +40,7 @@ export default function AdminLayout({
       title: 'إدارة العملاء المحتملين',
       items: [
         { href: '/admin/leads', icon: 'fas fa-users', text: 'العملاء المحتملين' },
+        { href: '/admin/assignment', icon: 'fas fa-random', text: 'توزيع العملاء' },
         { href: '/admin/requests', icon: 'fas fa-envelope', text: 'الطلبات الواردة' },
         { href: '/admin/responses', icon: 'fas fa-reply', text: 'الردود والمتابعة' },
       ]
@@ -135,6 +136,12 @@ export default function AdminLayout({
               <>
                 <i className="fas fa-users page-title-icon icon-users"></i>
                 العملاء المحتملين
+              </>
+            )}
+            {pathname === '/admin/assignment' && (
+              <>
+                <i className="fas fa-random page-title-icon icon-users"></i>
+                إدارة توزيع العملاء المحتملين
               </>
             )}
             {pathname === '/admin/requests' && (

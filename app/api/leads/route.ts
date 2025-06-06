@@ -126,8 +126,20 @@ export async function POST(request: NextRequest) {
       notes: validatedData.notes
     }
 
+    // التوزيع التلقائي أو اليدوي
+    let assignedUser = null
     if (validatedData.assignedToId) {
+      // تخصيص يدوي
       leadData.assignedToId = validatedData.assignedToId
+      assignedUser = await prisma.user.findUnique({
+        where: { id: validatedData.assignedToId }
+      })
+    } else {
+      // التوزيع التلقائي بالتناوب
+      assignedUser = await getNextUserForAssignment()
+      if (assignedUser) {
+        leadData.assignedToId = assignedUser.id
+      }
     }
 
     const lead = await prisma.lead.create({
@@ -143,6 +155,18 @@ export async function POST(request: NextRequest) {
         }
       }
     })
+
+    // تحديث إحصائيات المستخدم المخصص
+    if (assignedUser) {
+      await prisma.user.update({
+        where: { id: assignedUser.id },
+        data: {
+          lastAssigned: new Date(),
+          totalAssigned: { increment: 1 },
+          assignmentOrder: assignedUser.assignmentOrder + 1
+        }
+      })
+    }
 
     // Log activity
     await prisma.activityLog.create({
@@ -305,5 +329,33 @@ export async function DELETE(request: NextRequest) {
       { success: false, error: 'فشل في حذف العميل المحتمل' },
       { status: 500 }
     )
+  }
+}
+
+// دالة للحصول على المستخدم التالي في التوزيع بالتناوب
+async function getNextUserForAssignment() {
+  try {
+    // الحصول على جميع المستخدمين النشطين مرتبين حسب آخر تخصيص
+    const users = await prisma.user.findMany({
+      where: {
+        isActive: true,
+        role: { in: ['ADMIN', 'MANAGER', 'USER'] }
+      },
+      orderBy: [
+        { lastAssigned: 'asc' }, // الأولوية للذي لم يتم تخصيص عميل له مؤخر<|im_start|>
+        { totalAssigned: 'asc' }, // ثم الأقل في إجمالي التخصيصات
+        { createdAt: 'asc' } // ثم الأقدم في التسجيل
+      ]
+    })
+
+    if (users.length === 0) {
+      return null
+    }
+
+    // إرجاع المستخدم الأول (الأولى بالتخصيص)
+    return users[0]
+  } catch (error) {
+    console.error('Error getting next user for assignment:', error)
+    return null
   }
 }
