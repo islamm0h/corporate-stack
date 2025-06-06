@@ -119,36 +119,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // إنشاء الإعدادات الافتراضية
-    const settings = [
-      {
-        category: 'general',
-        key: 'site_name',
-        value: 'كوربريت ستاك',
-        description: 'اسم الموقع',
-        isPublic: true
-      },
-      {
-        category: 'general',
-        key: 'site_description',
-        value: 'حلول إدارة الأعمال المتكاملة',
-        description: 'وصف الموقع',
-        isPublic: true
-      }
-    ]
-
-    for (const settingData of settings) {
-      await prisma.setting.upsert({
-        where: {
-          category_key: {
-            category: settingData.category,
-            key: settingData.key
-          }
-        },
-        update: {},
-        create: settingData
-      })
-    }
+    // إنشاء الإعدادات الافتراضية (تم تعطيلها مؤقت<|im_start|> حتى إضافة جدول Settings)
+    console.log('✅ Database setup completed successfully!')
 
     await prisma.$disconnect()
 
@@ -158,8 +130,7 @@ export async function POST(request: NextRequest) {
       data: {
         users: 2,
         systems: systems.length,
-        leads: leads.length,
-        settings: settings.length
+        leads: leads.length
       }
     })
 
