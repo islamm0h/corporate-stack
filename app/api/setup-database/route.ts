@@ -121,7 +121,7 @@ export async function POST(request: NextRequest) {
         email: 'ahmed@tech-advanced.com',
         phone: '+966501234567',
         industry: 'تقنية المعلومات',
-        companySize: '50-100',
+        companySize: 'MEDIUM',
         region: 'الرياض',
         city: 'الرياض',
         source: 'موقع الويب',
