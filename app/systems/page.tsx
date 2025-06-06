@@ -40,6 +40,19 @@ export default function Systems() {
     fetchSystems()
   }, [])
 
+  // دالة لإرجاع أيقونة النظام حسب الفئة
+  const getSystemIcon = (category: string) => {
+    switch (category.toLowerCase()) {
+      case 'accounting': return 'fas fa-calculator'
+      case 'crm': return 'fas fa-users'
+      case 'hr': return 'fas fa-user-tie'
+      case 'inventory': return 'fas fa-warehouse'
+      case 'analytics': return 'fas fa-chart-line'
+      case 'ecommerce': return 'fas fa-shopping-cart'
+      default: return 'fas fa-cog'
+    }
+  }
+
   useEffect(() => {
     // تهيئة تأثير الجزيئات المتحركة
     if (typeof window !== 'undefined' && window.particlesJS) {

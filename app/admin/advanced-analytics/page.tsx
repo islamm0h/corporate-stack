@@ -5,6 +5,38 @@ import { useState, useEffect } from 'react'
 export default function AdvancedAnalytics() {
   const [selectedTimeframe, setSelectedTimeframe] = useState('6months')
   const [selectedMetric, setSelectedMetric] = useState('leads')
+  const [loading, setLoading] = useState(true)
+  const [realStats, setRealStats] = useState({
+    totalLeads: 0,
+    totalRequests: 0,
+    conversionRate: 0
+  })
+
+  // جلب الإحصائيات الحقيقية
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await fetch('/api/dashboard/stats?type=overview')
+        const result = await response.json()
+
+        if (result.success) {
+          const data = result.data.overview
+          setRealStats({
+            totalLeads: data.totalLeads || 0,
+            totalRequests: data.totalRequests || 0,
+            conversionRate: data.conversionRate || 0
+          })
+        }
+      } catch (error) {
+        console.error('Error fetching stats:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchStats()
+  }, [])
+
   const [aiInsights, setAiInsights] = useState([
     {
       id: 1,
