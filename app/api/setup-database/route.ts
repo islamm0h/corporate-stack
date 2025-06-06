@@ -7,7 +7,25 @@ export async function POST(request: NextRequest) {
   try {
     // التحقق من أن قاعدة البيانات متصلة
     await prisma.$connect()
-    
+
+    // قراءة المعاملات من الطلب
+    const body = await request.json().catch(() => ({}))
+    const { reset = false } = body
+
+    if (reset) {
+      // تصفير قاعدة البيانات
+      console.log('🗑️ Resetting database...')
+
+      await prisma.leadActivity.deleteMany({})
+      await prisma.lead.deleteMany({})
+      await prisma.systemFeature.deleteMany({})
+      await prisma.system.deleteMany({})
+      await prisma.userSession.deleteMany({})
+      await prisma.user.deleteMany({})
+
+      console.log('✅ Database reset completed')
+    }
+
     // تشغيل migrations
     console.log('🔄 Setting up database...')
     
@@ -126,8 +144,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: 'تم إعداد قاعدة البيانات بنجاح!',
+      message: reset ? 'تم تصفير وإعداد قاعدة البيانات بنجاح!' : 'تم إعداد قاعدة البيانات بنجاح!',
       data: {
+        reset: reset,
         users: 2,
         systems: systems.length,
         leads: leads.length
