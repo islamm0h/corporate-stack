@@ -16,11 +16,17 @@ export async function POST(request: NextRequest) {
       // تصفير قاعدة البيانات
       console.log('🗑️ Resetting database...')
 
-      await prisma.leadActivity.deleteMany({})
+      // حذف البيانات بالترتيب الصحيح (بسبب Foreign Keys)
+      await prisma.response.deleteMany({})
+      await prisma.quoteRequest.deleteMany({})
       await prisma.lead.deleteMany({})
-      await prisma.systemFeature.deleteMany({})
+      await prisma.systemFile.deleteMany({})
       await prisma.system.deleteMany({})
-      await prisma.userSession.deleteMany({})
+      await prisma.activityLog.deleteMany({})
+      await prisma.fileUpload.deleteMany({})
+      await prisma.backup.deleteMany({})
+      await prisma.dailyStat.deleteMany({})
+      await prisma.systemSetting.deleteMany({})
       await prisma.user.deleteMany({})
 
       console.log('✅ Database reset completed')
