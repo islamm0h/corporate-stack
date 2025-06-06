@@ -152,7 +152,7 @@ async function getCounterStats() {
 
   try {
     // Try to get data from database first
-    const prisma = (await import('@/lib/database')).default
+    await prisma.$connect()
 
     const [dbHappyClients, dbIntegratedSystems] = await Promise.all([
       // Happy clients (unique leads with positive status)
@@ -169,6 +169,8 @@ async function getCounterStats() {
         where: { isActive: true }
       })
     ])
+
+    await prisma.$disconnect()
 
     happyClients = Math.max(dbHappyClients, 1250)
     integratedSystems = Math.max(dbIntegratedSystems, 7)
