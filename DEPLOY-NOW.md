@@ -37,6 +37,12 @@ NODE_ENV=production
 
 ### 5. إعداد قاعدة البيانات (بعد النشر)
 
+**الطريقة الأولى - من خلال الموقع:**
+1. اذهب إلى: `https://cs-leads-system-d49m5kqpd-islam-mohameds-projects.vercel.app/admin/reset-all`
+2. اضغط "إعادة تعيين قاعدة البيانات"
+3. انتظر حتى اكتمال العملية
+
+**الطريقة الثانية - من خلال Terminal:**
 ```bash
 # إنشاء الجداول
 npx prisma db push --schema=database/prisma/schema.prisma
