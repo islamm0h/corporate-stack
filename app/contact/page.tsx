@@ -235,9 +235,125 @@ export default function ContactPage() {
           color: #94a3b8;
         }
 
+        /* تحسينات للهاتف المحمول */
         @media (max-width: 992px) {
           .contact-container {
-            grid-template-columns: 1fr;
+            grid-template-columns: 1fr !important;
+            gap: 30px !important;
+          }
+
+          .contact-form {
+            padding: 25px !important;
+            margin: 0 !important;
+          }
+
+          .contact-info {
+            padding: 25px !important;
+            margin-bottom: 20px !important;
+          }
+
+          .page-header {
+            height: 40vh !important;
+            padding: 40px 0 !important;
+          }
+
+          .page-header h1 {
+            font-size: 2rem !important;
+          }
+
+          .page-header p {
+            font-size: 1rem !important;
+            padding: 0 15px !important;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .contact-form input,
+          .contact-form textarea,
+          .contact-form select {
+            padding: 15px !important;
+            font-size: 16px !important; /* منع التكبير التلقائي على iOS */
+            border: 2px solid #e2e8f0 !important;
+            border-radius: 10px !important;
+            background-color: #ffffff !important;
+            color: #1e293b !important;
+          }
+
+          .contact-form input:focus,
+          .contact-form textarea:focus {
+            border-color: #0066cc !important;
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1) !important;
+            background-color: #ffffff !important;
+          }
+
+          .contact-form label {
+            font-size: 1rem !important;
+            font-weight: 600 !important;
+            color: #1e293b !important;
+            margin-bottom: 10px !important;
+          }
+
+          .contact-form button {
+            padding: 18px !important;
+            font-size: 1.1rem !important;
+            border-radius: 10px !important;
+            margin-top: 10px !important;
+          }
+
+          .contact-section {
+            padding: 40px 0 !important;
+          }
+
+          .container {
+            padding: 0 15px !important;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .contact-form {
+            padding: 20px !important;
+            border-radius: 15px !important;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1) !important;
+          }
+
+          .contact-info {
+            padding: 20px !important;
+            border-radius: 15px !important;
+          }
+
+          .contact-form input,
+          .contact-form textarea {
+            padding: 16px !important;
+            font-size: 16px !important;
+            border-width: 2px !important;
+          }
+
+          .contact-form input:focus,
+          .contact-form textarea:focus {
+            transform: scale(1.02) !important;
+            box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.15) !important;
+          }
+
+          .page-header {
+            height: 35vh !important;
+            padding: 30px 0 !important;
+          }
+
+          .page-header h1 {
+            font-size: 1.8rem !important;
+          }
+
+          .contact-form button {
+            padding: 20px !important;
+            font-size: 1.2rem !important;
+            font-weight: 700 !important;
+            border-radius: 12px !important;
+            box-shadow: 0 4px 15px rgba(0, 102, 204, 0.3) !important;
+          }
+
+          .contact-form button:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 20px rgba(0, 102, 204, 0.4) !important;
           }
         }
       `}</style>
@@ -381,14 +497,14 @@ export default function ContactPage() {
               </div>
             </div>
           )}
-          <div style={{
+          <div className="contact-container" style={{
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
             gap: '50px'
           }}>
 
             {/* Contact Info */}
-            <div style={{
+            <div className="contact-info" style={{
               backgroundColor: 'var(--primary-color)',
               color: 'white',
               padding: '40px',
@@ -613,7 +729,7 @@ export default function ContactPage() {
             </div>
 
             {/* Contact Form */}
-            <div style={{
+            <div className="contact-form" style={{
               backgroundColor: 'white',
               padding: '40px',
               borderRadius: '10px',
@@ -677,7 +793,10 @@ export default function ContactPage() {
                       border: '1px solid #e2e8f0',
                       fontFamily: 'Tajawal, sans-serif',
                       fontSize: '1rem',
-                      transition: 'all 0.3s ease'
+                      transition: 'all 0.3s ease',
+                      backgroundColor: '#ffffff',
+                      color: '#1e293b',
+                      boxSizing: 'border-box'
                     }}
                   />
                 </div>
@@ -703,7 +822,10 @@ export default function ContactPage() {
                       border: '1px solid #e2e8f0',
                       fontFamily: 'Tajawal, sans-serif',
                       fontSize: '1rem',
-                      transition: 'all 0.3s ease'
+                      transition: 'all 0.3s ease',
+                      backgroundColor: '#ffffff',
+                      color: '#1e293b',
+                      boxSizing: 'border-box'
                     }}
                   />
                 </div>
@@ -730,7 +852,10 @@ export default function ContactPage() {
                       border: '1px solid #e2e8f0',
                       fontFamily: 'Tajawal, sans-serif',
                       fontSize: '1rem',
-                      transition: 'all 0.3s ease'
+                      transition: 'all 0.3s ease',
+                      backgroundColor: '#ffffff',
+                      color: '#1e293b',
+                      boxSizing: 'border-box'
                     }}
                   />
                 </div>
@@ -757,7 +882,10 @@ export default function ContactPage() {
                       border: '1px solid #e2e8f0',
                       fontFamily: 'Tajawal, sans-serif',
                       fontSize: '1rem',
-                      transition: 'all 0.3s ease'
+                      transition: 'all 0.3s ease',
+                      backgroundColor: '#ffffff',
+                      color: '#1e293b',
+                      boxSizing: 'border-box'
                     }}
                   />
                 </div>
@@ -784,7 +912,10 @@ export default function ContactPage() {
                       border: '1px solid #e2e8f0',
                       fontFamily: 'Tajawal, sans-serif',
                       fontSize: '1rem',
-                      transition: 'all 0.3s ease'
+                      transition: 'all 0.3s ease',
+                      backgroundColor: '#ffffff',
+                      color: '#1e293b',
+                      boxSizing: 'border-box'
                     }}
                   />
                 </div>
@@ -812,7 +943,10 @@ export default function ContactPage() {
                       fontFamily: 'Tajawal, sans-serif',
                       fontSize: '1rem',
                       transition: 'all 0.3s ease',
-                      resize: 'vertical'
+                      resize: 'vertical',
+                      backgroundColor: '#ffffff',
+                      color: '#1e293b',
+                      boxSizing: 'border-box'
                     }}
                   />
                 </div>
