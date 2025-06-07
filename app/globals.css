@@ -7,6 +7,82 @@
  * الملف الرئيسي لتنسيقات واجهة المستخدم
  */
 
+/* منع الوضع الداكن التلقائي */
+html {
+  color-scheme: light only;
+}
+
+/* إجبار الوضع الفاتح على جميع العناصر */
+*, *::before, *::after {
+  color-scheme: light only;
+}
+
+/* منع تطبيق الوضع الداكن من النظام */
+@media (prefers-color-scheme: dark) {
+  html, body {
+    background-color: #ffffff !important;
+    color: #1e293b !important;
+  }
+
+  * {
+    background-color: inherit !important;
+    color: inherit !important;
+  }
+
+  /* إجبار الخلفيات البيضاء */
+  .bg-white, .bg-gray-50, .bg-gray-100 {
+    background-color: #ffffff !important;
+  }
+
+  /* إجبار النصوص الداكنة */
+  .text-gray-900, .text-gray-800, .text-gray-700 {
+    color: #1e293b !important;
+  }
+
+  /* إجبار الحدود الفاتحة */
+  .border-gray-200, .border-gray-300 {
+    border-color: #e2e8f0 !important;
+  }
+}
+
+/* تنسيقات خاصة بالهاتف المحمول لضمان الوضع الفاتح */
+@media (max-width: 768px) {
+  html, body {
+    background-color: #ffffff !important;
+    color: #1e293b !important;
+    -webkit-color-scheme: light only !important;
+    color-scheme: light only !important;
+  }
+
+  /* منع تطبيق الوضع الداكن على العناصر التفاعلية */
+  input, textarea, select, button {
+    background-color: #ffffff !important;
+    color: #1e293b !important;
+    border-color: #e2e8f0 !important;
+  }
+
+  /* منع الوضع الداكن على النوافذ المنبثقة */
+  .modal, .dropdown, .tooltip {
+    background-color: #ffffff !important;
+    color: #1e293b !important;
+  }
+}
+
+/* تنسيقات خاصة بـ Safari على iOS */
+@supports (-webkit-touch-callout: none) {
+  html, body {
+    -webkit-color-scheme: light only !important;
+    color-scheme: light only !important;
+    background-color: #ffffff !important;
+  }
+
+  /* منع الوضع الداكن في شريط العنوان */
+  :root {
+    color-scheme: light only;
+    -webkit-color-scheme: light only;
+  }
+}
+
 :root {
     --primary-color: #0066cc;
     --primary-light: #e6f0ff;
@@ -38,12 +114,14 @@
 
 body {
     font-family: 'Tajawal', sans-serif;
-    background-color: #ffffff;
-    color: var(--secondary-color);
+    background-color: #ffffff !important;
+    color: var(--secondary-color) !important;
     line-height: 1.6;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
+    color-scheme: light only;
+    -webkit-color-scheme: light only;
 }
 
 a {
