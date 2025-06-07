@@ -6,6 +6,7 @@ import Link from 'next/link'
 export default function Home() {
   const [showSplash, setShowSplash] = useState(true)
   const [progress, setProgress] = useState(0)
+  const [fadeOut, setFadeOut] = useState(false)
   const [stats, setStats] = useState({
     happyClients: 1250,
     integratedSystems: 6,
@@ -14,20 +15,22 @@ export default function Home() {
   })
 
   useEffect(() => {
-    // تحريك شريط التحميل
+    // تحريك شريط التحميل بسرعة مثالية
     let width = 0
     const interval = setInterval(() => {
       if (width >= 100) {
         clearInterval(interval)
+        // بدء تأثير الاختفاء
+        setFadeOut(true)
         // إخفاء صفحة التحميل وعرض المحتوى الرئيسي
         setTimeout(() => {
           setShowSplash(false)
         }, 500)
       } else {
-        width += 1
+        width += 10 // زيادة السرعة إلى 10 لكل خطوة
         setProgress(width)
       }
-    }, 50)
+    }, 100) // 100ms لكل خطوة = إجمالي 1 ثانية
 
     return () => clearInterval(interval)
   }, [])
@@ -56,7 +59,7 @@ export default function Home() {
   // عرض صفحة التحميل
   if (showSplash) {
     return (
-      <div className="splash-body">
+      <div className={`splash-body ${fadeOut ? 'fade-out' : ''}`}>
         <div className="splash-container">
           <div className="logo-container">
             <img src="/logo.svg" alt="كوربريت ستاك" className="logo" />
@@ -119,20 +122,15 @@ export default function Home() {
               نقدم حلولاً متكاملة لإدارة الأعمال تساعدك على تحسين الكفاءة وزيادة الإنتاجية وتحقيق النمو المستدام.
             </p>
             <div className="hero-buttons">
-              <a
-                href="#"
+              <Link
+                href="/contact?trial=true"
                 className="btn btn-primary btn-free-trial"
-                onClick={(e) => {
-                  e.preventDefault()
-                  // سيتم ربطه بدومين آخر لاحقاً
-                  alert('سيتم توجيهك لصفحة التسجيل قريباً')
-                }}
               >
                 <i className="fas fa-gift"></i> تجربة مجانية 14 يوم
-              </a>
-              <a href="/systems" className="btn btn-secondary">
+              </Link>
+              <Link href="/systems" className="btn btn-secondary">
                 <i className="fas fa-th-large"></i> استكشف الأنظمة
-              </a>
+              </Link>
               <a href="/contact" className="btn btn-outline">
                 <i className="fas fa-headset"></i> تواصل معنا
               </a>

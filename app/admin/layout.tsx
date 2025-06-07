@@ -58,6 +58,7 @@ export default function AdminLayout({
       items: [
         { href: '/admin/systems-management', icon: 'fas fa-cogs', text: 'إدارة الأنظمة' },
         { href: '/admin/users', icon: 'fas fa-users-cog', text: 'إدارة المستخدمين' },
+        { href: '/admin/data-management', icon: 'fas fa-database', text: 'إدارة البيانات' },
         { href: '/admin/settings', icon: 'fas fa-cog', text: 'إعدادات النظام' },
       ]
     }
@@ -185,6 +186,12 @@ export default function AdminLayout({
               <>
                 <i className="fas fa-users page-title-icon icon-users"></i>
                 إدارة المستخدمين والصلاحيات
+              </>
+            )}
+            {pathname === '/admin/data-management' && (
+              <>
+                <i className="fas fa-database page-title-icon icon-database"></i>
+                إدارة البيانات
               </>
             )}
             {pathname === '/admin/settings' && (

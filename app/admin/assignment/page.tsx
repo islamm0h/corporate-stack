@@ -1,5 +1,7 @@
 'use client'
 
+'use client'
+
 import { useState, useEffect } from 'react'
 
 interface User {
@@ -208,10 +210,10 @@ export default function AssignmentManagement() {
             <div>
               <h4 className="font-medium text-gray-900 mb-2">التوزيع التلقائي:</h4>
               <ul className="text-sm text-gray-600 space-y-1">
-                <li>• عند تعبئة نموذج جديد، يتم توزيع العميل تلقائي<|im_start|></li>
-                <li>• يتم التوزيع على المستخدم الذي لم يحصل على عميل مؤخر<|im_start|></li>
+                <li>• عند تعبئة نموذج جديد، يتم توزيع العميل تلقائياً</li>
+                <li>• يتم التوزيع على المستخدم الذي لم يحصل على عميل مؤخراً</li>
                 <li>• في حالة التساوي، يتم التوزيع على الأقل في إجمالي التخصيصات</li>
-                <li>• يتم تحديث ترتيب التوزيع تلقائي<|im_start|></li>
+                <li>• يتم تحديث ترتيب التوزيع تلقائياً</li>
               </ul>
             </div>
             <div>

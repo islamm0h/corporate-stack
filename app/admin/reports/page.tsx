@@ -17,11 +17,12 @@ export default function ReportsPage() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const response = await fetch('/api/dashboard/stats?type=overview')
-        const result = await response.json()
+        // جلب الإحصائيات العامة
+        const overviewResponse = await fetch('/api/dashboard/stats?type=overview')
+        const overviewResult = await overviewResponse.json()
 
-        if (result.success) {
-          const data = result.data.overview
+        if (overviewResult.success) {
+          const data = overviewResult.data.overview
           setRealStats({
             totalLeads: data.totalLeads || 0,
             totalRequests: data.totalRequests || 0,
@@ -29,6 +30,35 @@ export default function ReportsPage() {
             conversionRate: data.conversionRate || 0
           })
         }
+
+        // جلب البيانات الشهرية
+        const trendsResponse = await fetch('/api/analytics/trends')
+        const trendsResult = await trendsResponse.json()
+
+        if (trendsResult.success && trendsResult.data.length > 0) {
+          setMonthlyData(trendsResult.data.map(item => ({
+            month: item.month,
+            leads: item.leads || 0,
+            requests: item.requests || 0,
+            conversions: item.conversions || 0
+          })))
+        }
+
+        // جلب بيانات الأنظمة
+        const systemsResponse = await fetch('/api/dashboard/stats?type=systems')
+        const systemsResult = await systemsResponse.json()
+
+        if (systemsResult.success && systemsResult.data.topSystems.length > 0) {
+          const systemsData = systemsResult.data.topSystems.map((system, index) => ({
+            name: system.name,
+            requests: system.count || 0,
+            conversions: Math.floor((system.count || 0) * 0.7), // تقدير التحويلات
+            rate: system.count > 0 ? Math.floor((Math.floor((system.count || 0) * 0.7) / system.count) * 100) : 0,
+            color: ['var(--primary-color)', 'var(--success-color)', 'var(--warning-color)', 'var(--secondary-color)', 'var(--danger-color)'][index] || 'var(--gray-color)'
+          }))
+          setSystemDemand(systemsData)
+        }
+
       } catch (error) {
         console.error('Error fetching stats:', error)
       } finally {
@@ -48,30 +78,24 @@ export default function ReportsPage() {
     { id: 'performance', name: 'تقرير الأداء', icon: 'fas fa-tachometer-alt' }
   ]
 
-  const monthlyData = [
-    { month: 'يناير', leads: 180, requests: 65, conversions: 28 },
-    { month: 'فبراير', leads: 195, requests: 72, conversions: 31 },
-    { month: 'مارس', leads: 210, requests: 78, conversions: 35 },
-    { month: 'أبريل', leads: 225, requests: 85, conversions: 38 },
-    { month: 'مايو', leads: 215, requests: 68, conversions: 32 },
-    { month: 'يونيو', leads: 225, requests: 57, conversions: 26 }
-  ]
+  const [monthlyData, setMonthlyData] = useState([
+    { month: 'يناير', leads: 0, requests: 0, conversions: 0 },
+    { month: 'فبراير', leads: 0, requests: 0, conversions: 0 },
+    { month: 'مارس', leads: 0, requests: 0, conversions: 0 },
+    { month: 'أبريل', leads: 0, requests: 0, conversions: 0 },
+    { month: 'مايو', leads: 0, requests: 0, conversions: 0 },
+    { month: 'يونيو', leads: 0, requests: 0, conversions: 0 }
+  ])
 
-  const systemDemand = [
-    { name: 'نظام المحاسبة', requests: 145, conversions: 98, rate: 67.6, color: 'var(--primary-color)' },
-    { name: 'إدارة العملاء', requests: 98, conversions: 71, rate: 72.4, color: 'var(--success-color)' },
-    { name: 'الموارد البشرية', requests: 76, conversions: 49, rate: 64.5, color: 'var(--warning-color)' },
-    { name: 'إدارة المخزون', requests: 64, conversions: 37, rate: 57.8, color: 'var(--secondary-color)' },
-    { name: 'إدارة المشاريع', requests: 42, conversions: 22, rate: 52.4, color: 'var(--danger-color)' }
-  ]
+  const [systemDemand, setSystemDemand] = useState([
+    { name: 'نظام المحاسبة', requests: 0, conversions: 0, rate: 0, color: 'var(--primary-color)' },
+    { name: 'إدارة العملاء', requests: 0, conversions: 0, rate: 0, color: 'var(--success-color)' },
+    { name: 'الموارد البشرية', requests: 0, conversions: 0, rate: 0, color: 'var(--warning-color)' },
+    { name: 'إدارة المخزون', requests: 0, conversions: 0, rate: 0, color: 'var(--secondary-color)' },
+    { name: 'إدارة المشاريع', requests: 0, conversions: 0, rate: 0, color: 'var(--danger-color)' }
+  ])
 
-  const recentReports = [
-    { id: 1, name: 'تقرير العملاء المحتملين الشهري', type: 'عملاء محتملين', date: '2024-01-15', size: '2.3 MB', status: 'مكتمل' },
-    { id: 2, name: 'تقرير الطلبات والاستفسارات', type: 'طلبات', date: '2024-01-14', size: '1.8 MB', status: 'مكتمل' },
-    { id: 3, name: 'تقرير التحويلات الناجحة', type: 'تحويلات', date: '2024-01-13', size: '950 KB', status: 'مكتمل' },
-    { id: 4, name: 'تقرير أداء المناطق', type: 'مناطق', date: '2024-01-12', size: '1.2 MB', status: 'قيد المعالجة' },
-    { id: 5, name: 'تقرير مصادر العملاء الربعي', type: 'مصادر', date: '2024-01-10', size: '3.1 MB', status: 'مكتمل' }
-  ]
+  const [recentReports, setRecentReports] = useState([])
 
   return (
     <>
@@ -82,13 +106,9 @@ export default function ReportsPage() {
             <div className="stat-icon">
               <i className="fas fa-file-alt"></i>
             </div>
-            <div className="stat-trend up">
-              <i className="fas fa-arrow-up"></i>
-              +15%
-            </div>
           </div>
           <div className="stat-body">
-            <div className="stat-value">156</div>
+            <div className="stat-value">{loading ? '...' : '0'}</div>
             <div className="stat-label">التقارير المُنشأة</div>
           </div>
           <div className="stat-footer">
@@ -101,13 +121,9 @@ export default function ReportsPage() {
             <div className="stat-icon">
               <i className="fas fa-download"></i>
             </div>
-            <div className="stat-trend up">
-              <i className="fas fa-arrow-up"></i>
-              +8%
-            </div>
           </div>
           <div className="stat-body">
-            <div className="stat-value">2,340</div>
+            <div className="stat-value">{loading ? '...' : '0'}</div>
             <div className="stat-label">مرات التحميل</div>
           </div>
           <div className="stat-footer">
@@ -122,7 +138,7 @@ export default function ReportsPage() {
             </div>
           </div>
           <div className="stat-body">
-            <div className="stat-value">12</div>
+            <div className="stat-value">{loading ? '...' : '0'}</div>
             <div className="stat-label">تقارير مجدولة</div>
           </div>
           <div className="stat-footer">
@@ -137,7 +153,7 @@ export default function ReportsPage() {
             </div>
           </div>
           <div className="stat-body">
-            <div className="stat-value">3</div>
+            <div className="stat-value">{loading ? '...' : '0'}</div>
             <div className="stat-label">تقارير فاشلة</div>
           </div>
           <div className="stat-footer">
@@ -223,32 +239,52 @@ export default function ReportsPage() {
               {/* رسم بياني للبيانات الشهرية */}
               <div style={{ marginBottom: '30px' }}>
                 <h4 style={{ marginBottom: '20px', color: 'var(--secondary-color)' }}>الأداء الشهري</h4>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '15px' }}>
-                  {monthlyData.map((data, index) => (
-                    <div key={index} style={{
-                      background: '#f8fafc',
-                      padding: '15px',
-                      borderRadius: '10px',
-                      textAlign: 'center'
-                    }}>
-                      <div style={{ fontSize: '0.8rem', color: 'var(--gray-color)', marginBottom: '8px' }}>
-                        {data.month}
+                {loading ? (
+                  <div style={{ textAlign: 'center', padding: '40px', color: 'var(--gray-color)' }}>
+                    <i className="fas fa-spinner fa-spin" style={{ fontSize: '2rem', marginBottom: '10px' }}></i>
+                    <div>جاري تحميل البيانات الشهرية...</div>
+                  </div>
+                ) : (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '15px' }}>
+                    {monthlyData.map((data, index) => (
+                      <div key={index} style={{
+                        background: '#f8fafc',
+                        padding: '15px',
+                        borderRadius: '10px',
+                        textAlign: 'center'
+                      }}>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--gray-color)', marginBottom: '8px' }}>
+                          {data.month}
+                        </div>
+                        <div style={{ fontSize: '1.2rem', fontWeight: '600', color: 'var(--primary-color)', marginBottom: '5px' }}>
+                          {data.leads}
+                        </div>
+                        <div style={{ fontSize: '0.7rem', color: 'var(--gray-color)' }}>
+                          عميل محتمل
+                        </div>
                       </div>
-                      <div style={{ fontSize: '1.2rem', fontWeight: '600', color: 'var(--primary-color)', marginBottom: '5px' }}>
-                        {data.leads}
-                      </div>
-                      <div style={{ fontSize: '0.7rem', color: 'var(--gray-color)' }}>
-                        عميل محتمل
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* الطلب على الأنظمة */}
               <div>
                 <h4 style={{ marginBottom: '20px', color: 'var(--secondary-color)' }}>الطلب على الأنظمة</h4>
-                {systemDemand.map((system, index) => (
+                {loading ? (
+                  <div style={{ textAlign: 'center', padding: '40px', color: 'var(--gray-color)' }}>
+                    <i className="fas fa-spinner fa-spin" style={{ fontSize: '2rem', marginBottom: '10px' }}></i>
+                    <div>جاري تحميل بيانات الأنظمة...</div>
+                  </div>
+                ) : systemDemand.every(system => system.requests === 0) ? (
+                  <div style={{ textAlign: 'center', padding: '40px', color: 'var(--gray-color)' }}>
+                    <i className="fas fa-chart-bar" style={{ fontSize: '2rem', marginBottom: '10px' }}></i>
+                    <div>لا توجد بيانات للأنظمة</div>
+                    <div style={{ fontSize: '0.9rem', marginTop: '5px' }}>
+                      أضف طلبات لعرض إحصائيات الأنظمة
+                    </div>
+                  </div>
+                ) : systemDemand.map((system, index) => (
                   <div key={index} style={{ marginBottom: '20px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                       <span style={{ fontWeight: '500', color: 'var(--secondary-color)' }}>
@@ -331,7 +367,17 @@ export default function ReportsPage() {
             </tr>
           </thead>
           <tbody>
-            {recentReports.map((report) => (
+            {recentReports.length === 0 ? (
+              <tr>
+                <td colSpan={6} style={{ textAlign: 'center', padding: '40px', color: 'var(--gray-color)' }}>
+                  <i className="fas fa-file-alt" style={{ fontSize: '2rem', marginBottom: '10px' }}></i>
+                  <div>لا توجد تقارير</div>
+                  <div style={{ fontSize: '0.9rem', marginTop: '5px' }}>
+                    لم يتم إنشاء أي تقارير بعد
+                  </div>
+                </td>
+              </tr>
+            ) : recentReports.map((report) => (
               <tr key={report.id}>
                 <td style={{ fontWeight: '600', color: 'var(--secondary-color)' }}>
                   {report.name}

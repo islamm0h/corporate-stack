@@ -44,40 +44,156 @@ export default function AdminDashboard() {
     fetchStats()
   }, [])
 
-  const [recentActivities] = useState([
-    { id: 1, user: 'شركة الرياض للتجارة', action: 'طلب عرض سعر لنظام المحاسبة', time: 'منذ 5 دقائق', type: 'request' },
-    { id: 2, user: 'مؤسسة جدة للخدمات', action: 'استفسار عن نظام إدارة العملاء', time: 'منذ 15 دقيقة', type: 'inquiry' },
-    { id: 3, user: 'شركة الدمام الصناعية', action: 'تم الرد على الاستفسار', time: 'منذ 30 دقيقة', type: 'response' },
-    { id: 4, user: 'مكتب الخبر الاستشاري', action: 'طلب عرض تقديمي', time: 'منذ ساعة', type: 'demo' },
-    { id: 5, user: 'شركة المدينة التقنية', action: 'تحويل إلى عميل', time: 'منذ ساعتين', type: 'convert' }
-  ])
+  const [recentActivities, setRecentActivities] = useState([])
+  const [isLoadingActivities, setIsLoadingActivities] = useState(true)
 
-  const [topRequestedSystems] = useState([
-    { name: 'نظام المحاسبة والفاتورة الإلكترونية', requests: 45, percentage: 35 },
-    { name: 'نظام إدارة العملاء (CRM)', requests: 32, percentage: 25 },
-    { name: 'نظام إدارة الموارد البشرية', requests: 28, percentage: 22 },
-    { name: 'نظام إدارة المخزون', requests: 15, percentage: 12 },
-    { name: 'نظام إدارة المشاريع', requests: 8, percentage: 6 }
-  ])
+  // جلب النشاطات الحقيقية
+  useEffect(() => {
+    const fetchRecentActivities = async () => {
+      try {
+        setIsLoadingActivities(true)
+        const response = await fetch('/api/dashboard/stats?type=recent')
+        const result = await response.json()
+
+        if (result.success) {
+          // تحويل البيانات إلى تنسيق النشاطات
+          const activities = []
+
+          // إضافة العملاء المحتملين الجدد
+          if (result.data.recentLeads) {
+            result.data.recentLeads.forEach(lead => {
+              activities.push({
+                id: `lead-${lead.id}`,
+                user: lead.companyName,
+                action: `عميل محتمل جديد من ${lead.source === 'WEBSITE' ? 'الموقع' : lead.source}`,
+                time: formatTimeAgo(lead.createdAt),
+                type: 'lead',
+                createdAt: lead.createdAt
+              })
+            })
+          }
+
+          // إضافة طلبات الأسعار الجديدة
+          if (result.data.recentRequests) {
+            result.data.recentRequests.forEach(request => {
+              activities.push({
+                id: `request-${request.id}`,
+                user: request.lead.companyName,
+                action: `طلب ${request.requestType === 'QUOTE' ? 'عرض سعر' : 'استفسار'}`,
+                time: formatTimeAgo(request.createdAt),
+                type: 'request',
+                createdAt: request.createdAt
+              })
+            })
+          }
+
+          // إضافة الردود الجديدة
+          if (result.data.recentResponses) {
+            result.data.recentResponses.forEach(response => {
+              activities.push({
+                id: `response-${response.id}`,
+                user: response.request.lead.companyName,
+                action: `تم الرد على ${response.responseType === 'EMAIL' ? 'البريد الإلكتروني' : 'الطلب'}`,
+                time: formatTimeAgo(response.createdAt),
+                type: 'response',
+                createdAt: response.createdAt
+              })
+            })
+          }
+
+          // ترتيب النشاطات حسب التاريخ
+          activities.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+
+          setRecentActivities(activities.slice(0, 5))
+        }
+      } catch (error) {
+        console.error('Error fetching recent activities:', error)
+        // في حالة الخطأ، عرض رسالة
+        setRecentActivities([
+          { id: 1, user: 'لا توجد بيانات', action: 'قاعدة البيانات فارغة - أضف بيانات جديدة', time: 'الآن', type: 'info' }
+        ])
+      } finally {
+        setIsLoadingActivities(false)
+      }
+    }
+
+    fetchRecentActivities()
+  }, [])
+
+  // دالة لتنسيق الوقت
+  const formatTimeAgo = (dateString: string) => {
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60))
+
+    if (diffInMinutes < 1) return 'الآن'
+    if (diffInMinutes < 60) return `منذ ${diffInMinutes} دقيقة`
+
+    const diffInHours = Math.floor(diffInMinutes / 60)
+    if (diffInHours < 24) return `منذ ${diffInHours} ساعة`
+
+    const diffInDays = Math.floor(diffInHours / 24)
+    return `منذ ${diffInDays} يوم`
+  }
+
+  const [topRequestedSystems, setTopRequestedSystems] = useState([])
+  const [isLoadingTopSystems, setIsLoadingTopSystems] = useState(true)
+
+  // جلب الأنظمة الأكثر طلباً
+  useEffect(() => {
+    const fetchTopSystems = async () => {
+      try {
+        setIsLoadingTopSystems(true)
+        const response = await fetch('/api/dashboard/stats?type=systems')
+        const result = await response.json()
+
+        if (result.success && result.data.topSystems) {
+          // تحويل البيانات إلى التنسيق المطلوب
+          const systemsData = result.data.topSystems.map(system => ({
+            name: system.name,
+            requests: system.requestCount || 0,
+            percentage: system.percentage || 0
+          }))
+
+          setTopRequestedSystems(systemsData)
+        } else {
+          // إذا لم توجد بيانات، عرض قائمة فارغة
+          setTopRequestedSystems([])
+        }
+      } catch (error) {
+        console.error('Error fetching top systems:', error)
+        // في حالة الخطأ، عرض قائمة فارغة
+        setTopRequestedSystems([])
+      } finally {
+        setIsLoadingTopSystems(false)
+      }
+    }
+
+    fetchTopSystems()
+  }, [])
 
   const getActivityIcon = (type: string) => {
     switch (type) {
+      case 'lead': return 'fas fa-user-plus'
       case 'request': return 'fas fa-envelope'
       case 'inquiry': return 'fas fa-question-circle'
       case 'response': return 'fas fa-reply'
       case 'demo': return 'fas fa-presentation'
       case 'convert': return 'fas fa-check-circle'
+      case 'info': return 'fas fa-info-circle'
       default: return 'fas fa-info-circle'
     }
   }
 
   const getActivityColor = (type: string) => {
     switch (type) {
-      case 'request': return 'var(--primary-color)'
+      case 'lead': return 'var(--primary-color)'
+      case 'request': return 'var(--warning-color)'
       case 'inquiry': return 'var(--warning-color)'
       case 'response': return 'var(--success-color)'
       case 'demo': return 'var(--secondary-color)'
       case 'convert': return 'var(--success-color)'
+      case 'info': return 'var(--gray-color)'
       default: return 'var(--gray-color)'
     }
   }
@@ -176,7 +292,18 @@ export default function AdminDashboard() {
             </div>
           </div>
           <div style={{ padding: '20px' }}>
-            {recentActivities.map((activity) => (
+            {isLoadingActivities ? (
+              <div style={{ textAlign: 'center', padding: '40px', color: 'var(--gray-color)' }}>
+                <i className="fas fa-spinner fa-spin" style={{ fontSize: '2rem', marginBottom: '10px' }}></i>
+                <div>جاري تحميل النشاطات...</div>
+              </div>
+            ) : recentActivities.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '40px', color: 'var(--gray-color)' }}>
+                <i className="fas fa-inbox" style={{ fontSize: '2rem', marginBottom: '10px' }}></i>
+                <div>لا توجد نشاطات حديثة</div>
+                <div style={{ fontSize: '0.9rem', marginTop: '5px' }}>أضف بيانات جديدة لرؤية النشاطات</div>
+              </div>
+            ) : recentActivities.map((activity) => (
               <div key={activity.id} style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -223,7 +350,18 @@ export default function AdminDashboard() {
             </div>
           </div>
           <div style={{ padding: '20px' }}>
-            {topRequestedSystems.map((system, index) => (
+            {isLoadingTopSystems ? (
+              <div style={{ textAlign: 'center', padding: '40px', color: 'var(--gray-color)' }}>
+                <i className="fas fa-spinner fa-spin" style={{ fontSize: '2rem', marginBottom: '10px' }}></i>
+                <div>جاري تحميل الأنظمة الأكثر طلباً...</div>
+              </div>
+            ) : topRequestedSystems.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '40px', color: 'var(--gray-color)' }}>
+                <i className="fas fa-chart-bar" style={{ fontSize: '2rem', marginBottom: '10px' }}></i>
+                <div>لا توجد بيانات للأنظمة</div>
+                <div style={{ fontSize: '0.9rem', marginTop: '5px' }}>أضف طلبات جديدة لرؤية الأنظمة الأكثر طلباً</div>
+              </div>
+            ) : topRequestedSystems.map((system, index) => (
               <div key={index} style={{
                 display: 'flex',
                 alignItems: 'center',

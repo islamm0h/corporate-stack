@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate --schema=database/prisma/schema.prisma && next build",
+    "postinstall": "prisma generate --schema=database/prisma/schema.prisma",
     "start": "next start",
     "lint": "next lint",
     "db:setup": "chmod +x scripts/setup-database.sh && ./scripts/setup-database.sh",
@@ -26,6 +27,7 @@
   },
   "dependencies": {
     "@prisma/client": "^6.8.2",
+    "@prisma/extension-accelerate": "^1.1.0",
     "autoprefixer": "^10.4.21",
     "bcryptjs": "^2.4.3",
     "date-fns": "^2.30.0",

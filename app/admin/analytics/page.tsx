@@ -15,46 +15,38 @@ export default function AnalyticsPage() {
       avgResponseTime: 0,
       customerSatisfaction: 4.6
     },
-    monthlyTrends: [
-      { month: 'يناير', leads: 180, requests: 65, conversions: 28 },
-      { month: 'فبراير', leads: 195, requests: 72, conversions: 31 },
-      { month: 'مارس', leads: 210, requests: 78, conversions: 35 },
-      { month: 'أبريل', leads: 225, requests: 85, conversions: 38 },
-      { month: 'مايو', leads: 215, requests: 68, conversions: 32 },
-      { month: 'يونيو', leads: 225, requests: 57, conversions: 26 }
-    ],
-    leadSources: [
-      { source: 'موقع الويب', count: 485, percentage: 38.8 },
-      { source: 'Google Ads', count: 312, percentage: 25.0 },
-      { source: 'إحالات', count: 225, percentage: 18.0 },
-      { source: 'LinkedIn', count: 138, percentage: 11.0 },
-      { source: 'معارض تجارية', count: 90, percentage: 7.2 }
-    ],
-    systemPerformance: [
-      { system: 'نظام المحاسبة', requests: 145, conversions: 98, rate: 67.6 },
-      { system: 'إدارة العملاء', requests: 98, conversions: 71, rate: 72.4 },
-      { system: 'الموارد البشرية', requests: 76, conversions: 49, rate: 64.5 },
-      { system: 'إدارة المخزون', requests: 64, conversions: 37, rate: 57.8 },
-      { system: 'إدارة المشاريع', requests: 42, conversions: 22, rate: 52.4 }
-    ],
-    regionalPerformance: [
-      { region: 'الرياض', leads: 450, conversions: 67, rate: 14.9 },
-      { region: 'مكة المكرمة', leads: 320, conversions: 45, rate: 14.1 },
-      { region: 'المنطقة الشرقية', leads: 280, conversions: 38, rate: 13.6 },
-      { region: 'المدينة المنورة', leads: 180, conversions: 22, rate: 12.2 },
-      { region: 'القصيم', leads: 150, conversions: 19, rate: 12.7 }
-    ]
+    monthlyTrends: [],
+    leadSources: [],
+    systemPerformance: [],
+    regionalPerformance: []
   })
 
-  // جلب الإحصائيات الحقيقية
+  // جلب جميع البيانات التحليلية
   useEffect(() => {
-    const fetchAnalytics = async () => {
+    const fetchAllAnalytics = async () => {
       try {
-        const response = await fetch('/api/dashboard/stats?type=overview')
-        const result = await response.json()
+        setLoading(true)
 
-        if (result.success) {
-          const data = result.data.overview
+        // جلب البيانات العامة
+        const [overviewRes, trendsRes, sourcesRes, systemsRes, regionsRes] = await Promise.all([
+          fetch('/api/dashboard/stats?type=overview'),
+          fetch('/api/analytics/trends'),
+          fetch('/api/analytics/sources'),
+          fetch('/api/analytics/systems'),
+          fetch('/api/analytics/regions')
+        ])
+
+        const [overview, trends, sources, systems, regions] = await Promise.all([
+          overviewRes.json(),
+          trendsRes.json(),
+          sourcesRes.json(),
+          systemsRes.json(),
+          regionsRes.json()
+        ])
+
+        // تحديث البيانات العامة
+        if (overview.success) {
+          const data = overview.data.overview
           setAnalyticsData(prev => ({
             ...prev,
             overview: {
@@ -67,15 +59,56 @@ export default function AnalyticsPage() {
             }
           }))
         }
+
+        // تحديث الاتجاهات الشهرية
+        if (trends.success && trends.data.length > 0) {
+          setAnalyticsData(prev => ({
+            ...prev,
+            monthlyTrends: trends.data
+          }))
+        }
+
+        // تحديث مصادر العملاء
+        if (sources.success && sources.data.length > 0) {
+          setAnalyticsData(prev => ({
+            ...prev,
+            leadSources: sources.data
+          }))
+        }
+
+        // تحديث أداء الأنظمة
+        if (systems.success && systems.data.length > 0) {
+          setAnalyticsData(prev => ({
+            ...prev,
+            systemPerformance: systems.data
+          }))
+        }
+
+        // تحديث أداء المناطق
+        if (regions.success && regions.data.length > 0) {
+          setAnalyticsData(prev => ({
+            ...prev,
+            regionalPerformance: regions.data
+          }))
+        }
+
       } catch (error) {
         console.error('Error fetching analytics:', error)
+        // في حالة الخطأ، استخدام بيانات فارغة
+        setAnalyticsData(prev => ({
+          ...prev,
+          monthlyTrends: [],
+          leadSources: [],
+          systemPerformance: [],
+          regionalPerformance: []
+        }))
       } finally {
         setLoading(false)
       }
     }
 
-    fetchAnalytics()
-  }, [])
+    fetchAllAnalytics()
+  }, [timeRange])
 
   const getMaxValue = (data: any[], key: string) => {
     return Math.max(...data.map(item => item[key]))
@@ -196,13 +229,26 @@ export default function AnalyticsPage() {
             </div>
           </div>
           <div style={{ padding: '30px' }}>
-            {/* رسم بياني للعملاء المحتملين */}
-            <div style={{ marginBottom: '30px' }}>
-              <h4 style={{ marginBottom: '20px', color: 'var(--secondary-color)', fontSize: '1.1rem' }}>
-                العملاء المحتملين الجدد
-              </h4>
-              <div style={{ display: 'flex', alignItems: 'end', gap: '15px', height: '180px' }}>
-                {analyticsData.monthlyTrends.map((data, index) => {
+            {loading ? (
+              <div style={{ textAlign: 'center', padding: '60px', color: 'var(--gray-color)' }}>
+                <i className="fas fa-spinner fa-spin" style={{ fontSize: '2rem', marginBottom: '10px' }}></i>
+                <div>جاري تحميل الاتجاهات الشهرية...</div>
+              </div>
+            ) : analyticsData.monthlyTrends.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px', color: 'var(--gray-color)' }}>
+                <i className="fas fa-chart-line" style={{ fontSize: '2rem', marginBottom: '10px' }}></i>
+                <div>لا توجد بيانات للاتجاهات الشهرية</div>
+                <div style={{ fontSize: '0.9rem', marginTop: '5px' }}>أضف بيانات جديدة لرؤية الاتجاهات</div>
+              </div>
+            ) : (
+              <>
+                {/* رسم بياني للعملاء المحتملين */}
+                <div style={{ marginBottom: '30px' }}>
+                  <h4 style={{ marginBottom: '20px', color: 'var(--secondary-color)', fontSize: '1.1rem' }}>
+                    العملاء المحتملين الجدد
+                  </h4>
+                  <div style={{ display: 'flex', alignItems: 'end', gap: '15px', height: '180px' }}>
+                    {analyticsData.monthlyTrends.map((data, index) => {
                   const maxLeads = getMaxValue(analyticsData.monthlyTrends, 'leads')
                   const height = (data.leads / maxLeads) * 140
                   return (
@@ -308,6 +354,8 @@ export default function AnalyticsPage() {
                 })}
               </div>
             </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -317,49 +365,62 @@ export default function AnalyticsPage() {
             <h3 className="data-table-title">مصادر العملاء المحتملين</h3>
           </div>
           <div style={{ padding: '30px' }}>
-            {/* رسم دائري بسيط */}
-            <div style={{ marginBottom: '25px', textAlign: 'center' }}>
-              <div style={{
-                width: '150px',
-                height: '150px',
-                borderRadius: '50%',
-                background: `conic-gradient(
-                  var(--primary-color) 0deg ${analyticsData.leadSources[0].percentage * 3.6}deg,
-                  var(--success-color) ${analyticsData.leadSources[0].percentage * 3.6}deg ${(analyticsData.leadSources[0].percentage + analyticsData.leadSources[1].percentage) * 3.6}deg,
-                  var(--warning-color) ${(analyticsData.leadSources[0].percentage + analyticsData.leadSources[1].percentage) * 3.6}deg ${(analyticsData.leadSources[0].percentage + analyticsData.leadSources[1].percentage + analyticsData.leadSources[2].percentage) * 3.6}deg,
-                  var(--secondary-color) ${(analyticsData.leadSources[0].percentage + analyticsData.leadSources[1].percentage + analyticsData.leadSources[2].percentage) * 3.6}deg ${(analyticsData.leadSources[0].percentage + analyticsData.leadSources[1].percentage + analyticsData.leadSources[2].percentage + analyticsData.leadSources[3].percentage) * 3.6}deg,
-                  var(--danger-color) ${(analyticsData.leadSources[0].percentage + analyticsData.leadSources[1].percentage + analyticsData.leadSources[2].percentage + analyticsData.leadSources[3].percentage) * 3.6}deg 360deg
-                )`,
-                margin: '0 auto',
-                position: 'relative'
-              }}>
-                <div style={{
-                  position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  width: '80px',
-                  height: '80px',
-                  background: 'white',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexDirection: 'column'
-                }}>
-                  <div style={{ fontSize: '1.2rem', fontWeight: '600', color: 'var(--secondary-color)' }}>
-                    {analyticsData.overview.totalLeads}
-                  </div>
-                  <div style={{ fontSize: '0.7rem', color: 'var(--gray-color)' }}>
-                    إجمالي
+            {loading ? (
+              <div style={{ textAlign: 'center', padding: '60px', color: 'var(--gray-color)' }}>
+                <i className="fas fa-spinner fa-spin" style={{ fontSize: '2rem', marginBottom: '10px' }}></i>
+                <div>جاري تحميل مصادر العملاء...</div>
+              </div>
+            ) : analyticsData.leadSources.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px', color: 'var(--gray-color)' }}>
+                <i className="fas fa-chart-pie" style={{ fontSize: '2rem', marginBottom: '10px' }}></i>
+                <div>لا توجد بيانات لمصادر العملاء</div>
+                <div style={{ fontSize: '0.9rem', marginTop: '5px' }}>أضف عملاء محتملين لرؤية المصادر</div>
+              </div>
+            ) : (
+              <>
+                {/* رسم دائري بسيط */}
+                <div style={{ marginBottom: '25px', textAlign: 'center' }}>
+                  <div style={{
+                    width: '150px',
+                    height: '150px',
+                    borderRadius: '50%',
+                    background: analyticsData.leadSources.length >= 5 ? `conic-gradient(
+                      var(--primary-color) 0deg ${analyticsData.leadSources[0]?.percentage * 3.6 || 0}deg,
+                      var(--success-color) ${analyticsData.leadSources[0]?.percentage * 3.6 || 0}deg ${((analyticsData.leadSources[0]?.percentage || 0) + (analyticsData.leadSources[1]?.percentage || 0)) * 3.6}deg,
+                      var(--warning-color) ${((analyticsData.leadSources[0]?.percentage || 0) + (analyticsData.leadSources[1]?.percentage || 0)) * 3.6}deg ${((analyticsData.leadSources[0]?.percentage || 0) + (analyticsData.leadSources[1]?.percentage || 0) + (analyticsData.leadSources[2]?.percentage || 0)) * 3.6}deg,
+                      var(--secondary-color) ${((analyticsData.leadSources[0]?.percentage || 0) + (analyticsData.leadSources[1]?.percentage || 0) + (analyticsData.leadSources[2]?.percentage || 0)) * 3.6}deg ${((analyticsData.leadSources[0]?.percentage || 0) + (analyticsData.leadSources[1]?.percentage || 0) + (analyticsData.leadSources[2]?.percentage || 0) + (analyticsData.leadSources[3]?.percentage || 0)) * 3.6}deg,
+                      var(--danger-color) ${((analyticsData.leadSources[0]?.percentage || 0) + (analyticsData.leadSources[1]?.percentage || 0) + (analyticsData.leadSources[2]?.percentage || 0) + (analyticsData.leadSources[3]?.percentage || 0)) * 3.6}deg 360deg
+                    )` : 'var(--gray-light)',
+                    margin: '0 auto',
+                    position: 'relative'
+                  }}>
+                    <div style={{
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      width: '80px',
+                      height: '80px',
+                      background: 'white',
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexDirection: 'column'
+                    }}>
+                      <div style={{ fontSize: '1.2rem', fontWeight: '600', color: 'var(--secondary-color)' }}>
+                        {analyticsData.overview.totalLeads}
+                      </div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--gray-color)' }}>
+                        إجمالي
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
 
-            {/* قائمة المصادر */}
-            <div style={{ display: 'grid', gap: '12px' }}>
-              {analyticsData.leadSources.map((source, index) => (
+                {/* قائمة المصادر */}
+                <div style={{ display: 'grid', gap: '12px' }}>
+                  {analyticsData.leadSources.map((source, index) => (
                 <div key={source.source} style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -386,8 +447,10 @@ export default function AnalyticsPage() {
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -400,7 +463,18 @@ export default function AnalyticsPage() {
             <h3 className="data-table-title">أداء الأنظمة</h3>
           </div>
           <div style={{ padding: '20px' }}>
-            {analyticsData.systemPerformance.map((system, index) => (
+            {loading ? (
+              <div style={{ textAlign: 'center', padding: '40px', color: 'var(--gray-color)' }}>
+                <i className="fas fa-spinner fa-spin" style={{ fontSize: '2rem', marginBottom: '10px' }}></i>
+                <div>جاري تحميل أداء الأنظمة...</div>
+              </div>
+            ) : analyticsData.systemPerformance.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '40px', color: 'var(--gray-color)' }}>
+                <i className="fas fa-cogs" style={{ fontSize: '2rem', marginBottom: '10px' }}></i>
+                <div>لا توجد بيانات لأداء الأنظمة</div>
+                <div style={{ fontSize: '0.9rem', marginTop: '5px' }}>أضف أنظمة وطلبات لرؤية الأداء</div>
+              </div>
+            ) : analyticsData.systemPerformance.map((system, index) => (
               <div key={system.system} style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -462,7 +536,18 @@ export default function AnalyticsPage() {
             <h3 className="data-table-title">أداء المناطق</h3>
           </div>
           <div style={{ padding: '20px' }}>
-            {analyticsData.regionalPerformance.map((region, index) => (
+            {loading ? (
+              <div style={{ textAlign: 'center', padding: '40px', color: 'var(--gray-color)' }}>
+                <i className="fas fa-spinner fa-spin" style={{ fontSize: '2rem', marginBottom: '10px' }}></i>
+                <div>جاري تحميل أداء المناطق...</div>
+              </div>
+            ) : analyticsData.regionalPerformance.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '40px', color: 'var(--gray-color)' }}>
+                <i className="fas fa-map-marker-alt" style={{ fontSize: '2rem', marginBottom: '10px' }}></i>
+                <div>لا توجد بيانات لأداء المناطق</div>
+                <div style={{ fontSize: '0.9rem', marginTop: '5px' }}>أضف عملاء من مناطق مختلفة لرؤية الأداء</div>
+              </div>
+            ) : analyticsData.regionalPerformance.map((region, index) => (
               <div key={region.region} style={{
                 display: 'flex',
                 alignItems: 'center',

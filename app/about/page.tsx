@@ -396,18 +396,13 @@ export default function About() {
             <Link href="/contact" className="nav-link">تواصل معنا</Link>
           </nav>
           <div className="header-actions">
-            <a
-              href="#"
+            <Link
+              href="/contact?trial=true"
               className="btn btn-free-trial"
-              onClick={(e) => {
-                e.preventDefault()
-                // سيتم ربطه بدومين آخر لاحقاً
-                alert('سيتم توجيهك لصفحة التسجيل قريباً')
-              }}
             >
               <i className="fas fa-gift"></i>
               تجربة مجانية
-            </a>
+            </Link>
           </div>
         </div>
       </header>

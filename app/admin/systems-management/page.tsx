@@ -1,104 +1,94 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+
+interface SystemFile {
+  id: string
+  name: string
+  size: string
+  type: string
+  uploadDate: string
+  url?: string
+}
+
+interface SystemSEO {
+  title: string
+  description: string
+  keywords: string[]
+  metaDescription: string
+  slug: string
+  focusKeyword: string
+}
+
+interface System {
+  id: string
+  name: string
+  description: string
+  version: string
+  status: string
+  category: string
+  features: string[]
+  seo?: SystemSEO
+  files: SystemFile[]
+  createdAt: string
+  updatedAt: string
+}
 
 export default function SystemsManagement() {
-  const [systems, setSystems] = useState([
-    {
-      id: 1,
-      name: 'نظام المحاسبة والفاتورة الإلكترونية',
-      description: 'نظام متكامل لإدارة الحسابات والفواتير الإلكترونية مع ربط هيئة الزكاة والضريبة',
-      version: '2.1.5',
-      status: 'active',
-      category: 'مالي',
-      features: ['فواتير إلكترونية', 'ربط الزكاة والضريبة', 'تقارير مالية', 'إدارة العملاء'],
-      seo: {
-        title: 'نظام المحاسبة والفاتورة الإلكترونية - حلول مالية متكاملة',
-        description: 'نظام محاسبة متطور يدعم الفواتير الإلكترونية وربط هيئة الزكاة والضريبة مع تقارير مالية شاملة',
-        keywords: ['نظام محاسبة', 'فواتير إلكترونية', 'الزكاة والضريبة', 'تقارير مالية', 'إدارة حسابات', 'نظام مالي'],
-        metaDescription: 'احصل على نظام محاسبة متكامل يدعم الفواتير الإلكترونية والربط مع هيئة الزكاة والضريبة',
-        slug: 'accounting-electronic-invoice-system',
-        focusKeyword: 'نظام محاسبة'
-      },
-      files: [
-        { id: 1, name: 'دليل المستخدم.pdf', size: '2.3 MB', type: 'pdf', uploadDate: '2024-01-10' },
-        { id: 2, name: 'عرض تقديمي.pptx', size: '5.1 MB', type: 'presentation', uploadDate: '2024-01-08' },
-        { id: 3, name: 'صور النظام.zip', size: '12.5 MB', type: 'images', uploadDate: '2024-01-05' }
-      ],
-      createdDate: '2023-06-15',
-      lastUpdate: '2024-01-10'
-    },
-    {
-      id: 2,
-      name: 'نظام إدارة العملاء (CRM)',
-      description: 'نظام شامل لإدارة العلاقات مع العملاء وتتبع المبيعات والفرص التجارية',
-      version: '1.8.2',
-      status: 'active',
-      category: 'مبيعات',
-      features: ['إدارة جهات الاتصال', 'تتبع الفرص', 'تقارير المبيعات', 'أتمتة التسويق'],
-      seo: {
-        title: 'نظام إدارة العملاء CRM - إدارة العلاقات والمبيعات',
-        description: 'نظام CRM متطور لإدارة العملاء وتتبع المبيعات مع أتمتة التسويق وتقارير شاملة',
-        keywords: ['نظام CRM', 'إدارة العملاء', 'تتبع المبيعات', 'أتمتة التسويق', 'إدارة العلاقات', 'نظام مبيعات'],
-        metaDescription: 'نظام CRM شامل لإدارة العملاء وتتبع الفرص التجارية مع تقارير مبيعات متقدمة',
-        slug: 'crm-customer-management-system',
-        focusKeyword: 'نظام CRM'
-      },
-      files: [
-        { id: 4, name: 'دليل التشغيل.pdf', size: '1.8 MB', type: 'pdf', uploadDate: '2024-01-12' },
-        { id: 5, name: 'فيديو تعريفي.mp4', size: '45.2 MB', type: 'video', uploadDate: '2024-01-09' }
-      ],
-      createdDate: '2023-08-20',
-      lastUpdate: '2024-01-08'
-    },
-    {
-      id: 3,
-      name: 'نظام إدارة الموارد البشرية',
-      description: 'نظام متكامل لإدارة شؤون الموظفين والرواتب والحضور والانصراف',
-      version: '1.5.7',
-      status: 'active',
-      category: 'موارد بشرية',
-      features: ['إدارة الموظفين', 'نظام الرواتب', 'الحضور والانصراف', 'تقييم الأداء'],
-      seo: {
-        title: 'نظام إدارة الموارد البشرية - إدارة الموظفين والرواتب',
-        description: 'نظام HR متكامل لإدارة الموظفين والرواتب مع نظام الحضور والانصراف وتقييم الأداء',
-        keywords: ['نظام HR', 'إدارة الموظفين', 'نظام الرواتب', 'الحضور والانصراف', 'تقييم الأداء', 'موارد بشرية'],
-        metaDescription: 'نظام موارد بشرية شامل لإدارة الموظفين والرواتب مع تتبع الحضور وتقييم الأداء',
-        slug: 'hr-human-resources-system',
-        focusKeyword: 'نظام HR'
-      },
-      files: [
-        { id: 6, name: 'كتيب النظام.pdf', size: '3.2 MB', type: 'pdf', uploadDate: '2024-01-11' }
-      ],
-      createdDate: '2023-09-10',
-      lastUpdate: '2024-01-05'
-    },
-    {
-      id: 4,
-      name: 'نظام إدارة المخزون',
-      description: 'نظام لإدارة المخزون والمواد مع تتبع المستويات والتنبيهات التلقائية',
-      version: '1.9.1',
-      status: 'maintenance',
-      category: 'مخزون',
-      features: ['تتبع المخزون', 'إدارة المستودعات', 'تقارير الجرد', 'تنبيهات النفاد'],
-      seo: {
-        title: 'نظام إدارة المخزون - تتبع المواد والمستودعات',
-        description: 'نظام مخزون متطور لتتبع المواد وإدارة المستودعات مع تنبيهات النفاد وتقارير الجرد',
-        keywords: ['نظام مخزون', 'إدارة المستودعات', 'تتبع المواد', 'تقارير الجرد', 'تنبيهات النفاد', 'إدارة المخزون'],
-        metaDescription: 'نظام إدارة مخزون شامل لتتبع المواد والمستودعات مع تنبيهات تلقائية وتقارير مفصلة',
-        slug: 'inventory-management-system',
-        focusKeyword: 'نظام مخزون'
-      },
-      files: [],
-      createdDate: '2023-10-05',
-      lastUpdate: '2024-01-07'
-    }
-  ])
+  const [systems, setSystems] = useState<System[]>([])
+  const [loading, setLoading] = useState(true)
+  // جلب الأنظمة من قاعدة البيانات
+  useEffect(() => {
+    const fetchSystems = async () => {
+      try {
+        setLoading(true)
+        const response = await fetch('/api/systems')
+        const result = await response.json()
 
-  const [selectedSystem, setSelectedSystem] = useState<number | null>(null)
+        if (result.success) {
+          // تحويل البيانات إلى التنسيق المطلوب
+          const formattedSystems = result.data.map((system: any) => ({
+            id: system.id,
+            name: system.name,
+            description: system.description || '',
+            version: '1.0.0',
+            status: system.isActive ? 'active' : 'inactive',
+            category: system.category || 'غير محدد',
+            features: system.features || [],
+            seo: system.seoTitle ? {
+              title: system.seoTitle,
+              description: system.seoDescription || '',
+              keywords: system.seoKeywords || [],
+              metaDescription: system.seoDescription || '',
+              slug: system.slug || '',
+              focusKeyword: system.seoKeywords?.[0] || ''
+            } : undefined,
+            files: [],
+            createdAt: system.createdAt,
+            updatedAt: system.updatedAt
+          }))
+          setSystems(formattedSystems)
+        } else {
+          console.error('Error fetching systems:', result.error)
+          setSystems([])
+        }
+      } catch (error) {
+        console.error('Error fetching systems:', error)
+        setSystems([])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchSystems()
+  }, [])
+
+  const [selectedSystem, setSelectedSystem] = useState<string | null>(null)
   const [showAddSystem, setShowAddSystem] = useState(false)
-  const [showEditSystem, setShowEditSystem] = useState<number | null>(null)
-  const [showFileUpload, setShowFileUpload] = useState<number | null>(null)
+  const [showEditSystem, setShowEditSystem] = useState<string | null>(null)
+  const [editingSystem, setEditingSystem] = useState<any>(null)
+  const [showFileUpload, setShowFileUpload] = useState<string | null>(null)
+  const [uploadingFile, setUploadingFile] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')
   const [filterCategory, setFilterCategory] = useState('all')
@@ -109,6 +99,7 @@ export default function SystemsManagement() {
     category: '',
     features: [''],
     status: 'active',
+    version: '1.0.0',
     seo: {
       title: '',
       description: '',
@@ -149,50 +140,217 @@ export default function SystemsManagement() {
   }
 
   const getFileIcon = (type: string) => {
-    switch (type) {
-      case 'pdf': return 'fas fa-file-pdf'
-      case 'presentation': return 'fas fa-file-powerpoint'
-      case 'images': return 'fas fa-file-image'
-      case 'video': return 'fas fa-file-video'
-      case 'document': return 'fas fa-file-word'
-      default: return 'fas fa-file'
-    }
+    if (type.includes('pdf')) return 'fas fa-file-pdf'
+    if (type.includes('image')) return 'fas fa-file-image'
+    if (type.includes('video')) return 'fas fa-file-video'
+    if (type.includes('audio')) return 'fas fa-file-audio'
+    if (type.includes('word') || type.includes('document')) return 'fas fa-file-word'
+    if (type.includes('excel') || type.includes('spreadsheet')) return 'fas fa-file-excel'
+    if (type.includes('powerpoint') || type.includes('presentation')) return 'fas fa-file-powerpoint'
+    if (type.includes('zip') || type.includes('rar') || type.includes('compressed')) return 'fas fa-file-archive'
+    if (type.includes('text')) return 'fas fa-file-alt'
+    return 'fas fa-file'
   }
 
   const getFileColor = (type: string) => {
-    switch (type) {
-      case 'pdf': return '#dc3545'
-      case 'presentation': return '#fd7e14'
-      case 'images': return '#20c997'
-      case 'video': return '#6f42c1'
-      case 'document': return '#0d6efd'
-      default: return '#6c757d'
+    if (type.includes('pdf')) return '#dc3545'
+    if (type.includes('image')) return '#20c997'
+    if (type.includes('video')) return '#6f42c1'
+    if (type.includes('audio')) return '#fd7e14'
+    if (type.includes('word') || type.includes('document')) return '#0d6efd'
+    if (type.includes('excel') || type.includes('spreadsheet')) return '#198754'
+    if (type.includes('powerpoint') || type.includes('presentation')) return '#fd7e14'
+    if (type.includes('zip') || type.includes('rar') || type.includes('compressed')) return '#6c757d'
+    if (type.includes('text')) return '#0dcaf0'
+    return '#6c757d'
+  }
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes'
+    const k = 1024
+    const sizes = ['Bytes', 'KB', 'MB', 'GB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+  }
+
+  const handleAddSystem = async () => {
+    try {
+      const systemToAdd = {
+        name: newSystem.name,
+        slug: newSystem.seo.slug || newSystem.name.toLowerCase().replace(/\s+/g, '-'),
+        description: newSystem.description,
+        shortDescription: newSystem.description.substring(0, 255),
+        category: newSystem.category,
+        features: newSystem.features.filter(f => f.trim() !== ''),
+        isActive: newSystem.status === 'active',
+        seoTitle: newSystem.seo.title,
+        seoDescription: newSystem.seo.description,
+        seoKeywords: newSystem.seo.keywords.filter(k => k.trim() !== '')
+      }
+
+      const response = await fetch('/api/systems', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(systemToAdd),
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        // إعادة جلب الأنظمة لضمان التحديث
+        const systemsResponse = await fetch('/api/systems')
+        const systemsResult = await systemsResponse.json()
+        if (systemsResult.success) {
+          setSystems(systemsResult.data)
+        }
+
+        setNewSystem({
+          name: '',
+          description: '',
+          category: '',
+          features: [''],
+          status: 'active',
+          version: '1.0.0',
+          seo: {
+            title: '',
+            description: '',
+            keywords: [''],
+            metaDescription: '',
+            slug: '',
+            focusKeyword: ''
+          }
+        })
+        setShowAddSystem(false)
+        alert('تم إضافة النظام بنجاح!')
+      } else {
+        alert('فشل في إضافة النظام: ' + result.error)
+      }
+    } catch (error) {
+      console.error('Error adding system:', error)
+      alert('حدث خطأ أثناء إضافة النظام')
     }
   }
 
-  const handleAddSystem = () => {
-    const id = Math.max(...systems.map(s => s.id)) + 1
-    const systemToAdd = {
-      ...newSystem,
-      id,
-      version: '1.0.0',
-      features: newSystem.features.filter(f => f.trim() !== ''),
-      seo: {
-        ...newSystem.seo,
-        keywords: newSystem.seo.keywords.filter(k => k.trim() !== '')
-      },
-      files: [],
-      createdDate: new Date().toISOString().split('T')[0],
-      lastUpdate: new Date().toISOString().split('T')[0]
+  const handleDeleteSystem = async (id: string) => {
+    if (confirm('هل أنت متأكد من حذف هذا النظام؟')) {
+      try {
+        const response = await fetch(`/api/systems?id=${id}`, {
+          method: 'DELETE',
+        })
+
+        const result = await response.json()
+
+        if (result.success) {
+          // إعادة جلب الأنظمة لضمان التحديث
+          const systemsResponse = await fetch('/api/systems')
+          const systemsResult = await systemsResponse.json()
+          if (systemsResult.success) {
+            // تحويل البيانات إلى التنسيق المطلوب
+            const formattedSystems = systemsResult.data.map((system: any) => ({
+              id: system.id,
+              name: system.name,
+              description: system.description || '',
+              version: '1.0.0',
+              status: system.isActive ? 'active' : 'inactive',
+              category: system.category || 'غير محدد',
+              features: system.features || [],
+              seo: system.seoTitle ? {
+                title: system.seoTitle,
+                description: system.seoDescription || '',
+                keywords: system.seoKeywords || [],
+                metaDescription: system.seoDescription || '',
+                slug: system.slug || '',
+                focusKeyword: system.seoKeywords?.[0] || ''
+              } : undefined,
+              files: [],
+              createdAt: system.createdAt,
+              updatedAt: system.updatedAt
+            }))
+            setSystems(formattedSystems)
+          }
+          alert('تم حذف النظام بنجاح!')
+        } else {
+          alert('فشل في حذف النظام: ' + result.error)
+        }
+      } catch (error) {
+        console.error('Error deleting system:', error)
+        alert('حدث خطأ أثناء حذف النظام')
+      }
     }
-    setSystems([...systems, systemToAdd])
-    setNewSystem({
-      name: '',
-      description: '',
-      category: '',
-      features: [''],
-      status: 'active',
-      seo: {
+  }
+
+  const handleEditSystem = async (systemData: any) => {
+    try {
+      const response = await fetch('/api/systems', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(systemData),
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        // إعادة جلب الأنظمة لضمان التحديث
+        const systemsResponse = await fetch('/api/systems')
+        const systemsResult = await systemsResponse.json()
+        if (systemsResult.success) {
+          // تحويل البيانات إلى التنسيق المطلوب
+          const formattedSystems = systemsResult.data.map((system: any) => ({
+            id: system.id,
+            name: system.name,
+            description: system.description || '',
+            version: '1.0.0',
+            status: system.isActive ? 'active' : 'inactive',
+            category: system.category || 'غير محدد',
+            features: system.features || [],
+            seo: system.seoTitle ? {
+              title: system.seoTitle,
+              description: system.seoDescription || '',
+              keywords: system.seoKeywords || [],
+              metaDescription: system.seoDescription || '',
+              slug: system.slug || '',
+              focusKeyword: system.seoKeywords?.[0] || ''
+            } : undefined,
+            files: [],
+            createdAt: system.createdAt,
+            updatedAt: system.updatedAt
+          }))
+          setSystems(formattedSystems)
+        }
+        alert('تم تحديث النظام بنجاح!')
+        return true
+      } else {
+        alert('فشل في تحديث النظام: ' + result.error)
+        return false
+      }
+    } catch (error) {
+      console.error('Error updating system:', error)
+      alert('حدث خطأ أثناء تحديث النظام')
+      return false
+    }
+  }
+
+  const openEditSystem = (system: System) => {
+    setEditingSystem({
+      id: system.id,
+      name: system.name,
+      description: system.description,
+      category: system.category,
+      features: [...system.features],
+      status: system.status,
+      version: system.version,
+      seo: system.seo ? {
+        title: system.seo.title,
+        description: system.seo.description,
+        keywords: [...system.seo.keywords],
+        metaDescription: system.seo.metaDescription,
+        slug: system.seo.slug,
+        focusKeyword: system.seo.focusKeyword
+      } : {
         title: '',
         description: '',
         keywords: [''],
@@ -201,41 +359,64 @@ export default function SystemsManagement() {
         focusKeyword: ''
       }
     })
-    setShowAddSystem(false)
+    setShowEditSystem(system.id)
   }
 
-  const handleDeleteSystem = (id: number) => {
-    if (confirm('هل أنت متأكد من حذف هذا النظام؟')) {
-      setSystems(systems.filter(s => s.id !== id))
+  const handleFileUpload = async (systemId: string, file: any) => {
+    try {
+      setUploadingFile(true)
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('systemId', systemId)
+
+      const response = await fetch('/api/systems/files', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        setSystems(systems.map(system =>
+          system.id === systemId
+            ? { ...system, files: [...(system.files || []), result.data] }
+            : system
+        ))
+        alert('تم رفع الملف بنجاح!')
+      } else {
+        alert('فشل في رفع الملف: ' + result.error)
+      }
+    } catch (error) {
+      console.error('Error uploading file:', error)
+      alert('حدث خطأ أثناء رفع الملف')
+    } finally {
+      setUploadingFile(false)
     }
   }
 
-  const handleFileUpload = (systemId: number, file: any) => {
-    const newFile = {
-      id: Date.now(),
-      name: file.name,
-      size: (file.size / 1024 / 1024).toFixed(1) + ' MB',
-      type: file.type.includes('pdf') ? 'pdf' :
-            file.type.includes('presentation') ? 'presentation' :
-            file.type.includes('image') ? 'images' :
-            file.type.includes('video') ? 'video' : 'document',
-      uploadDate: new Date().toISOString().split('T')[0]
-    }
-
-    setSystems(systems.map(system =>
-      system.id === systemId
-        ? { ...system, files: [...system.files, newFile] }
-        : system
-    ))
-  }
-
-  const handleDeleteFile = (systemId: number, fileId: number) => {
+  const handleDeleteFile = async (systemId: string, fileId: string) => {
     if (confirm('هل أنت متأكد من حذف هذا الملف؟')) {
-      setSystems(systems.map(system =>
-        system.id === systemId
-          ? { ...system, files: system.files.filter(f => f.id !== fileId) }
-          : system
-      ))
+      try {
+        const response = await fetch(`/api/systems/files/${fileId}`, {
+          method: 'DELETE',
+        })
+
+        const result = await response.json()
+
+        if (result.success) {
+          setSystems(systems.map(system =>
+            system.id === systemId
+              ? { ...system, files: (system.files || []).filter(f => f.id !== fileId) }
+              : system
+          ))
+          alert('تم حذف الملف بنجاح!')
+        } else {
+          alert('فشل في حذف الملف: ' + result.error)
+        }
+      } catch (error) {
+        console.error('Error deleting file:', error)
+        alert('حدث خطأ أثناء حذف الملف')
+      }
     }
   }
 
@@ -371,7 +552,7 @@ export default function SystemsManagement() {
             </div>
           </div>
           <div className="stat-body">
-            <div className="stat-value">{systems.reduce((total, system) => total + system.files.length, 0)}</div>
+            <div className="stat-value">{systems.reduce((total, system) => total + (system.files?.length || 0), 0)}</div>
             <div className="stat-label">إجمالي الملفات</div>
           </div>
         </div>
@@ -453,8 +634,34 @@ export default function SystemsManagement() {
         </div>
 
         {/* عرض الأنظمة */}
-        <div style={{ padding: '30px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '25px' }}>
-          {filteredSystems.map((system) => (
+        <div style={{ padding: '30px' }}>
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '60px', color: 'var(--gray-color)' }}>
+              <i className="fas fa-spinner fa-spin" style={{ fontSize: '2rem', marginBottom: '10px' }}></i>
+              <div>جاري تحميل الأنظمة...</div>
+            </div>
+          ) : filteredSystems.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '60px', color: 'var(--gray-color)' }}>
+              <i className="fas fa-cogs" style={{ fontSize: '3rem', marginBottom: '15px' }}></i>
+              <div style={{ fontSize: '1.2rem', fontWeight: '600', marginBottom: '10px' }}>
+                لا توجد أنظمة
+              </div>
+              <div style={{ marginBottom: '20px' }}>
+                {searchTerm || filterStatus !== 'all' || filterCategory !== 'all'
+                  ? 'لا توجد أنظمة تطابق معايير البحث'
+                  : 'لا توجد أنظمة في قاعدة البيانات. أضف نظام جديد للبدء.'
+                }
+              </div>
+              <button
+                className="btn btn-primary"
+                onClick={() => setShowAddSystem(true)}
+              >
+                <i className="fas fa-plus"></i> إضافة نظام جديد
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '25px' }}>
+              {filteredSystems.map((system) => (
             <div key={system.id} style={{
               background: 'white',
               borderRadius: '15px',
@@ -655,7 +862,7 @@ export default function SystemsManagement() {
               <div style={{ marginBottom: '20px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
                   <div style={{ fontSize: '0.8rem', color: 'var(--gray-color)' }}>
-                    الملفات ({system.files.length})
+                    الملفات ({system.files?.length || 0})
                   </div>
                   <button
                     className="btn btn-outline"
@@ -668,7 +875,7 @@ export default function SystemsManagement() {
                     <i className="fas fa-plus"></i>
                   </button>
                 </div>
-                {system.files.length > 0 ? (
+                {(system.files && system.files.length > 0) ? (
                   <div style={{ display: 'grid', gap: '5px' }}>
                     {system.files.slice(0, 2).map((file) => (
                       <div key={file.id} style={{
@@ -682,7 +889,7 @@ export default function SystemsManagement() {
                       }}>
                         <i className={getFileIcon(file.type)} style={{ color: getFileColor(file.type) }}></i>
                         <span style={{ flex: 1, color: 'var(--secondary-color)' }}>{file.name}</span>
-                        <span style={{ color: 'var(--gray-color)' }}>{file.size}</span>
+                        <span style={{ color: 'var(--gray-color)' }}>{typeof file.size === 'number' ? formatFileSize(file.size) : file.size}</span>
                       </div>
                     ))}
                     {system.files.length > 2 && (
@@ -709,20 +916,30 @@ export default function SystemsManagement() {
               <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
                 <button
                   className="action-btn view"
-                  style={{ flex: 1, padding: '8px 12px' }}
+                  style={{ padding: '8px 12px' }}
                   onClick={(e) => {
                     e.stopPropagation()
                     setSelectedSystem(system.id)
                   }}
                 >
-                  <i className="fas fa-eye"></i> عرض
+                  <i className="fas fa-eye"></i> تفاصيل
+                </button>
+                <button
+                  className="action-btn view"
+                  style={{ padding: '8px 12px' }}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    window.open(`/systems/${system.seo?.slug || system.name.toLowerCase().replace(/\s+/g, '-')}`, '_blank')
+                  }}
+                >
+                  <i className="fas fa-external-link-alt"></i> عرض
                 </button>
                 <button
                   className="action-btn edit"
                   style={{ flex: 1, padding: '8px 12px' }}
                   onClick={(e) => {
                     e.stopPropagation()
-                    setShowEditSystem(system.id)
+                    openEditSystem(system)
                   }}
                 >
                   <i className="fas fa-edit"></i> تعديل
@@ -740,6 +957,8 @@ export default function SystemsManagement() {
               </div>
             </div>
           ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -1182,29 +1401,42 @@ export default function SystemsManagement() {
 
       {/* مودال رفع الملفات */}
       {showFileUpload && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000
-        }}>
-          <div style={{
-            background: 'white',
-            borderRadius: '15px',
-            padding: '30px',
-            width: '90%',
-            maxWidth: '500px'
-          }}>
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000
+          }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowFileUpload(null)
+            }
+          }}
+        >
+          <div
+            style={{
+              background: 'white',
+              borderRadius: '15px',
+              padding: '30px',
+              width: '90%',
+              maxWidth: '500px'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
               <h3 style={{ margin: 0, color: 'var(--secondary-color)' }}>رفع ملف جديد</h3>
               <button
-                onClick={() => setShowFileUpload(null)}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setShowFileUpload(null)
+                }}
                 style={{
                   background: 'none',
                   border: 'none',
@@ -1222,24 +1454,44 @@ export default function SystemsManagement() {
               borderRadius: '10px',
               padding: '40px 20px',
               textAlign: 'center',
-              marginBottom: '20px'
+              marginBottom: '20px',
+              position: 'relative'
             }}>
-              <i className="fas fa-cloud-upload-alt" style={{
-                fontSize: '3rem',
-                color: 'var(--primary-color)',
-                marginBottom: '15px'
-              }}></i>
-              <div style={{ marginBottom: '10px', color: 'var(--secondary-color)', fontWeight: '600' }}>
-                اسحب الملفات هنا أو انقر للاختيار
-              </div>
-              <div style={{ fontSize: '0.9rem', color: 'var(--gray-color)' }}>
-                يدعم: PDF, DOC, PPT, صور, فيديو
-              </div>
+              {uploadingFile ? (
+                <>
+                  <i className="fas fa-spinner fa-spin" style={{
+                    fontSize: '3rem',
+                    color: 'var(--primary-color)',
+                    marginBottom: '15px'
+                  }}></i>
+                  <div style={{ marginBottom: '10px', color: 'var(--secondary-color)', fontWeight: '600' }}>
+                    جاري رفع الملف...
+                  </div>
+                  <div style={{ fontSize: '0.9rem', color: 'var(--gray-color)' }}>
+                    يرجى الانتظار حتى اكتمال الرفع
+                  </div>
+                </>
+              ) : (
+                <>
+                  <i className="fas fa-cloud-upload-alt" style={{
+                    fontSize: '3rem',
+                    color: 'var(--primary-color)',
+                    marginBottom: '15px'
+                  }}></i>
+                  <div style={{ marginBottom: '10px', color: 'var(--secondary-color)', fontWeight: '600' }}>
+                    اسحب الملفات هنا أو انقر للاختيار
+                  </div>
+                  <div style={{ fontSize: '0.9rem', color: 'var(--gray-color)' }}>
+                    يدعم: PDF, DOC, PPT, صور, فيديو
+                  </div>
+                </>
+              )}
               <input
                 type="file"
                 multiple
+                disabled={uploadingFile}
                 onChange={(e) => {
-                  if (e.target.files && showFileUpload) {
+                  if (e.target.files && showFileUpload && !uploadingFile) {
                     Array.from(e.target.files).forEach(file => {
                       handleFileUpload(showFileUpload, file)
                     })
@@ -1253,7 +1505,7 @@ export default function SystemsManagement() {
                   width: '100%',
                   height: '100%',
                   opacity: 0,
-                  cursor: 'pointer'
+                  cursor: uploadingFile ? 'not-allowed' : 'pointer'
                 }}
               />
             </div>
@@ -1303,7 +1555,10 @@ export default function SystemsManagement() {
 
             <div style={{ display: 'flex', gap: '15px', marginTop: '20px', justifyContent: 'flex-end' }}>
               <button
-                onClick={() => setShowFileUpload(null)}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setShowFileUpload(null)
+                }}
                 className="btn btn-outline"
                 style={{ fontSize: '0.9rem', padding: '10px 20px' }}
               >
@@ -1418,11 +1673,11 @@ export default function SystemsManagement() {
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
                           <div>
                             <div style={{ fontSize: '0.9rem', color: 'var(--gray-color)', marginBottom: '5px' }}>تاريخ الإنشاء</div>
-                            <div style={{ fontWeight: '600', color: 'var(--secondary-color)' }}>{system.createdDate}</div>
+                            <div style={{ fontWeight: '600', color: 'var(--secondary-color)' }}>{system.createdAt}</div>
                           </div>
                           <div>
                             <div style={{ fontSize: '0.9rem', color: 'var(--gray-color)', marginBottom: '5px' }}>آخر تحديث</div>
-                            <div style={{ fontWeight: '600', color: 'var(--secondary-color)' }}>{system.lastUpdate}</div>
+                            <div style={{ fontWeight: '600', color: 'var(--secondary-color)' }}>{system.updatedAt}</div>
                           </div>
                         </div>
                       </div>
@@ -1600,12 +1855,13 @@ export default function SystemsManagement() {
                               {analyzeSEO(system).issues.map((issue, index) => (
                                 <div key={index} style={{
                                   padding: '6px 10px',
-                                  background: 'var(--danger-light)',
-                                  color: 'var(--danger-color)',
+                                  background: 'var(--danger-color)',
+                                  color: 'white',
                                   borderRadius: '4px',
-                                  fontSize: '0.8rem'
+                                  fontSize: '0.8rem',
+                                  fontWeight: '500'
                                 }}>
-                                  <i className="fas fa-exclamation-triangle" style={{ marginLeft: '5px' }}></i>
+                                  <i className="fas fa-exclamation-triangle" style={{ marginLeft: '5px', color: 'white' }}></i>
                                   {issue}
                                 </div>
                               ))}
@@ -1716,6 +1972,177 @@ export default function SystemsManagement() {
                 </>
               )
             })()}
+          </div>
+        </div>
+      )}
+
+      {/* نافذة تعديل النظام */}
+      {showEditSystem && editingSystem && (
+        <div className="modal-overlay" style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div className="modal-content" style={{
+            background: 'white',
+            borderRadius: '15px',
+            padding: '30px',
+            width: '90%',
+            maxWidth: '800px',
+            maxHeight: '90vh',
+            overflow: 'auto'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
+              <h3 style={{ margin: 0, color: 'var(--secondary-color)' }}>تعديل النظام</h3>
+              <button
+                onClick={() => {
+                  setShowEditSystem(null)
+                  setEditingSystem(null)
+                }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '1.5rem',
+                  color: 'var(--gray-color)',
+                  cursor: 'pointer'
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            <form onSubmit={async (e) => {
+              e.preventDefault()
+              const success = await handleEditSystem({
+                id: editingSystem.id,
+                name: editingSystem.name,
+                slug: editingSystem.seo.slug || editingSystem.name.toLowerCase().replace(/\s+/g, '-'),
+                description: editingSystem.description,
+                shortDescription: editingSystem.description.substring(0, 255),
+                category: editingSystem.category,
+                features: editingSystem.features.filter((f: string) => f.trim() !== ''),
+                isActive: editingSystem.status === 'active',
+                seoTitle: editingSystem.seo.title,
+                seoDescription: editingSystem.seo.description,
+                seoKeywords: editingSystem.seo.keywords.filter((k: string) => k.trim() !== '')
+              })
+              if (success) {
+                setShowEditSystem(null)
+                setEditingSystem(null)
+              }
+            }}>
+              {/* نفس محتوى نموذج الإضافة ولكن مع البيانات المحملة */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--secondary-color)' }}>
+                    اسم النظام *
+                  </label>
+                  <input
+                    type="text"
+                    value={editingSystem.name}
+                    onChange={(e) => setEditingSystem({...editingSystem, name: e.target.value})}
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '12px 15px',
+                      border: '2px solid var(--border-color)',
+                      borderRadius: '8px',
+                      fontSize: '1rem'
+                    }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--secondary-color)' }}>
+                    الفئة *
+                  </label>
+                  <select
+                    value={editingSystem.category}
+                    onChange={(e) => setEditingSystem({...editingSystem, category: e.target.value})}
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '12px 15px',
+                      border: '2px solid var(--border-color)',
+                      borderRadius: '8px',
+                      fontSize: '1rem'
+                    }}
+                  >
+                    <option value="">اختر الفئة</option>
+                    <option value="مالي">مالي</option>
+                    <option value="مبيعات">مبيعات</option>
+                    <option value="موارد بشرية">موارد بشرية</option>
+                    <option value="مخزون">مخزون</option>
+                    <option value="إدارة">إدارة</option>
+                    <option value="تقني">تقني</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: 'var(--secondary-color)' }}>
+                  الوصف *
+                </label>
+                <textarea
+                  value={editingSystem.description}
+                  onChange={(e) => setEditingSystem({...editingSystem, description: e.target.value})}
+                  required
+                  rows={4}
+                  style={{
+                    width: '100%',
+                    padding: '12px 15px',
+                    border: '2px solid var(--border-color)',
+                    borderRadius: '8px',
+                    fontSize: '1rem',
+                    resize: 'vertical'
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '15px', justifyContent: 'flex-end' }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowEditSystem(null)
+                    setEditingSystem(null)
+                  }}
+                  style={{
+                    padding: '12px 24px',
+                    border: '2px solid var(--border-color)',
+                    borderRadius: '8px',
+                    background: 'white',
+                    color: 'var(--secondary-color)',
+                    fontSize: '1rem',
+                    fontWeight: '600',
+                    cursor: 'pointer'
+                  }}
+                >
+                  إلغاء
+                </button>
+                <button
+                  type="submit"
+                  style={{
+                    padding: '12px 24px',
+                    border: 'none',
+                    borderRadius: '8px',
+                    background: 'var(--primary-color)',
+                    color: 'white',
+                    fontSize: '1rem',
+                    fontWeight: '600',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <i className="fas fa-save" style={{ marginLeft: '8px' }}></i>
+                  حفظ التغييرات
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

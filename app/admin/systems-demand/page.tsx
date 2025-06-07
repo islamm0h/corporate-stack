@@ -1,131 +1,86 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+
+interface SystemData {
+  id: string
+  name: string
+  shortName: string
+  totalRequests: number
+  monthlyGrowth: string
+  avgResponseTime: string
+  conversionRate: number
+  topRegions: string[]
+  requestTypes: {
+    [key: string]: number
+  }
+  monthlyData: Array<{
+    month: string
+    requests: number
+  }>
+}
 
 export default function SystemsDemandReport() {
-  const [systemsData] = useState([
-    {
-      id: 1,
-      name: 'نظام المحاسبة والفاتورة الإلكترونية',
-      shortName: 'المحاسبة',
-      totalRequests: 145,
-      monthlyGrowth: '+18%',
-      avgResponseTime: '2.3 أيام',
-      conversionRate: 68,
-      topRegions: ['الرياض', 'جدة', 'الدمام'],
-      requestTypes: {
-        'عرض سعر': 85,
-        'استفسار': 35,
-        'عرض تقديمي': 25
-      },
-      monthlyData: [
-        { month: 'يناير', requests: 20 },
-        { month: 'فبراير', requests: 22 },
-        { month: 'مارس', requests: 25 },
-        { month: 'أبريل', requests: 28 },
-        { month: 'مايو', requests: 24 },
-        { month: 'يونيو', requests: 26 }
-      ]
-    },
-    {
-      id: 2,
-      name: 'نظام إدارة العملاء (CRM)',
-      shortName: 'إدارة العملاء',
-      totalRequests: 98,
-      monthlyGrowth: '+12%',
-      avgResponseTime: '1.8 أيام',
-      conversionRate: 72,
-      topRegions: ['جدة', 'الرياض', 'الخبر'],
-      requestTypes: {
-        'عرض سعر': 55,
-        'استفسار': 28,
-        'عرض تقديمي': 15
-      },
-      monthlyData: [
-        { month: 'يناير', requests: 14 },
-        { month: 'فبراير', requests: 16 },
-        { month: 'مارس', requests: 18 },
-        { month: 'أبريل', requests: 17 },
-        { month: 'مايو', requests: 16 },
-        { month: 'يونيو', requests: 17 }
-      ]
-    },
-    {
-      id: 3,
-      name: 'نظام إدارة الموارد البشرية',
-      shortName: 'الموارد البشرية',
-      totalRequests: 76,
-      monthlyGrowth: '+8%',
-      avgResponseTime: '2.1 أيام',
-      conversionRate: 65,
-      topRegions: ['الرياض', 'المدينة المنورة', 'الدمام'],
-      requestTypes: {
-        'عرض سعر': 42,
-        'استفسار': 22,
-        'عرض تقديمي': 12
-      },
-      monthlyData: [
-        { month: 'يناير', requests: 11 },
-        { month: 'فبراير', requests: 12 },
-        { month: 'مارس', requests: 13 },
-        { month: 'أبريل', requests: 14 },
-        { month: 'مايو', requests: 13 },
-        { month: 'يونيو', requests: 13 }
-      ]
-    },
-    {
-      id: 4,
-      name: 'نظام إدارة المخزون',
-      shortName: 'إدارة المخزون',
-      totalRequests: 64,
-      monthlyGrowth: '+15%',
-      avgResponseTime: '1.9 أيام',
-      conversionRate: 58,
-      topRegions: ['الدمام', 'الرياض', 'جدة'],
-      requestTypes: {
-        'عرض سعر': 38,
-        'استفسار': 16,
-        'عرض تقديمي': 10
-      },
-      monthlyData: [
-        { month: 'يناير', requests: 9 },
-        { month: 'فبراير', requests: 10 },
-        { month: 'مارس', requests: 11 },
-        { month: 'أبريل', requests: 12 },
-        { month: 'مايو', requests: 11 },
-        { month: 'يونيو', requests: 11 }
-      ]
-    },
-    {
-      id: 5,
-      name: 'نظام إدارة المشاريع',
-      shortName: 'إدارة المشاريع',
-      totalRequests: 42,
-      monthlyGrowth: '+5%',
-      avgResponseTime: '2.8 أيام',
-      conversionRate: 52,
-      topRegions: ['الرياض', 'جدة', 'أبها'],
-      requestTypes: {
-        'عرض سعر': 22,
-        'استفسار': 12,
-        'عرض تقديمي': 8
-      },
-      monthlyData: [
-        { month: 'يناير', requests: 6 },
-        { month: 'فبراير', requests: 7 },
-        { month: 'مارس', requests: 7 },
-        { month: 'أبريل', requests: 8 },
-        { month: 'مايو', requests: 7 },
-        { month: 'يونيو', requests: 7 }
-      ]
-    }
-  ])
+  const [systemsData, setSystemsData] = useState<SystemData[]>([])
+  const [loading, setLoading] = useState(true)
+  // جلب بيانات الأنظمة من قاعدة البيانات
+  useEffect(() => {
+    const fetchSystemsData = async () => {
+      try {
+        setLoading(true)
 
-  const [selectedSystem, setSelectedSystem] = useState<number | null>(null)
+        // جلب بيانات الأنظمة
+        const systemsResponse = await fetch('/api/dashboard/stats?type=systems')
+        const systemsResult = await systemsResponse.json()
+
+        if (systemsResult.success && systemsResult.data.topSystems.length > 0) {
+          // تحويل البيانات إلى التنسيق المطلوب
+          const transformedData: SystemData[] = systemsResult.data.topSystems.map((system: any, index: number) => ({
+            id: system.id || `system-${index}`,
+            name: system.name,
+            shortName: system.name.length > 15 ? system.name.substring(0, 15) + '...' : system.name,
+            totalRequests: system.count || 0,
+            monthlyGrowth: '+0%', // سيتم حسابه لاحقاً من البيانات التاريخية
+            avgResponseTime: 'غير محدد',
+            conversionRate: 0, // سيتم حسابه من بيانات الردود
+            topRegions: ['غير محدد'],
+            requestTypes: {
+              'عرض سعر': 0,
+              'استفسار': 0,
+              'عرض تقديمي': 0
+            },
+            monthlyData: [
+              { month: 'يناير', requests: 0 },
+              { month: 'فبراير', requests: 0 },
+              { month: 'مارس', requests: 0 },
+              { month: 'أبريل', requests: 0 },
+              { month: 'مايو', requests: 0 },
+              { month: 'يونيو', requests: 0 }
+            ]
+          }))
+
+          setSystemsData(transformedData)
+        } else {
+          setSystemsData([])
+        }
+      } catch (error) {
+        console.error('Error fetching systems data:', error)
+        setSystemsData([])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchSystemsData()
+  }, [])
+
+  const [selectedSystem, setSelectedSystem] = useState<string | null>(null)
   const [timeRange, setTimeRange] = useState('6months')
 
   const totalRequests = systemsData.reduce((sum, system) => sum + system.totalRequests, 0)
-  const avgConversionRate = (systemsData.reduce((sum, system) => sum + system.conversionRate, 0) / systemsData.length).toFixed(1)
+  const avgConversionRate = systemsData.length > 0
+    ? (systemsData.reduce((sum, system) => sum + system.conversionRate, 0) / systemsData.length).toFixed(1)
+    : '0'
 
   const getSystemColor = (index: number) => {
     const colors = [
@@ -149,7 +104,7 @@ export default function SystemsDemandReport() {
             </div>
           </div>
           <div className="stat-body">
-            <div className="stat-value">{systemsData.length}</div>
+            <div className="stat-value">{loading ? '...' : systemsData.length}</div>
             <div className="stat-label">الأنظمة المتاحة</div>
           </div>
         </div>
@@ -159,13 +114,9 @@ export default function SystemsDemandReport() {
             <div className="stat-icon">
               <i className="fas fa-chart-bar"></i>
             </div>
-            <div className="stat-trend up">
-              <i className="fas fa-arrow-up"></i>
-              +12%
-            </div>
           </div>
           <div className="stat-body">
-            <div className="stat-value">{totalRequests}</div>
+            <div className="stat-value">{loading ? '...' : totalRequests}</div>
             <div className="stat-label">إجمالي الطلبات</div>
           </div>
           <div className="stat-footer">
@@ -180,11 +131,13 @@ export default function SystemsDemandReport() {
             </div>
           </div>
           <div className="stat-body">
-            <div className="stat-value">{systemsData[0].shortName}</div>
+            <div className="stat-value">
+              {loading ? '...' : systemsData.length > 0 ? systemsData[0].shortName : 'غير محدد'}
+            </div>
             <div className="stat-label">النظام الأكثر طلباً</div>
           </div>
           <div className="stat-footer">
-            {systemsData[0].totalRequests} طلب
+            {loading ? '...' : systemsData.length > 0 ? `${systemsData[0].totalRequests} طلب` : '0 طلب'}
           </div>
         </div>
 
@@ -195,7 +148,7 @@ export default function SystemsDemandReport() {
             </div>
           </div>
           <div className="stat-body">
-            <div className="stat-value">{avgConversionRate}%</div>
+            <div className="stat-value">{loading ? '...' : avgConversionRate}%</div>
             <div className="stat-label">متوسط معدل التحويل</div>
           </div>
           <div className="stat-footer">
@@ -227,71 +180,95 @@ export default function SystemsDemandReport() {
             </div>
           </div>
           <div style={{ padding: '30px' }}>
-            <div style={{ display: 'flex', alignItems: 'end', gap: '15px', height: '250px', marginBottom: '20px' }}>
-              {systemsData.map((system, index) => {
-                const maxRequests = Math.max(...systemsData.map(s => s.totalRequests))
-                const height = (system.totalRequests / maxRequests) * 200
-                return (
-                  <div key={system.id} style={{ 
-                    display: 'flex', 
-                    flexDirection: 'column', 
-                    alignItems: 'center', 
-                    flex: 1,
-                    cursor: 'pointer'
-                  }}
-                  onClick={() => setSelectedSystem(selectedSystem === system.id ? null : system.id)}
-                  >
-                    <div style={{
-                      width: '100%',
-                      height: `${height}px`,
-                      background: `linear-gradient(to top, ${getSystemColor(index)}, ${getSystemColor(index)}80)`,
-                      borderRadius: '4px 4px 0 0',
-                      marginBottom: '10px',
-                      position: 'relative',
-                      transition: 'all 0.3s ease',
-                      border: selectedSystem === system.id ? `3px solid ${getSystemColor(index)}` : 'none'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'scaleY(1.05)'
-                      e.currentTarget.style.filter = 'brightness(1.1)'
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'scaleY(1)'
-                      e.currentTarget.style.filter = 'brightness(1)'
-                    }}
-                    >
-                      <div style={{
-                        position: 'absolute',
-                        top: '-30px',
-                        left: '50%',
-                        transform: 'translateX(-50%)',
-                        background: 'var(--secondary-color)',
-                        color: 'white',
-                        padding: '4px 8px',
-                        borderRadius: '4px',
-                        fontSize: '0.8rem',
-                        fontWeight: '600'
-                      }}>
-                        {system.totalRequests}
+            {loading ? (
+              <div style={{ textAlign: 'center', padding: '60px', color: 'var(--gray-color)' }}>
+                <i className="fas fa-spinner fa-spin" style={{ fontSize: '2rem', marginBottom: '10px' }}></i>
+                <div>جاري تحميل بيانات الأنظمة...</div>
+              </div>
+            ) : systemsData.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px', color: 'var(--gray-color)' }}>
+                <i className="fas fa-cogs" style={{ fontSize: '3rem', marginBottom: '15px' }}></i>
+                <div style={{ fontSize: '1.2rem', fontWeight: '600', marginBottom: '10px' }}>
+                  لا توجد أنظمة
+                </div>
+                <div>
+                  لا توجد بيانات للأنظمة حالياً. أضف طلبات لعرض إحصائيات الأنظمة.
+                </div>
+              </div>
+            ) : (
+              <>
+                <div style={{ display: 'flex', alignItems: 'end', gap: '15px', height: '250px', marginBottom: '20px' }}>
+                  {systemsData.map((system, index) => {
+                    const maxRequests = Math.max(...systemsData.map(s => s.totalRequests), 1)
+                    const height = maxRequests > 0 ? (system.totalRequests / maxRequests) * 200 : 20
+                    return (
+                      <div key={system.id} style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        flex: 1,
+                        cursor: 'pointer'
+                      }}
+                      onClick={() => setSelectedSystem(selectedSystem === system.id ? null : system.id)}
+                      >
+                        <div style={{
+                          width: '100%',
+                          height: `${height}px`,
+                          background: system.totalRequests > 0
+                            ? `linear-gradient(to top, ${getSystemColor(index)}, ${getSystemColor(index)}80)`
+                            : '#f1f5f9',
+                          borderRadius: '4px 4px 0 0',
+                          marginBottom: '10px',
+                          position: 'relative',
+                          transition: 'all 0.3s ease',
+                          border: selectedSystem === system.id ? `3px solid ${getSystemColor(index)}` :
+                                  system.totalRequests === 0 ? '1px dashed var(--gray-color)' : 'none'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (system.totalRequests > 0) {
+                            e.currentTarget.style.transform = 'scaleY(1.05)'
+                            e.currentTarget.style.filter = 'brightness(1.1)'
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.transform = 'scaleY(1)'
+                          e.currentTarget.style.filter = 'brightness(1)'
+                        }}
+                        >
+                          <div style={{
+                            position: 'absolute',
+                            top: '-30px',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            background: 'var(--secondary-color)',
+                            color: 'white',
+                            padding: '4px 8px',
+                            borderRadius: '4px',
+                            fontSize: '0.8rem',
+                            fontWeight: '600'
+                          }}>
+                            {system.totalRequests}
+                          </div>
+                        </div>
+                        <div style={{
+                          fontSize: '0.7rem',
+                          color: 'var(--gray-color)',
+                          textAlign: 'center',
+                          fontWeight: '500',
+                          lineHeight: '1.2'
+                        }}>
+                          {system.shortName}
+                        </div>
                       </div>
-                    </div>
-                    <div style={{ 
-                      fontSize: '0.7rem', 
-                      color: 'var(--gray-color)', 
-                      textAlign: 'center',
-                      fontWeight: '500',
-                      lineHeight: '1.2'
-                    }}>
-                      {system.shortName}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-            
-            <div style={{ fontSize: '0.8rem', color: 'var(--gray-color)', textAlign: 'center' }}>
-              انقر على أي نظام لعرض التفاصيل
-            </div>
+                    )
+                  })}
+                </div>
+
+                <div style={{ fontSize: '0.8rem', color: 'var(--gray-color)', textAlign: 'center' }}>
+                  انقر على أي نظام لعرض التفاصيل
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -434,7 +411,26 @@ export default function SystemsDemandReport() {
             </tr>
           </thead>
           <tbody>
-            {systemsData.map((system, index) => (
+            {loading ? (
+              <tr>
+                <td colSpan={6} style={{ textAlign: 'center', padding: '40px', color: 'var(--gray-color)' }}>
+                  <i className="fas fa-spinner fa-spin" style={{ fontSize: '2rem', marginBottom: '10px' }}></i>
+                  <div>جاري تحميل بيانات الأنظمة...</div>
+                </td>
+              </tr>
+            ) : systemsData.length === 0 ? (
+              <tr>
+                <td colSpan={6} style={{ textAlign: 'center', padding: '60px', color: 'var(--gray-color)' }}>
+                  <i className="fas fa-cogs" style={{ fontSize: '3rem', marginBottom: '15px' }}></i>
+                  <div style={{ fontSize: '1.2rem', fontWeight: '600', marginBottom: '10px' }}>
+                    لا توجد أنظمة
+                  </div>
+                  <div style={{ marginBottom: '20px' }}>
+                    لا توجد بيانات للأنظمة حالياً. أضف طلبات لعرض إحصائيات الأنظمة.
+                  </div>
+                </td>
+              </tr>
+            ) : systemsData.map((system, index) => (
               <tr key={system.id}>
                 <td>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -454,7 +450,7 @@ export default function SystemsDemandReport() {
                 </td>
                 <td>
                   <span style={{
-                    color: 'var(--success-color)',
+                    color: system.monthlyGrowth.startsWith('+') ? 'var(--success-color)' : 'var(--gray-color)',
                     fontWeight: '600'
                   }}>
                     {system.monthlyGrowth}
@@ -467,8 +463,10 @@ export default function SystemsDemandReport() {
                     borderRadius: '12px',
                     fontSize: '0.8rem',
                     fontWeight: '600',
-                    background: system.conversionRate >= 65 ? 'var(--success-light)' : 'var(--warning-light)',
-                    color: system.conversionRate >= 65 ? 'var(--success-color)' : 'var(--warning-color)'
+                    background: system.conversionRate >= 65 ? 'var(--success-light)' :
+                               system.conversionRate > 0 ? 'var(--warning-light)' : '#f1f5f9',
+                    color: system.conversionRate >= 65 ? 'var(--success-color)' :
+                           system.conversionRate > 0 ? 'var(--warning-color)' : 'var(--gray-color)'
                   }}>
                     {system.conversionRate}%
                   </span>
@@ -480,8 +478,8 @@ export default function SystemsDemandReport() {
                         padding: '2px 8px',
                         borderRadius: '12px',
                         fontSize: '0.7rem',
-                        background: 'var(--primary-light)',
-                        color: 'var(--primary-color)'
+                        background: region === 'غير محدد' ? '#f1f5f9' : 'var(--primary-light)',
+                        color: region === 'غير محدد' ? 'var(--gray-color)' : 'var(--primary-color)'
                       }}>
                         {region}
                       </span>

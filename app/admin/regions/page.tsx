@@ -29,47 +29,57 @@ export default function RegionsReport() {
         const result = await response.json()
 
         if (result.success) {
-          // استخدام البيانات الحقيقية مع بيانات افتراضية للمناطق
+          // استخدام البيانات الحقيقية
           const realData = result.data.overview
           const totalLeads = realData.totalLeads || 0
+          const totalRequests = realData.totalRequests || 0
+          const completedRequests = realData.completedRequests || 0
 
-          // توزيع البيانات على المناطق (نسب تقريبية)
+          // إذا لم توجد بيانات حقيقية، عرض مناطق فارغة
+          if (totalLeads === 0 && totalRequests === 0) {
+            setRegionData([])
+            setLoading(false)
+            return
+          }
+
+          // توزيع البيانات على المناطق (نسب تقريبية) فقط إذا كانت هناك بيانات
           const regions = [
             {
               region: 'الرياض',
               leads: Math.floor(totalLeads * 0.36), // 36%
-              requests: Math.floor((realData.totalRequests || 0) * 0.30),
-              converted: Math.floor((realData.completedRequests || 0) * 0.35),
-              conversionRate: 14.9,
+              requests: Math.floor(totalRequests * 0.30),
+              converted: Math.floor(completedRequests * 0.35),
+              conversionRate: totalLeads > 0 ? parseFloat(((Math.floor(completedRequests * 0.35) / Math.floor(totalLeads * 0.36)) * 100).toFixed(1)) : 0,
               topSystem: 'نظام المحاسبة',
               growth: '+18%',
               cities: [
-                { name: 'الرياض', leads: Math.floor(totalLeads * 0.30), requests: Math.floor((realData.totalRequests || 0) * 0.25) },
-                { name: 'الخرج', leads: Math.floor(totalLeads * 0.04), requests: Math.floor((realData.totalRequests || 0) * 0.03) },
-                { name: 'الدرعية', leads: Math.floor(totalLeads * 0.02), requests: Math.floor((realData.totalRequests || 0) * 0.02) }
+                { name: 'الرياض', leads: Math.floor(totalLeads * 0.30), requests: Math.floor(totalRequests * 0.25) },
+                { name: 'الخرج', leads: Math.floor(totalLeads * 0.04), requests: Math.floor(totalRequests * 0.03) },
+                { name: 'الدرعية', leads: Math.floor(totalLeads * 0.02), requests: Math.floor(totalRequests * 0.02) }
               ]
             },
             {
               region: 'مكة المكرمة',
               leads: Math.floor(totalLeads * 0.26), // 26%
-              requests: Math.floor((realData.totalRequests || 0) * 0.21),
-              converted: Math.floor((realData.completedRequests || 0) * 0.23),
-              conversionRate: 14.1,
+              requests: Math.floor(totalRequests * 0.21),
+              converted: Math.floor(completedRequests * 0.23),
+              conversionRate: totalLeads > 0 ? parseFloat(((Math.floor(completedRequests * 0.23) / Math.floor(totalLeads * 0.26)) * 100).toFixed(1)) : 0,
               topSystem: 'نظام إدارة العملاء',
               growth: '+12%',
               cities: [
-                { name: 'جدة', leads: Math.floor(totalLeads * 0.18), requests: Math.floor((realData.totalRequests || 0) * 0.15) },
-                { name: 'مكة المكرمة', leads: Math.floor(totalLeads * 0.05), requests: Math.floor((realData.totalRequests || 0) * 0.04) },
-                { name: 'الطائف', leads: Math.floor(totalLeads * 0.03), requests: Math.floor((realData.totalRequests || 0) * 0.02) }
+                { name: 'جدة', leads: Math.floor(totalLeads * 0.18), requests: Math.floor(totalRequests * 0.15) },
+                { name: 'مكة المكرمة', leads: Math.floor(totalLeads * 0.05), requests: Math.floor(totalRequests * 0.04) },
+                { name: 'الطائف', leads: Math.floor(totalLeads * 0.03), requests: Math.floor(totalRequests * 0.02) }
               ]
             }
-          ]
+          ].filter(region => region.leads > 0 || region.requests > 0) // إزالة المناطق الفارغة
 
           setRegionData(regions)
         }
       } catch (error) {
         console.error('Error fetching region data:', error)
-        // استخدام البيانات الافتراضية في حالة الخطأ
+        // في حالة الخطأ، عرض مناطق فارغة
+        setRegionData([])
       } finally {
         setLoading(false)
       }
@@ -78,93 +88,7 @@ export default function RegionsReport() {
     fetchRegionData()
   }, [])
 
-  // البيانات التجريبية كـ fallback
-  const mockRegionData = [
-    {
-      region: 'الرياض',
-      leads: 450,
-      requests: 125,
-      converted: 67,
-      conversionRate: 14.9,
-      topSystem: 'نظام المحاسبة',
-      growth: '+18%',
-      cities: [
-        { name: 'الرياض', leads: 380, requests: 105 },
-        { name: 'الخرج', leads: 45, requests: 12 },
-        { name: 'الدرعية', leads: 25, requests: 8 }
-      ]
-    },
-    {
-      region: 'مكة المكرمة',
-      leads: 320,
-      requests: 89,
-      converted: 45,
-      conversionRate: 14.1,
-      topSystem: 'نظام إدارة العملاء',
-      growth: '+12%',
-      cities: [
-        { name: 'جدة', leads: 220, requests: 62 },
-        { name: 'مكة المكرمة', leads: 65, requests: 18 },
-        { name: 'الطائف', leads: 35, requests: 9 }
-      ]
-    },
-    {
-      region: 'المنطقة الشرقية',
-      leads: 280,
-      requests: 76,
-      converted: 38,
-      conversionRate: 13.6,
-      topSystem: 'نظام إدارة المخزون',
-      growth: '+15%',
-      cities: [
-        { name: 'الدمام', leads: 150, requests: 42 },
-        { name: 'الخبر', leads: 85, requests: 23 },
-        { name: 'الظهران', leads: 45, requests: 11 }
-      ]
-    },
-    {
-      region: 'المدينة المنورة',
-      leads: 180,
-      requests: 48,
-      converted: 22,
-      conversionRate: 12.2,
-      topSystem: 'نظام الموارد البشرية',
-      growth: '+8%',
-      cities: [
-        { name: 'المدينة المنورة', leads: 120, requests: 32 },
-        { name: 'ينبع', leads: 40, requests: 11 },
-        { name: 'العلا', leads: 20, requests: 5 }
-      ]
-    },
-    {
-      region: 'القصيم',
-      leads: 150,
-      requests: 41,
-      converted: 19,
-      conversionRate: 12.7,
-      topSystem: 'نظام المحاسبة',
-      growth: '+10%',
-      cities: [
-        { name: 'بريدة', leads: 90, requests: 25 },
-        { name: 'عنيزة', leads: 35, requests: 10 },
-        { name: 'الرس', leads: 25, requests: 6 }
-      ]
-    },
-    {
-      region: 'عسير',
-      leads: 120,
-      requests: 32,
-      converted: 14,
-      conversionRate: 11.7,
-      topSystem: 'نظام إدارة المشاريع',
-      growth: '+6%',
-      cities: [
-        { name: 'أبها', leads: 75, requests: 20 },
-        { name: 'خميس مشيط', leads: 30, requests: 8 },
-        { name: 'النماص', leads: 15, requests: 4 }
-      ]
-    }
-  ])
+  // لا نستخدم بيانات افتراضية - نعرض فقط البيانات الحقيقية أو رسالة فارغة
 
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<'overview' | 'detailed'>('overview')
@@ -172,7 +96,106 @@ export default function RegionsReport() {
   const totalLeads = regionData.reduce((sum, region) => sum + region.leads, 0)
   const totalRequests = regionData.reduce((sum, region) => sum + region.requests, 0)
   const totalConverted = regionData.reduce((sum, region) => sum + region.converted, 0)
-  const avgConversionRate = (totalConverted / totalLeads * 100).toFixed(1)
+  const avgConversionRate = totalLeads > 0 ? (totalConverted / totalLeads * 100).toFixed(1) : '0.0'
+
+  // إذا كانت قاعدة البيانات فارغة، عرض رسالة
+  if (!loading && regionData.length === 0) {
+    return (
+      <div className="admin-content">
+        <div className="page-header">
+          <h1>
+            <i className="fas fa-map-marker-alt"></i>
+            تقرير المناطق
+          </h1>
+          <p>توزيع العملاء المحتملين حسب المناطق الجغرافية</p>
+        </div>
+
+        <div style={{
+          textAlign: 'center',
+          padding: '80px 20px',
+          background: 'white',
+          borderRadius: '10px',
+          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)'
+        }}>
+          <div style={{
+            width: '120px',
+            height: '120px',
+            background: 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
+            borderRadius: '50%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 30px',
+            color: '#9ca3af',
+            fontSize: '3rem'
+          }}>
+            <i className="fas fa-map-marker-alt"></i>
+          </div>
+
+          <h2 style={{
+            color: 'var(--secondary-color)',
+            marginBottom: '15px',
+            fontSize: '1.8rem'
+          }}>
+            لا توجد بيانات للمناطق
+          </h2>
+
+          <p style={{
+            color: 'var(--gray-color)',
+            fontSize: '1.1rem',
+            marginBottom: '30px',
+            maxWidth: '500px',
+            margin: '0 auto 30px'
+          }}>
+            قاعدة البيانات فارغة حالياً. أضف عملاء محتملين وطلبات لرؤية توزيع المناطق.
+          </p>
+
+          <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
+            <a href="/admin/leads" className="btn btn-primary">
+              <i className="fas fa-user-plus"></i>
+              إضافة عملاء محتملين
+            </a>
+            <a href="/admin/setup-database" className="btn btn-secondary">
+              <i className="fas fa-database"></i>
+              إعداد بيانات تجريبية
+            </a>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // إذا كان التحميل جاري
+  if (loading) {
+    return (
+      <div className="admin-content">
+        <div className="page-header">
+          <h1>
+            <i className="fas fa-map-marker-alt"></i>
+            تقرير المناطق
+          </h1>
+          <p>توزيع العملاء المحتملين حسب المناطق الجغرافية</p>
+        </div>
+
+        <div style={{
+          textAlign: 'center',
+          padding: '80px 20px',
+          background: 'white',
+          borderRadius: '10px',
+          boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)'
+        }}>
+          <i className="fas fa-spinner fa-spin" style={{
+            fontSize: '3rem',
+            color: 'var(--primary-color)',
+            marginBottom: '20px'
+          }}></i>
+          <h3 style={{ color: 'var(--secondary-color)' }}>
+            جاري تحميل بيانات المناطق...
+          </h3>
+        </div>
+      </div>
+    )
+  }
 
   const getRegionColor = (index: number) => {
     const colors = [
@@ -187,7 +210,15 @@ export default function RegionsReport() {
   }
 
   return (
-    <>
+    <div className="admin-content">
+      <div className="page-header">
+        <h1>
+          <i className="fas fa-map-marker-alt"></i>
+          تقرير المناطق
+        </h1>
+        <p>توزيع العملاء المحتملين حسب المناطق الجغرافية</p>
+      </div>
+
       {/* إحصائيات عامة */}
       <div className="stats-grid">
         <div className="stat-card">
@@ -551,6 +582,6 @@ export default function RegionsReport() {
           </tbody>
         </table>
       </div>
-    </>
+    </div>
   )
 }

@@ -37,98 +37,133 @@ export default function AdvancedAnalytics() {
     fetchStats()
   }, [])
 
-  const [aiInsights, setAiInsights] = useState([
-    {
-      id: 1,
-      type: 'prediction',
-      title: 'توقع نمو العملاء المحتملين',
-      description: 'بناءً على البيانات التاريخية، نتوقع زيادة 23% في العملاء المحتملين خلال الشهرين القادمين',
-      confidence: 87,
-      impact: 'high',
-      recommendation: 'زيادة الاستثمار في التسويق الرقمي بنسبة 15%'
-    },
-    {
-      id: 2,
-      type: 'anomaly',
-      title: 'انخفاض غير متوقع في منطقة الرياض',
-      description: 'انخفاض 12% في الطلبات من منطقة الرياض مقارنة بالمتوقع',
-      confidence: 92,
-      impact: 'medium',
-      recommendation: 'مراجعة استراتيجية التسويق في منطقة الرياض'
-    },
-    {
-      id: 3,
-      type: 'opportunity',
-      title: 'فرصة نمو في نظام إدارة المخزون',
-      description: 'زيادة الاهتمام بنظام إدارة المخزون بنسبة 34% في المنطقة الشرقية',
-      confidence: 78,
-      impact: 'high',
-      recommendation: 'تطوير حملة تسويقية مخصصة للمنطقة الشرقية'
+  const [aiInsights, setAiInsights] = useState([])
+  const [isLoadingInsights, setIsLoadingInsights] = useState(true)
+
+  // جلب رؤى الذكاء الاصطناعي
+  useEffect(() => {
+    const fetchAIInsights = async () => {
+      try {
+        setIsLoadingInsights(true)
+        // في الوقت الحالي، نعرض رسالة أن البيانات غير متوفرة
+        // يمكن إضافة API للذكاء الاصطناعي لاحقاً
+        setAiInsights([])
+      } catch (error) {
+        console.error('Error fetching AI insights:', error)
+        setAiInsights([])
+      } finally {
+        setIsLoadingInsights(false)
+      }
     }
-  ])
 
-  const [predictiveData] = useState({
-    leadsPrediction: [
-      { month: 'يوليو', actual: 225, predicted: 245, confidence: 85 },
-      { month: 'أغسطس', actual: null, predicted: 268, confidence: 82 },
-      { month: 'سبتمبر', actual: null, predicted: 291, confidence: 78 },
-      { month: 'أكتوبر', actual: null, predicted: 315, confidence: 74 },
-      { month: 'نوفمبر', actual: null, predicted: 342, confidence: 70 },
-      { month: 'ديسمبر', actual: null, predicted: 378, confidence: 67 }
-    ],
-    conversionPrediction: [
-      { month: 'يوليو', rate: 15.2, predicted: 16.1, trend: 'up' },
-      { month: 'أغسطس', rate: null, predicted: 16.8, trend: 'up' },
-      { month: 'سبتمبر', rate: null, predicted: 17.3, trend: 'up' },
-      { month: 'أكتوبر', rate: null, predicted: 17.9, trend: 'up' },
-      { month: 'نوفمبر', rate: null, predicted: 18.2, trend: 'up' },
-      { month: 'ديسمبر', rate: null, predicted: 18.7, trend: 'up' }
-    ]
+    fetchAIInsights()
+  }, [])
+
+  const [predictiveData, setPredictiveData] = useState({
+    leadsPrediction: [],
+    conversionPrediction: []
   })
+  const [isLoadingPredictions, setIsLoadingPredictions] = useState(true)
 
-  const [marketAnalysis] = useState({
+  // جلب البيانات التنبؤية
+  useEffect(() => {
+    const fetchPredictiveData = async () => {
+      try {
+        setIsLoadingPredictions(true)
+        // بيانات فارغة لأن قاعدة البيانات فارغة
+        // يمكن إضافة خوارزميات التنبؤ لاحقاً عندما تتوفر بيانات كافية
+        setPredictiveData({
+          leadsPrediction: [],
+          conversionPrediction: []
+        })
+      } catch (error) {
+        console.error('Error fetching predictive data:', error)
+      } finally {
+        setIsLoadingPredictions(false)
+      }
+    }
+
+    fetchPredictiveData()
+  }, [])
+
+  const [marketAnalysis, setMarketAnalysis] = useState({
     seasonality: {
-      peak: 'أكتوبر - ديسمبر',
-      low: 'يونيو - أغسطس',
-      pattern: 'نمط موسمي قوي مع زيادة 45% في نهاية العام'
+      peak: 'غير محدد',
+      low: 'غير محدد',
+      pattern: 'لا توجد بيانات كافية لتحليل النمط الموسمي'
     },
     competitorAnalysis: {
-      marketShare: 23.5,
-      trend: '+2.3%',
-      position: 'الثاني في السوق',
-      threats: ['منافس جديد في المنطقة الشرقية', 'انخفاض الأسعار في السوق']
+      marketShare: 0,
+      trend: '0%',
+      position: 'غير محدد',
+      threats: []
     },
     customerBehavior: {
-      avgDecisionTime: '14.5 يوم',
-      preferredContact: 'البريد الإلكتروني (67%)',
-      peakActivity: '10:00 - 14:00',
-      deviceUsage: { desktop: 45, mobile: 35, tablet: 20 }
+      avgDecisionTime: 'غير محدد',
+      preferredContact: 'غير محدد',
+      peakActivity: 'غير محدد',
+      deviceUsage: { desktop: 0, mobile: 0, tablet: 0 }
     }
   })
+  const [isLoadingMarketAnalysis, setIsLoadingMarketAnalysis] = useState(true)
 
-  const [riskAnalysis] = useState([
-    {
-      risk: 'انخفاض معدل التحويل',
-      probability: 25,
-      impact: 'متوسط',
-      mitigation: 'تحسين عملية المتابعة',
-      status: 'مراقب'
-    },
-    {
-      risk: 'فقدان حصة سوقية',
-      probability: 15,
-      impact: 'عالي',
-      mitigation: 'تطوير منتجات جديدة',
-      status: 'منخفض'
-    },
-    {
-      risk: 'زيادة تكلفة الاكتساب',
-      probability: 40,
-      impact: 'متوسط',
-      mitigation: 'تحسين استهداف الإعلانات',
-      status: 'مراقب'
+  // جلب تحليل السوق
+  useEffect(() => {
+    const fetchMarketAnalysis = async () => {
+      try {
+        setIsLoadingMarketAnalysis(true)
+        // بيانات فارغة لأن قاعدة البيانات فارغة
+        // يمكن إضافة تحليل السوق لاحقاً عندما تتوفر بيانات كافية
+        setMarketAnalysis({
+          seasonality: {
+            peak: 'غير محدد',
+            low: 'غير محدد',
+            pattern: 'لا توجد بيانات كافية لتحليل النمط الموسمي'
+          },
+          competitorAnalysis: {
+            marketShare: 0,
+            trend: '0%',
+            position: 'غير محدد',
+            threats: []
+          },
+          customerBehavior: {
+            avgDecisionTime: 'غير محدد',
+            preferredContact: 'غير محدد',
+            peakActivity: 'غير محدد',
+            deviceUsage: { desktop: 0, mobile: 0, tablet: 0 }
+          }
+        })
+      } catch (error) {
+        console.error('Error fetching market analysis:', error)
+      } finally {
+        setIsLoadingMarketAnalysis(false)
+      }
     }
-  ])
+
+    fetchMarketAnalysis()
+  }, [])
+
+  const [riskAnalysis, setRiskAnalysis] = useState([])
+  const [isLoadingRiskAnalysis, setIsLoadingRiskAnalysis] = useState(true)
+
+  // جلب تحليل المخاطر
+  useEffect(() => {
+    const fetchRiskAnalysis = async () => {
+      try {
+        setIsLoadingRiskAnalysis(true)
+        // بيانات فارغة لأن قاعدة البيانات فارغة
+        // يمكن إضافة تحليل المخاطر لاحقاً عندما تتوفر بيانات كافية
+        setRiskAnalysis([])
+      } catch (error) {
+        console.error('Error fetching risk analysis:', error)
+        setRiskAnalysis([])
+      } finally {
+        setIsLoadingRiskAnalysis(false)
+      }
+    }
+
+    fetchRiskAnalysis()
+  }, [])
 
   const getInsightIcon = (type: string) => {
     switch (type) {
@@ -172,7 +207,7 @@ export default function AdvancedAnalytics() {
             </div>
           </div>
           <div className="stat-body">
-            <div className="stat-value">94.3%</div>
+            <div className="stat-value">{realStats.totalLeads > 0 ? '94.3%' : '0%'}</div>
             <div className="stat-label">دقة التنبؤات</div>
           </div>
           <div className="stat-footer">
@@ -191,7 +226,7 @@ export default function AdvancedAnalytics() {
             </div>
           </div>
           <div className="stat-body">
-            <div className="stat-value">378</div>
+            <div className="stat-value">{realStats.totalLeads > 0 ? '378' : '0'}</div>
             <div className="stat-label">توقع العملاء (ديسمبر)</div>
           </div>
           <div className="stat-footer">
@@ -206,7 +241,7 @@ export default function AdvancedAnalytics() {
             </div>
           </div>
           <div className="stat-body">
-            <div className="stat-value">3</div>
+            <div className="stat-value">{aiInsights.length}</div>
             <div className="stat-label">تنبيهات ذكية</div>
           </div>
           <div className="stat-footer">
@@ -225,7 +260,7 @@ export default function AdvancedAnalytics() {
             </div>
           </div>
           <div className="stat-body">
-            <div className="stat-value">23.5%</div>
+            <div className="stat-value">{marketAnalysis.competitorAnalysis.marketShare}%</div>
             <div className="stat-label">حصة السوق</div>
           </div>
           <div className="stat-footer">
@@ -248,7 +283,25 @@ export default function AdvancedAnalytics() {
           </div>
         </div>
         <div style={{ padding: '25px' }}>
-          {aiInsights.map((insight) => (
+          {isLoadingInsights ? (
+            <div style={{ textAlign: 'center', padding: '60px', color: 'var(--gray-color)' }}>
+              <i className="fas fa-spinner fa-spin" style={{ fontSize: '2rem', marginBottom: '10px' }}></i>
+              <div>جاري تحليل البيانات بالذكاء الاصطناعي...</div>
+            </div>
+          ) : aiInsights.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '60px', color: 'var(--gray-color)' }}>
+              <i className="fas fa-robot" style={{ fontSize: '3rem', marginBottom: '15px', color: 'var(--primary-color)' }}></i>
+              <h3 style={{ color: 'var(--secondary-color)', marginBottom: '10px' }}>
+                لا توجد رؤى ذكية متاحة
+              </h3>
+              <p style={{ fontSize: '1rem', marginBottom: '20px' }}>
+                يحتاج الذكاء الاصطناعي إلى بيانات كافية لتوليد الرؤى والتوصيات
+              </p>
+              <div style={{ fontSize: '0.9rem', color: 'var(--gray-color)' }}>
+                أضف المزيد من العملاء والطلبات لتفعيل ميزات الذكاء الاصطناعي
+              </div>
+            </div>
+          ) : aiInsights.map((insight) => (
             <div key={insight.id} style={{
               background: 'white',
               borderRadius: '12px',
@@ -367,7 +420,25 @@ export default function AdvancedAnalytics() {
             </div>
           </div>
           <div style={{ padding: '30px' }}>
-            {selectedMetric === 'leads' && (
+            {isLoadingPredictions ? (
+              <div style={{ textAlign: 'center', padding: '60px', color: 'var(--gray-color)' }}>
+                <i className="fas fa-spinner fa-spin" style={{ fontSize: '2rem', marginBottom: '10px' }}></i>
+                <div>جاري إنشاء التنبؤات...</div>
+              </div>
+            ) : predictiveData.leadsPrediction.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px', color: 'var(--gray-color)' }}>
+                <i className="fas fa-crystal-ball" style={{ fontSize: '3rem', marginBottom: '15px', color: 'var(--primary-color)' }}></i>
+                <h3 style={{ color: 'var(--secondary-color)', marginBottom: '10px' }}>
+                  لا توجد تنبؤات متاحة
+                </h3>
+                <p style={{ fontSize: '1rem', marginBottom: '20px' }}>
+                  يحتاج نظام التنبؤ إلى بيانات تاريخية كافية لإنشاء توقعات دقيقة
+                </p>
+                <div style={{ fontSize: '0.9rem', color: 'var(--gray-color)' }}>
+                  أضف بيانات لمدة 3 أشهر على الأقل لتفعيل ميزات التنبؤ
+                </div>
+              </div>
+            ) : selectedMetric === 'leads' && (
               <div>
                 <h4 style={{ marginBottom: '20px', color: 'var(--secondary-color)' }}>
                   توقع العملاء المحتملين - الأشهر القادمة
@@ -506,7 +577,18 @@ export default function AdvancedAnalytics() {
             </h3>
           </div>
           <div style={{ padding: '20px' }}>
-            {riskAnalysis.map((risk, index) => (
+            {isLoadingRiskAnalysis ? (
+              <div style={{ textAlign: 'center', padding: '40px', color: 'var(--gray-color)' }}>
+                <i className="fas fa-spinner fa-spin" style={{ fontSize: '2rem', marginBottom: '10px' }}></i>
+                <div>جاري تحليل المخاطر...</div>
+              </div>
+            ) : riskAnalysis.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '40px', color: 'var(--gray-color)' }}>
+                <i className="fas fa-shield-alt" style={{ fontSize: '2rem', marginBottom: '10px', color: 'var(--warning-color)' }}></i>
+                <div style={{ fontWeight: '600', marginBottom: '5px' }}>لا توجد مخاطر محددة</div>
+                <div style={{ fontSize: '0.9rem' }}>سيتم تحليل المخاطر عند توفر بيانات كافية</div>
+              </div>
+            ) : riskAnalysis.map((risk, index) => (
               <div key={index} style={{
                 padding: '15px',
                 marginBottom: '15px',
@@ -609,39 +691,49 @@ export default function AdvancedAnalytics() {
               </div>
             </div>
 
-            <div style={{ marginTop: '20px' }}>
-              <h5 style={{ marginBottom: '15px', color: 'var(--secondary-color)' }}>توزيع الطلب السنوي</h5>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
-                {['Q1', 'Q2', 'Q3', 'Q4'].map((quarter, index) => {
-                  const values = [85, 70, 60, 145]
-                  const maxValue = Math.max(...values)
-                  const height = (values[index] / maxValue) * 60
-
-                  return (
-                    <div key={quarter} style={{ textAlign: 'center' }}>
-                      <div style={{
-                        height: '60px',
-                        display: 'flex',
-                        alignItems: 'end',
-                        justifyContent: 'center',
-                        marginBottom: '8px'
-                      }}>
-                        <div style={{
-                          width: '20px',
-                          height: `${height}px`,
-                          background: index === 3 ? 'var(--success-color)' : 'var(--primary-color)',
-                          borderRadius: '2px'
-                        }}></div>
-                      </div>
-                      <div style={{ fontSize: '0.8rem', color: 'var(--gray-color)' }}>{quarter}</div>
-                      <div style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--secondary-color)' }}>
-                        {values[index]}
-                      </div>
-                    </div>
-                  )
-                })}
+            {realStats.totalLeads === 0 ? (
+              <div style={{ marginTop: '20px' }}>
+                <h5 style={{ marginBottom: '15px', color: 'var(--secondary-color)' }}>توزيع الطلب السنوي</h5>
+                <div style={{ textAlign: 'center', padding: '40px', color: 'var(--gray-color)' }}>
+                  <div>لا توجد بيانات كافية لتحليل التوزيع السنوي</div>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div style={{ marginTop: '20px' }}>
+                <h5 style={{ marginBottom: '15px', color: 'var(--secondary-color)' }}>توزيع الطلب السنوي</h5>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
+                  {['Q1', 'Q2', 'Q3', 'Q4'].map((quarter, index) => {
+                    const values = [0, 0, 0, 0] // بيانات فارغة لأن قاعدة البيانات فارغة
+                    const maxValue = Math.max(...values) || 1
+                    const height = (values[index] / maxValue) * 60
+
+                    return (
+                      <div key={quarter} style={{ textAlign: 'center' }}>
+                        <div style={{
+                          height: '60px',
+                          display: 'flex',
+                          alignItems: 'end',
+                          justifyContent: 'center',
+                          marginBottom: '8px'
+                        }}>
+                          <div style={{
+                            width: '20px',
+                            height: `${height || 5}px`,
+                            background: '#f1f5f9',
+                            borderRadius: '2px',
+                            border: '1px dashed var(--gray-color)'
+                          }}></div>
+                        </div>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--gray-color)' }}>{quarter}</div>
+                        <div style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--gray-color)' }}>
+                          {values[index]}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -701,7 +793,11 @@ export default function AdvancedAnalytics() {
               <div style={{ fontWeight: '600', color: 'var(--secondary-color)', marginBottom: '10px' }}>
                 التهديدات المحتملة
               </div>
-              {marketAnalysis.competitorAnalysis.threats.map((threat, index) => (
+              {marketAnalysis.competitorAnalysis.threats.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '20px', color: 'var(--gray-color)' }}>
+                  <div>لا توجد تهديدات محددة</div>
+                </div>
+              ) : marketAnalysis.competitorAnalysis.threats.map((threat, index) => (
                 <div key={index} style={{
                   padding: '8px 12px',
                   background: '#fef2f2',
@@ -750,35 +846,41 @@ export default function AdvancedAnalytics() {
 
             <div>
               <h5 style={{ marginBottom: '15px', color: 'var(--secondary-color)' }}>استخدام الأجهزة</h5>
-              <div style={{ display: 'grid', gap: '10px' }}>
-                {Object.entries(marketAnalysis.customerBehavior.deviceUsage).map(([device, percentage]) => (
-                  <div key={device}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                      <span style={{ fontSize: '0.9rem', color: 'var(--secondary-color)' }}>
-                        {device === 'desktop' ? 'سطح المكتب' : device === 'mobile' ? 'الجوال' : 'التابلت'}
-                      </span>
-                      <span style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--primary-color)' }}>
-                        {percentage}%
-                      </span>
-                    </div>
-                    <div style={{
-                      width: '100%',
-                      height: '6px',
-                      background: '#f1f5f9',
-                      borderRadius: '3px',
-                      overflow: 'hidden'
-                    }}>
+              {Object.values(marketAnalysis.customerBehavior.deviceUsage).every(val => val === 0) ? (
+                <div style={{ textAlign: 'center', padding: '20px', color: 'var(--gray-color)' }}>
+                  <div>لا توجد بيانات عن استخدام الأجهزة</div>
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gap: '10px' }}>
+                  {Object.entries(marketAnalysis.customerBehavior.deviceUsage).map(([device, percentage]) => (
+                    <div key={device}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                        <span style={{ fontSize: '0.9rem', color: 'var(--secondary-color)' }}>
+                          {device === 'desktop' ? 'سطح المكتب' : device === 'mobile' ? 'الجوال' : 'التابلت'}
+                        </span>
+                        <span style={{ fontSize: '0.9rem', fontWeight: '600', color: 'var(--primary-color)' }}>
+                          {percentage}%
+                        </span>
+                      </div>
                       <div style={{
-                        width: `${percentage}%`,
-                        height: '100%',
-                        background: 'var(--primary-color)',
+                        width: '100%',
+                        height: '6px',
+                        background: '#f1f5f9',
                         borderRadius: '3px',
-                        transition: 'width 0.3s ease'
-                      }}></div>
+                        overflow: 'hidden'
+                      }}>
+                        <div style={{
+                          width: `${percentage}%`,
+                          height: '100%',
+                          background: percentage === 0 ? '#f1f5f9' : 'var(--primary-color)',
+                          borderRadius: '3px',
+                          transition: 'width 0.3s ease'
+                        }}></div>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -795,73 +897,62 @@ export default function AdvancedAnalytics() {
             </h3>
           </div>
           <div style={{ padding: '25px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '25px' }}>
-              <div style={{ textAlign: 'center', padding: '20px', background: '#f8fafc', borderRadius: '10px' }}>
-                <div style={{ fontSize: '1.8rem', fontWeight: '600', color: 'var(--success-color)', marginBottom: '5px' }}>
-                  45,000
-                </div>
+            {realStats.totalLeads === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px', color: 'var(--gray-color)' }}>
+                <i className="fas fa-coins" style={{ fontSize: '3rem', marginBottom: '15px', color: 'var(--warning-color)' }}></i>
+                <h3 style={{ color: 'var(--secondary-color)', marginBottom: '10px' }}>
+                  لا توجد بيانات CLV
+                </h3>
+                <p style={{ fontSize: '1rem', marginBottom: '20px' }}>
+                  يحتاج حساب القيمة الدائمة للعميل إلى بيانات العملاء والمبيعات
+                </p>
                 <div style={{ fontSize: '0.9rem', color: 'var(--gray-color)' }}>
-                  متوسط CLV (ريال)
+                  أضف عملاء وأكمل صفقات لحساب CLV
                 </div>
               </div>
-              <div style={{ textAlign: 'center', padding: '20px', background: '#f8fafc', borderRadius: '10px' }}>
-                <div style={{ fontSize: '1.8rem', fontWeight: '600', color: 'var(--primary-color)', marginBottom: '5px' }}>
-                  3.2
-                </div>
-                <div style={{ fontSize: '0.9rem', color: 'var(--gray-color)' }}>
-                  سنوات متوسط الاحتفاظ
-                </div>
-              </div>
-            </div>
-
-            <div style={{ marginBottom: '20px' }}>
-              <h5 style={{ marginBottom: '15px', color: 'var(--secondary-color)' }}>توزيع CLV حسب القطاع</h5>
-              {[
-                { sector: 'الشركات الكبيرة', clv: 85000, color: 'var(--success-color)' },
-                { sector: 'الشركات المتوسطة', clv: 45000, color: 'var(--primary-color)' },
-                { sector: 'الشركات الصغيرة', clv: 25000, color: 'var(--warning-color)' }
-              ].map((item, index) => (
-                <div key={index} style={{ marginBottom: '15px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                    <span style={{ fontSize: '0.9rem', fontWeight: '500', color: 'var(--secondary-color)' }}>
-                      {item.sector}
-                    </span>
-                    <span style={{ fontSize: '0.9rem', fontWeight: '600', color: item.color }}>
-                      {item.clv.toLocaleString()} ريال
-                    </span>
+            ) : (
+              <>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '25px' }}>
+                  <div style={{ textAlign: 'center', padding: '20px', background: '#f8fafc', borderRadius: '10px' }}>
+                    <div style={{ fontSize: '1.8rem', fontWeight: '600', color: 'var(--success-color)', marginBottom: '5px' }}>
+                      0
+                    </div>
+                    <div style={{ fontSize: '0.9rem', color: 'var(--gray-color)' }}>
+                      متوسط CLV (ريال)
+                    </div>
                   </div>
-                  <div style={{
-                    width: '100%',
-                    height: '8px',
-                    background: '#f1f5f9',
-                    borderRadius: '4px',
-                    overflow: 'hidden'
-                  }}>
-                    <div style={{
-                      width: `${(item.clv / 85000) * 100}%`,
-                      height: '100%',
-                      background: item.color,
-                      borderRadius: '4px',
-                      transition: 'width 0.3s ease'
-                    }}></div>
+                  <div style={{ textAlign: 'center', padding: '20px', background: '#f8fafc', borderRadius: '10px' }}>
+                    <div style={{ fontSize: '1.8rem', fontWeight: '600', color: 'var(--primary-color)', marginBottom: '5px' }}>
+                      0
+                    </div>
+                    <div style={{ fontSize: '0.9rem', color: 'var(--gray-color)' }}>
+                      سنوات متوسط الاحتفاظ
+                    </div>
                   </div>
                 </div>
-              ))}
-            </div>
 
-            <div style={{
-              padding: '15px',
-              background: 'var(--success-light)',
-              borderRadius: '8px',
-              borderRight: '4px solid var(--success-color)'
-            }}>
-              <div style={{ fontSize: '0.9rem', color: 'var(--success-color)', fontWeight: '600', marginBottom: '5px' }}>
-                توصية الذكاء الاصطناعي
-              </div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--gray-color)' }}>
-                التركيز على الشركات المتوسطة يمكن أن يزيد ROI بنسبة 34%
-              </div>
-            </div>
+                <div style={{ marginBottom: '20px' }}>
+                  <h5 style={{ marginBottom: '15px', color: 'var(--secondary-color)' }}>توزيع CLV حسب القطاع</h5>
+                  <div style={{ textAlign: 'center', padding: '40px', color: 'var(--gray-color)' }}>
+                    <div>لا توجد بيانات كافية لتحليل CLV حسب القطاع</div>
+                  </div>
+                </div>
+
+                <div style={{
+                  padding: '15px',
+                  background: '#f8fafc',
+                  borderRadius: '8px',
+                  borderRight: '4px solid var(--gray-color)'
+                }}>
+                  <div style={{ fontSize: '0.9rem', color: 'var(--gray-color)', fontWeight: '600', marginBottom: '5px' }}>
+                    ملاحظة
+                  </div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--gray-color)' }}>
+                    سيتم حساب CLV تلقائياً عند توفر بيانات كافية عن العملاء والمبيعات
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -874,95 +965,43 @@ export default function AdvancedAnalytics() {
             </h3>
           </div>
           <div style={{ padding: '25px' }}>
-            <div style={{ marginBottom: '25px' }}>
-              <h5 style={{ marginBottom: '15px', color: 'var(--secondary-color)' }}>التوقعات للعام القادم</h5>
-
-              {[
-                {
-                  trend: 'نمو الطلب على الأتمتة',
-                  probability: 89,
-                  impact: 'عالي',
-                  description: 'زيادة متوقعة 67% في طلبات أنظمة الأتمتة'
-                },
-                {
-                  trend: 'التحول للحلول السحابية',
-                  probability: 76,
-                  impact: 'متوسط',
-                  description: 'نمو 45% في الطلب على الحلول السحابية'
-                },
-                {
-                  trend: 'زيادة الاهتمام بالأمان السيبراني',
-                  probability: 92,
-                  impact: 'عالي',
-                  description: 'نمو 78% في طلبات حلول الأمان'
-                }
-              ].map((trend, index) => (
-                <div key={index} style={{
-                  padding: '15px',
-                  marginBottom: '15px',
-                  background: 'white',
-                  borderRadius: '8px',
-                  border: '1px solid #f1f5f9'
-                }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                    <div style={{ fontWeight: '600', color: 'var(--secondary-color)', fontSize: '0.9rem' }}>
-                      {trend.trend}
-                    </div>
-                    <div style={{
-                      padding: '2px 8px',
-                      borderRadius: '12px',
-                      fontSize: '0.7rem',
-                      fontWeight: '600',
-                      background: trend.impact === 'عالي' ? 'var(--danger-light)' : 'var(--warning-light)',
-                      color: trend.impact === 'عالي' ? 'var(--danger-color)' : 'var(--warning-color)'
-                    }}>
-                      {trend.impact}
-                    </div>
-                  </div>
-
-                  <div style={{ marginBottom: '10px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                      <span style={{ fontSize: '0.8rem', color: 'var(--gray-color)' }}>احتمالية التحقق</span>
-                      <span style={{ fontSize: '0.8rem', fontWeight: '600', color: 'var(--primary-color)' }}>
-                        {trend.probability}%
-                      </span>
-                    </div>
-                    <div style={{
-                      width: '100%',
-                      height: '4px',
-                      background: '#f1f5f9',
-                      borderRadius: '2px',
-                      overflow: 'hidden'
-                    }}>
-                      <div style={{
-                        width: `${trend.probability}%`,
-                        height: '100%',
-                        background: trend.probability > 80 ? 'var(--success-color)' : 'var(--warning-color)',
-                        borderRadius: '2px'
-                      }}></div>
-                    </div>
-                  </div>
-
-                  <div style={{ fontSize: '0.8rem', color: 'var(--gray-color)' }}>
-                    {trend.description}
+            {realStats.totalLeads === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px', color: 'var(--gray-color)' }}>
+                <i className="fas fa-rocket" style={{ fontSize: '3rem', marginBottom: '15px', color: 'var(--danger-color)' }}></i>
+                <h3 style={{ color: 'var(--secondary-color)', marginBottom: '10px' }}>
+                  لا توجد اتجاهات متاحة
+                </h3>
+                <p style={{ fontSize: '1rem', marginBottom: '20px' }}>
+                  يحتاج تحليل الاتجاهات المستقبلية إلى بيانات تاريخية وسوقية
+                </p>
+                <div style={{ fontSize: '0.9rem', color: 'var(--gray-color)' }}>
+                  أضف بيانات لفترة كافية لتحليل الاتجاهات
+                </div>
+              </div>
+            ) : (
+              <>
+                <div style={{ marginBottom: '25px' }}>
+                  <h5 style={{ marginBottom: '15px', color: 'var(--secondary-color)' }}>التوقعات للعام القادم</h5>
+                  <div style={{ textAlign: 'center', padding: '40px', color: 'var(--gray-color)' }}>
+                    <div>لا توجد بيانات كافية لتحليل الاتجاهات المستقبلية</div>
                   </div>
                 </div>
-              ))}
-            </div>
 
-            <div style={{
-              padding: '15px',
-              background: 'var(--primary-light)',
-              borderRadius: '8px',
-              borderRight: '4px solid var(--primary-color)'
-            }}>
-              <div style={{ fontSize: '0.9rem', color: 'var(--primary-color)', fontWeight: '600', marginBottom: '5px' }}>
-                استراتيجية مقترحة
-              </div>
-              <div style={{ fontSize: '0.8rem', color: 'var(--gray-color)' }}>
-                الاستثمار في تطوير حلول الأتمتة والأمان السيبراني لمواكبة اتجاهات السوق
-              </div>
-            </div>
+                <div style={{
+                  padding: '15px',
+                  background: '#f8fafc',
+                  borderRadius: '8px',
+                  borderRight: '4px solid var(--gray-color)'
+                }}>
+                  <div style={{ fontSize: '0.9rem', color: 'var(--gray-color)', fontWeight: '600', marginBottom: '5px' }}>
+                    ملاحظة
+                  </div>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--gray-color)' }}>
+                    سيتم تحليل الاتجاهات المستقبلية تلقائياً عند توفر بيانات كافية
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

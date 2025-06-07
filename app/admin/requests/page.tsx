@@ -48,84 +48,33 @@ export default function RequestsManagement() {
     fetchRequests()
   }, [])
 
-  // البيانات التجريبية كـ fallback
-  const mockRequests = [
-    {
-      id: 1,
-      companyName: 'شركة الرياض للتجارة',
-      contactPerson: 'أحمد محمد السالم',
-      email: 'ahmed@riyadh-trade.com',
-      phone: '+966501234567',
-      requestType: 'عرض سعر',
-      system: 'نظام المحاسبة والفاتورة الإلكترونية',
-      priority: 'high',
-      status: 'new',
-      submittedDate: '2024-01-15 10:30',
-      message: 'نحتاج نظام محاسبة متكامل يدعم الفاتورة الإلكترونية لشركة متوسطة الحجم تضم 50 موظف',
-      budget: '50,000 - 100,000 ريال',
-      timeline: 'خلال شهرين'
-    },
-    {
-      id: 2,
-      companyName: 'مؤسسة جدة للخدمات',
-      contactPerson: 'فاطمة علي أحمد',
-      email: 'fatima@jeddah-services.com',
-      phone: '+966502345678',
-      requestType: 'استفسار',
-      system: 'نظام إدارة العملاء (CRM)',
-      priority: 'medium',
-      status: 'in_progress',
-      submittedDate: '2024-01-14 14:20',
-      message: 'نريد معرفة المزيد عن إمكانيات نظام إدارة العملاء وكيفية التكامل مع الأنظمة الحالية',
-      budget: 'غير محدد',
-      timeline: 'غير محدد'
-    },
-    {
-      id: 3,
-      companyName: 'شركة الدمام الصناعية',
-      contactPerson: 'محمد يوسف الخالد',
-      email: 'mohamed@dammam-industrial.com',
-      phone: '+966503456789',
-      requestType: 'عرض تقديمي',
-      system: 'نظام إدارة المخزون',
-      priority: 'high',
-      status: 'responded',
-      submittedDate: '2024-01-12 09:15',
-      message: 'نحتاج عرض تقديمي مفصل عن نظام إدارة المخزون مع إمكانية الربط مع نقاط البيع',
-      budget: '30,000 - 50,000 ريال',
-      timeline: 'الأسبوع القادم'
-    },
-    {
-      id: 4,
-      companyName: 'مكتب الخبر الاستشاري',
-      contactPerson: 'نورا سالم العتيبي',
-      email: 'nora@khobar-consulting.com',
-      phone: '+966504567890',
-      requestType: 'استشارة',
-      system: 'نظام إدارة المشاريع',
-      priority: 'low',
-      status: 'closed',
-      submittedDate: '2024-01-10 16:45',
-      message: 'نحتاج استشارة حول أفضل الممارسات في إدارة المشاريع وكيفية اختيار النظام المناسب',
-      budget: 'استشارة مجانية',
-      timeline: 'غير محدد'
-    },
-    {
-      id: 5,
-      companyName: 'شركة المدينة التقنية',
-      contactPerson: 'خالد عبدالله النمر',
-      email: 'khalid@madinah-tech.com',
-      phone: '+966505678901',
-      requestType: 'عرض سعر',
-      system: 'نظام إدارة الموارد البشرية',
-      priority: 'medium',
-      status: 'new',
-      submittedDate: '2024-01-15 11:20',
-      message: 'نبحث عن نظام شامل لإدارة الموارد البشرية يشمل الرواتب والحضور والانصراف',
-      budget: '40,000 - 80,000 ريال',
-      timeline: 'خلال 3 أشهر'
+  // استخدام البيانات الافتراضية إذا لم تكن هناك بيانات حقيقية
+  useEffect(() => {
+    if (requests.length === 0 && !loading) {
+      const fallbackData = [
+        {
+          id: '1',
+          lead: {
+            companyName: 'لا توجد طلبات',
+            contactPerson: 'قاعدة البيانات فارغة',
+            email: 'no-data@example.com',
+            phone: '+966500000000'
+          },
+          system: {
+            name: 'لا يوجد نظام'
+          },
+          requestType: 'لا يوجد',
+          description: 'قاعدة البيانات فارغة حالياً. أضف بيانات جديدة لرؤية الطلبات.',
+          budget: 'غير محدد',
+          timeline: 'غير محدد',
+          status: 'new',
+          priority: 'low',
+          createdAt: new Date().toISOString()
+        }
+      ]
+      setRequests(fallbackData)
     }
-  ])
+  }, [requests.length, loading])
 
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')
@@ -133,13 +82,17 @@ export default function RequestsManagement() {
   const [filterType, setFilterType] = useState('all')
 
   const filteredRequests = requests.filter(request => {
-    const matchesSearch = request.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         request.contactPerson.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         request.system.toLowerCase().includes(searchTerm.toLowerCase())
+    const companyName = request.lead?.companyName || ''
+    const contactPerson = request.lead?.contactPerson || ''
+    const systemName = request.system?.name || ''
+
+    const matchesSearch = companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         contactPerson.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         systemName.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = filterStatus === 'all' || request.status === filterStatus
     const matchesPriority = filterPriority === 'all' || request.priority === filterPriority
     const matchesType = filterType === 'all' || request.requestType === filterType
-    
+
     return matchesSearch && matchesStatus && matchesPriority && matchesType
   })
 
@@ -350,12 +303,12 @@ export default function RequestsManagement() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
                 <div>
                   <h4 style={{ margin: '0 0 8px 0', color: 'var(--secondary-color)', fontSize: '1.2rem' }}>
-                    {request.companyName}
+                    {request.lead?.companyName || 'غير محدد'}
                   </h4>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '15px', fontSize: '0.9rem', color: 'var(--gray-color)' }}>
-                    <span><i className="fas fa-user"></i> {request.contactPerson}</span>
-                    <span><i className="fas fa-envelope"></i> {request.email}</span>
-                    <span><i className="fas fa-phone"></i> {request.phone}</span>
+                    <span><i className="fas fa-user"></i> {request.lead?.contactPerson || 'غير محدد'}</span>
+                    <span><i className="fas fa-envelope"></i> {request.lead?.email || 'غير محدد'}</span>
+                    <span><i className="fas fa-phone"></i> {request.lead?.phone || 'غير محدد'}</span>
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
@@ -391,11 +344,13 @@ export default function RequestsManagement() {
                   </div>
                   <div style={{ marginBottom: '10px' }}>
                     <strong style={{ color: 'var(--secondary-color)' }}>النظام المطلوب:</strong>
-                    <span style={{ marginRight: '10px', color: 'var(--gray-color)' }}>{request.system}</span>
+                    <span style={{ marginRight: '10px', color: 'var(--gray-color)' }}>{request.system?.name || 'غير محدد'}</span>
                   </div>
                   <div>
                     <strong style={{ color: 'var(--secondary-color)' }}>تاريخ الإرسال:</strong>
-                    <span style={{ marginRight: '10px', color: 'var(--gray-color)' }}>{request.submittedDate}</span>
+                    <span style={{ marginRight: '10px', color: 'var(--gray-color)' }}>
+                      {request.createdAt ? new Date(request.createdAt).toLocaleDateString('ar-SA') : 'غير محدد'}
+                    </span>
                   </div>
                 </div>
                 <div>
@@ -414,14 +369,14 @@ export default function RequestsManagement() {
               <div style={{ marginBottom: '20px' }}>
                 <strong style={{ color: 'var(--secondary-color)', display: 'block', marginBottom: '8px' }}>تفاصيل الطلب:</strong>
                 <p style={{ 
-                  margin: 0, 
-                  padding: '15px', 
-                  background: '#f8fafc', 
-                  borderRadius: '8px', 
+                  margin: 0,
+                  padding: '15px',
+                  background: '#f8fafc',
+                  borderRadius: '8px',
                   color: 'var(--gray-color)',
                   lineHeight: '1.6'
                 }}>
-                  {request.message}
+                  {request.description || 'لا توجد تفاصيل'}
                 </p>
               </div>
 

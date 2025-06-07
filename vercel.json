@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "name": "cs-leads-system",
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/next"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/"
+    }
+  ],
+  "env": {
+    "NEXTAUTH_URL": "https://cs-leads-system.vercel.app",
+    "NEXTAUTH_SECRET": "your-nextauth-secret-here"
+  },
+  "functions": {
+    "app/api/**/*.ts": {
+      "maxDuration": 30
+    }
+  }
+}

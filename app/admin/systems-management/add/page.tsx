@@ -38,6 +38,7 @@ export default function AddSystemPage() {
     seoDescription?: string;
   }>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isGeneratingKeywords, setIsGeneratingKeywords] = useState(false)
 
   const steps = [
     { id: 1, title: 'المعلومات الأساسية', icon: 'fas fa-info-circle' },
@@ -48,8 +49,8 @@ export default function AddSystemPage() {
   ]
 
   // دالة حساب النسبة المئوية للكلمات المفتاحية
-  const calculateKeywordDensity = (text: string, keyword: string) => {
-    if (!text || !keyword) return 0
+  const calculateKeywordDensity = (text: string, keyword: string): string => {
+    if (!text || !keyword) return '0.0'
     const words = text.toLowerCase().split(/\s+/)
     const keywordWords = keyword.toLowerCase().split(/\s+/)
     let matches = 0
@@ -65,7 +66,7 @@ export default function AddSystemPage() {
       if (match) matches++
     }
 
-    return words.length > 0 ? ((matches / words.length) * 100).toFixed(1) : 0
+    return words.length > 0 ? ((matches / words.length) * 100).toFixed(1) : '0.0'
   }
 
   // دالة تحليل SEO
@@ -239,6 +240,86 @@ export default function AddSystemPage() {
         keywords: prev.seo.keywords.map((keyword, i) => i === index ? value : keyword)
       }
     }))
+  }
+
+  // دالة توليد الكلمات المفتاحية بالذكاء الاصطناعي
+  const generateKeywordsWithAI = async () => {
+    if (!formData.name || !formData.description || !formData.category) {
+      alert('يرجى ملء اسم النظام والوصف والفئة أولاً لتوليد كلمات مفتاحية مناسبة')
+      return
+    }
+
+    setIsGeneratingKeywords(true)
+
+    try {
+      // محاكاة استدعاء API للذكاء الاصطناعي
+      await new Promise(resolve => setTimeout(resolve, 2000))
+
+      // توليد كلمات مفتاحية ذكية بناءً على البيانات المدخلة
+      const aiGeneratedKeywords = generateSmartKeywords(
+        formData.name,
+        formData.description,
+        formData.category
+      )
+
+      // إضافة الكلمات المفتاحية المولدة
+      setFormData(prev => ({
+        ...prev,
+        seo: {
+          ...prev.seo,
+          keywords: [...prev.seo.keywords.filter(k => k.trim() !== ''), ...aiGeneratedKeywords]
+        }
+      }))
+
+      alert(`تم توليد ${aiGeneratedKeywords.length} كلمة مفتاحية بنجاح!`)
+    } catch (error) {
+      console.error('Error generating keywords:', error)
+      alert('حدث خطأ أثناء توليد الكلمات المفتاحية')
+    } finally {
+      setIsGeneratingKeywords(false)
+    }
+  }
+
+  // دالة توليد كلمات مفتاحية ذكية
+  const generateSmartKeywords = (name: string, description: string, category: string) => {
+    const keywords = []
+
+    // كلمات أساسية من اسم النظام
+    const nameWords = name.split(' ').filter(word => word.length > 2)
+    keywords.push(...nameWords)
+
+    // كلمات من الفئة
+    const categoryKeywords = {
+      'مالي': ['محاسبة', 'فواتير إلكترونية', 'مالية', 'ضرائب', 'مدفوعات', 'تقارير مالية', 'هيئة الزكاة', 'قيود محاسبية'],
+      'مبيعات': ['مبيعات', 'عملاء', 'فرص تجارية', 'تسويق', 'متابعة العملاء', 'إدارة علاقات', 'CRM', 'خط المبيعات'],
+      'موارد بشرية': ['موظفين', 'رواتب', 'حضور وانصراف', 'تقييم أداء', 'إجازات', 'تدريب', 'موارد بشرية', 'شؤون الموظفين'],
+      'مخزون': ['مخزون', 'مستودعات', 'جرد', 'مواد', 'توريد', 'باركود', 'إدارة المخزون', 'تتبع المواد'],
+      'إدارة': ['مشاريع', 'مهام', 'تخطيط', 'متابعة', 'تقارير', 'إدارة المشاريع', 'تنظيم العمل', 'إدارة الوقت'],
+      'تقني': ['برمجة', 'تطوير', 'تقنية', 'نظام', 'تطبيق', 'حلول تقنية', 'برمجيات', 'تطوير الأنظمة']
+    }
+
+    if (categoryKeywords[category]) {
+      keywords.push(...categoryKeywords[category].slice(0, 4))
+    }
+
+    // كلمات عامة للأنظمة
+    const systemKeywords = ['نظام', 'برنامج', 'تطبيق', 'حل', 'إدارة', 'تقنية']
+    keywords.push(...systemKeywords.slice(0, 3))
+
+    // كلمات من الوصف (استخراج الكلمات المهمة)
+    const descriptionWords = description
+      .split(' ')
+      .filter(word => word.length > 3 && !['هذا', 'ذلك', 'التي', 'الذي', 'يمكن', 'سوف'].includes(word))
+      .slice(0, 3)
+    keywords.push(...descriptionWords)
+
+    // إزالة التكرارات وتنظيف الكلمات
+    const uniqueKeywords = [...new Set(keywords)]
+      .map(keyword => keyword.trim())
+      .filter(keyword => keyword.length > 1)
+      .slice(0, 8) // حد أقصى 8 كلمات
+
+    return uniqueKeywords
   }
 
   const handleFileUpload = (files: FileList) => {
@@ -1126,32 +1207,152 @@ export default function AddSystemPage() {
                     ))}
                   </div>
 
-                  <button
-                    onClick={addKeyword}
-                    style={{
+                  <div style={{
+                    marginTop: '15px',
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr',
+                    gap: '15px'
+                  }}>
+                    <button
+                      onClick={addKeyword}
+                      style={{
+                        padding: '12px 20px',
+                        background: 'var(--success-light)',
+                        color: 'var(--success-color)',
+                        border: '2px dashed var(--success-color)',
+                        borderRadius: '10px',
+                        cursor: 'pointer',
+                        fontSize: '1rem',
+                        fontWeight: '600',
+                        transition: 'all 0.3s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'var(--success-color)'
+                        e.currentTarget.style.color = 'white'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'var(--success-light)'
+                        e.currentTarget.style.color = 'var(--success-color)'
+                      }}
+                    >
+                      <i className="fas fa-plus"></i> إضافة كلمة مفتاحية
+                    </button>
+
+                    <button
+                      onClick={generateKeywordsWithAI}
+                      disabled={isGeneratingKeywords || !formData.name || !formData.description}
+                      style={{
+                        padding: '12px 20px',
+                        background: isGeneratingKeywords ? '#94a3b8' :
+                                   (!formData.name || !formData.description) ? '#e2e8f0' :
+                                   'linear-gradient(135deg, #667eea, #764ba2)',
+                        color: isGeneratingKeywords ? 'white' :
+                               (!formData.name || !formData.description) ? '#94a3b8' : 'white',
+                        border: 'none',
+                        borderRadius: '10px',
+                        cursor: isGeneratingKeywords || (!formData.name || !formData.description) ? 'not-allowed' : 'pointer',
+                        fontSize: '1rem',
+                        fontWeight: '600',
+                        transition: 'all 0.3s ease',
+                        position: 'relative',
+                        overflow: 'hidden'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isGeneratingKeywords && formData.name && formData.description) {
+                          e.currentTarget.style.transform = 'translateY(-2px)'
+                          e.currentTarget.style.boxShadow = '0 8px 20px rgba(102, 126, 234, 0.3)'
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isGeneratingKeywords) {
+                          e.currentTarget.style.transform = 'translateY(0)'
+                          e.currentTarget.style.boxShadow = 'none'
+                        }
+                      }}
+                    >
+                      {isGeneratingKeywords ? (
+                        <>
+                          <i className="fas fa-spinner fa-spin"></i> جاري التوليد...
+                        </>
+                      ) : (
+                        <>
+                          <i className="fas fa-magic"></i> توليد بالـ AI
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  {/* إحصائيات الكلمات المفتاحية */}
+                  {formData.seo.keywords.filter(k => k.trim() !== '').length > 0 && (
+                    <div style={{
                       marginTop: '15px',
-                      padding: '12px 20px',
-                      background: 'var(--success-light)',
-                      color: 'var(--success-color)',
-                      border: '2px dashed var(--success-color)',
+                      padding: '15px',
+                      background: 'linear-gradient(135deg, #f0fdf4, #dcfce7)',
                       borderRadius: '10px',
-                      cursor: 'pointer',
-                      fontSize: '1rem',
-                      fontWeight: '600',
-                      transition: 'all 0.3s ease',
-                      width: '100%'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'var(--success-color)'
-                      e.currentTarget.style.color = 'white'
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'var(--success-light)'
-                      e.currentTarget.style.color = 'var(--success-color)'
-                    }}
-                  >
-                    <i className="fas fa-plus"></i> إضافة كلمة مفتاحية
-                  </button>
+                      border: '1px solid #22c55e',
+                      fontSize: '0.9rem'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                        <i className="fas fa-chart-bar" style={{ color: '#22c55e' }}></i>
+                        <strong style={{ color: '#15803d' }}>إحصائيات الكلمات المفتاحية:</strong>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+                        <div style={{ textAlign: 'center', padding: '8px', background: 'white', borderRadius: '6px' }}>
+                          <div style={{ fontSize: '1.2rem', fontWeight: '600', color: '#22c55e' }}>
+                            {formData.seo.keywords.filter(k => k.trim() !== '').length}
+                          </div>
+                          <div style={{ fontSize: '0.8rem', color: '#6b7280' }}>إجمالي الكلمات</div>
+                        </div>
+                        <div style={{ textAlign: 'center', padding: '8px', background: 'white', borderRadius: '6px' }}>
+                          <div style={{ fontSize: '1.2rem', fontWeight: '600', color: '#3b82f6' }}>
+                            {formData.seo.keywords
+                              .filter(k => k.trim() !== '')
+                              .filter(k => {
+                                const avgDensity = (parseFloat(calculateKeywordDensity(formData.seo.title, k)) +
+                                                   parseFloat(calculateKeywordDensity(formData.seo.description, k))) / 2
+                                return avgDensity > 1
+                              }).length}
+                          </div>
+                          <div style={{ fontSize: '0.8rem', color: '#6b7280' }}>كلمات فعالة</div>
+                        </div>
+                        <div style={{ textAlign: 'center', padding: '8px', background: 'white', borderRadius: '6px' }}>
+                          <div style={{ fontSize: '1.2rem', fontWeight: '600', color: '#f59e0b' }}>
+                            {(formData.seo.keywords
+                              .filter(k => k.trim() !== '')
+                              .reduce((sum, k) => {
+                                const avgDensity = (parseFloat(calculateKeywordDensity(formData.seo.title, k)) +
+                                                   parseFloat(calculateKeywordDensity(formData.seo.description, k))) / 2
+                                return sum + avgDensity
+                              }, 0) / Math.max(formData.seo.keywords.filter(k => k.trim() !== '').length, 1)).toFixed(1)}%
+                          </div>
+                          <div style={{ fontSize: '0.8rem', color: '#6b7280' }}>متوسط الكثافة</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* نصائح للمستخدم */}
+                  <div style={{
+                    marginTop: '15px',
+                    padding: '15px',
+                    background: 'linear-gradient(135deg, #f0f9ff, #e0f2fe)',
+                    borderRadius: '10px',
+                    border: '1px solid #0ea5e9',
+                    fontSize: '0.9rem',
+                    color: '#0369a1'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                      <i className="fas fa-lightbulb" style={{ color: '#0ea5e9' }}></i>
+                      <strong>نصائح لكلمات مفتاحية أفضل:</strong>
+                    </div>
+                    <ul style={{ margin: 0, paddingRight: '20px' }}>
+                      <li>استخدم كلمات يبحث عنها العملاء المحتملون</li>
+                      <li>اختر كلمات متعلقة بمجال عملك ونشاطك</li>
+                      <li>تجنب الكلمات العامة جداً أو المحددة جداً</li>
+                      <li>استخدم 5-8 كلمات مفتاحية للحصول على أفضل النتائج</li>
+                      <li>استخدم زر "توليد بالـ AI" للحصول على اقتراحات ذكية</li>
+                    </ul>
+                  </div>
                 </div>
 
                 {/* تحليل SEO المباشر */}
@@ -1210,7 +1411,7 @@ export default function AddSystemPage() {
                         {formData.seo.focusKeyword && (
                           <div style={{ marginBottom: '15px' }}>
                             <h4 style={{ margin: '0 0 10px 0', color: 'var(--secondary-color)' }}>
-                              كثافة الكلمة المفتاحية &quot;{formData.seo.focusKeyword}&quot;
+                              كثافة الكلمة المفتاحية &ldquo;{formData.seo.focusKeyword}&rdquo;
                             </h4>
                             <div style={{ display: 'grid', gap: '10px' }}>
                               <div style={{
@@ -1249,6 +1450,88 @@ export default function AddSystemPage() {
                           </div>
                         )}
 
+                        {/* عرض كثافة جميع الكلمات المفتاحية */}
+                        {formData.seo.keywords.filter(k => k.trim() !== '').length > 0 && (
+                          <div style={{ marginBottom: '15px' }}>
+                            <h4 style={{ margin: '0 0 10px 0', color: 'var(--secondary-color)' }}>
+                              كثافة الكلمات المفتاحية
+                            </h4>
+                            <div style={{ display: 'grid', gap: '8px' }}>
+                              {formData.seo.keywords
+                                .filter(keyword => keyword.trim() !== '')
+                                .map((keyword, index) => {
+                                  const titleDensity = calculateKeywordDensity(formData.seo.title, keyword)
+                                  const descDensity = calculateKeywordDensity(formData.seo.description, keyword)
+                                  const avgDensity = ((parseFloat(titleDensity) + parseFloat(descDensity)) / 2).toFixed(1)
+
+                                  return (
+                                    <div key={index} style={{
+                                      display: 'flex',
+                                      justifyContent: 'space-between',
+                                      alignItems: 'center',
+                                      padding: '8px 12px',
+                                      background: 'white',
+                                      borderRadius: '6px',
+                                      fontSize: '0.9rem'
+                                    }}>
+                                      <span style={{
+                                        fontWeight: '500',
+                                        color: 'var(--secondary-color)'
+                                      }}>
+                                        &quot;{keyword}&quot;
+                                      </span>
+                                      <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+                                        <span style={{ fontSize: '0.8rem', color: 'var(--gray-color)' }}>
+                                          العنوان: {titleDensity}%
+                                        </span>
+                                        <span style={{ fontSize: '0.8rem', color: 'var(--gray-color)' }}>
+                                          الوصف: {descDensity}%
+                                        </span>
+                                        <span style={{
+                                          fontWeight: '600',
+                                          color: parseFloat(avgDensity) > 2 ? 'white' :
+                                                parseFloat(avgDensity) > 1 ? 'white' :
+                                                'white',
+                                          padding: '2px 8px',
+                                          borderRadius: '12px',
+                                          background: parseFloat(avgDensity) > 2 ? 'var(--success-color)' :
+                                                     parseFloat(avgDensity) > 1 ? 'var(--warning-color)' :
+                                                     'var(--danger-color)',
+                                          fontSize: '0.8rem'
+                                        }}>
+                                          متوسط: {avgDensity}%
+                                        </span>
+                                      </div>
+                                    </div>
+                                  )
+                                })}
+                            </div>
+
+                            {/* مؤشر جودة الكلمات المفتاحية */}
+                            <div style={{
+                              marginTop: '10px',
+                              padding: '10px',
+                              background: 'white',
+                              borderRadius: '8px',
+                              border: '1px solid #e2e8f0'
+                            }}>
+                              <div style={{
+                                fontSize: '0.9rem',
+                                fontWeight: '600',
+                                color: 'var(--secondary-color)',
+                                marginBottom: '5px'
+                              }}>
+                                تقييم جودة الكلمات المفتاحية:
+                              </div>
+                              <div style={{ fontSize: '0.8rem', color: 'var(--gray-color)' }}>
+                                <span style={{ color: 'var(--success-color)' }}>• ممتاز (أكثر من 2%)</span> |
+                                <span style={{ color: 'var(--warning-color)' }}> جيد (1-2%)</span> |
+                                <span style={{ color: 'var(--danger-color)' }}> يحتاج تحسين (أقل من 1%)</span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
                         {analyzeSEO().issues.length > 0 && (
                           <div>
                             <h4 style={{ margin: '0 0 10px 0', color: 'var(--danger-color)' }}>
@@ -1258,12 +1541,13 @@ export default function AddSystemPage() {
                               {analyzeSEO().issues.map((issue, index) => (
                                 <div key={index} style={{
                                   padding: '8px 12px',
-                                  background: 'var(--danger-light)',
-                                  color: 'var(--danger-color)',
+                                  background: 'var(--danger-color)',
+                                  color: 'white',
                                   borderRadius: '6px',
-                                  fontSize: '0.9rem'
+                                  fontSize: '0.9rem',
+                                  fontWeight: '500'
                                 }}>
-                                  <i className="fas fa-exclamation-triangle" style={{ marginLeft: '8px' }}></i>
+                                  <i className="fas fa-exclamation-triangle" style={{ marginLeft: '8px', color: 'white' }}></i>
                                   {issue}
                                 </div>
                               ))}

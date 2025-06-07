@@ -46,84 +46,16 @@ export default function LeadsManagement() {
     fetchLeads()
   }, [])
 
-  // البيانات التجريبية كـ fallback
-  const mockLeads = [
-    {
-      id: 1,
-      companyName: 'شركة الرياض للتجارة',
-      contactPerson: 'أحمد محمد السالم',
-      email: 'ahmed@riyadh-trade.com',
-      phone: '+966501234567',
-      city: 'الرياض',
-      interestedSystem: 'نظام المحاسبة',
-      status: 'new',
-      source: 'موقع الويب',
-      createdDate: '2024-01-15',
-      lastContact: '2024-01-15',
-      notes: 'مهتم بنظام محاسبة متكامل لشركة متوسطة'
-    },
-    {
-      id: 2,
-      companyName: 'مؤسسة جدة للخدمات',
-      contactPerson: 'فاطمة علي أحمد',
-      email: 'fatima@jeddah-services.com',
-      phone: '+966502345678',
-      city: 'جدة',
-      interestedSystem: 'نظام إدارة العملاء',
-      status: 'contacted',
-      source: 'إحالة',
-      createdDate: '2024-01-14',
-      lastContact: '2024-01-15',
-      notes: 'تحتاج عرض تقديمي الأسبوع القادم'
-    },
-    {
-      id: 3,
-      companyName: 'شركة الدمام الصناعية',
-      contactPerson: 'محمد يوسف الخالد',
-      email: 'mohamed@dammam-industrial.com',
-      phone: '+966503456789',
-      city: 'الدمام',
-      interestedSystem: 'نظام إدارة المخزون',
-      status: 'qualified',
-      source: 'معرض تجاري',
-      createdDate: '2024-01-12',
-      lastContact: '2024-01-14',
-      notes: 'عميل مؤهل، يحتاج عرض سعر مفصل'
-    },
-    {
-      id: 4,
-      companyName: 'مكتب الخبر الاستشاري',
-      contactPerson: 'نورا سالم العتيبي',
-      email: 'nora@khobar-consulting.com',
-      phone: '+966504567890',
-      city: 'الخبر',
-      interestedSystem: 'نظام إدارة المشاريع',
-      status: 'proposal',
-      source: 'LinkedIn',
-      createdDate: '2024-01-10',
-      lastContact: '2024-01-13',
-      notes: 'تم إرسال عرض السعر، في انتظار الرد'
-    },
-    {
-      id: 5,
-      companyName: 'شركة المدينة التقنية',
-      contactPerson: 'خالد عبدالله النمر',
-      email: 'khalid@madinah-tech.com',
-      phone: '+966505678901',
-      city: 'المدينة المنورة',
-      interestedSystem: 'نظام الموارد البشرية',
-      status: 'converted',
-      source: 'Google Ads',
-      createdDate: '2024-01-08',
-      lastContact: '2024-01-12',
-      notes: 'تم التحويل إلى عميل، بدء التنفيذ'
+  // استخدام البيانات الافتراضية إذا لم تكن هناك بيانات حقيقية
+  useEffect(() => {
+    if (leads.length === 0 && !loading) {
+      // لا نستخدم بيانات افتراضية - نعرض فقط البيانات الحقيقية أو رسالة فارغة
     }
-  ])
+  }, [leads.length, loading])
 
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')
   const [filterCity, setFilterCity] = useState('all')
-  const [filterSystem, setFilterSystem] = useState('all')
 
   const filteredLeads = leads.filter(lead => {
     const matchesSearch = lead.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -131,9 +63,9 @@ export default function LeadsManagement() {
                          lead.email.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = filterStatus === 'all' || lead.status === filterStatus
     const matchesCity = filterCity === 'all' || lead.city === filterCity
-    const matchesSystem = filterSystem === 'all' || lead.interestedSystem === filterSystem
-    
-    return matchesSearch && matchesStatus && matchesCity && matchesSystem
+    // إزالة فلتر النظام لأنه غير موجود في واجهة Lead
+
+    return matchesSearch && matchesStatus && matchesCity
   })
 
   const getStatusText = (status: string) => {
@@ -161,7 +93,7 @@ export default function LeadsManagement() {
   }
 
   const cities = [...new Set(leads.map(lead => lead.city))]
-  const systems = [...new Set(leads.map(lead => lead.interestedSystem))]
+  // إزالة الأنظمة لأنها غير موجودة في واجهة Lead
 
   return (
     <>
@@ -232,7 +164,7 @@ export default function LeadsManagement() {
 
         {/* أدوات البحث والفلترة */}
         <div style={{ padding: '20px 25px', borderBottom: '1px solid var(--border-color)', background: '#f8fafc' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '15px', alignItems: 'center' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '15px', alignItems: 'center' }}>
             <div style={{ position: 'relative' }}>
               <input
                 type="text"
@@ -291,21 +223,7 @@ export default function LeadsManagement() {
               ))}
             </select>
 
-            <select
-              value={filterSystem}
-              onChange={(e) => setFilterSystem(e.target.value)}
-              style={{
-                padding: '10px 15px',
-                border: '2px solid var(--border-color)',
-                borderRadius: '8px',
-                fontSize: '0.9rem'
-              }}
-            >
-              <option value="all">جميع الأنظمة</option>
-              {systems.map((system, index) => (
-                <option key={index} value={system}>{system}</option>
-              ))}
-            </select>
+
           </div>
         </div>
 
@@ -315,14 +233,36 @@ export default function LeadsManagement() {
               <th>الشركة</th>
               <th>الشخص المسؤول</th>
               <th>المدينة</th>
-              <th>النظام المطلوب</th>
+              <th>المصدر</th>
               <th>الحالة</th>
               <th>آخر تواصل</th>
               <th>الإجراءات</th>
             </tr>
           </thead>
           <tbody>
-            {filteredLeads.map((lead) => (
+            {loading ? (
+              <tr>
+                <td colSpan={7} style={{ textAlign: 'center', padding: '40px', color: 'var(--gray-color)' }}>
+                  <i className="fas fa-spinner fa-spin" style={{ fontSize: '2rem', marginBottom: '10px' }}></i>
+                  <div>جاري تحميل العملاء المحتملين...</div>
+                </td>
+              </tr>
+            ) : filteredLeads.length === 0 ? (
+              <tr>
+                <td colSpan={7} style={{ textAlign: 'center', padding: '60px', color: 'var(--gray-color)' }}>
+                  <i className="fas fa-users" style={{ fontSize: '3rem', marginBottom: '15px' }}></i>
+                  <div style={{ fontSize: '1.2rem', fontWeight: '600', marginBottom: '10px' }}>
+                    لا توجد عملاء محتملين
+                  </div>
+                  <div style={{ marginBottom: '20px' }}>
+                    قاعدة البيانات فارغة حالياً. أضف عملاء محتملين جدد للبدء.
+                  </div>
+                  <button className="btn btn-primary">
+                    <i className="fas fa-plus"></i> إضافة عميل محتمل
+                  </button>
+                </td>
+              </tr>
+            ) : filteredLeads.map((lead) => (
               <tr key={lead.id}>
                 <td>
                   <div>
@@ -357,7 +297,7 @@ export default function LeadsManagement() {
                   </span>
                 </td>
                 <td style={{ fontSize: '0.9rem', fontWeight: '500' }}>
-                  {lead.interestedSystem}
+                  {lead.source}
                 </td>
                 <td>
                   <span style={{
@@ -372,7 +312,7 @@ export default function LeadsManagement() {
                   </span>
                 </td>
                 <td style={{ fontSize: '0.9rem' }}>
-                  {lead.lastContact}
+                  {lead.updatedAt ? new Date(lead.updatedAt).toLocaleDateString('ar-SA') : 'غير محدد'}
                 </td>
                 <td>
                   <div style={{ display: 'flex', gap: '5px' }}>

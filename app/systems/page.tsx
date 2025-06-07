@@ -43,15 +43,36 @@ export default function Systems() {
   // دالة لإرجاع أيقونة النظام حسب الفئة
   const getSystemIcon = (category: string) => {
     switch (category.toLowerCase()) {
-      case 'accounting': return 'fas fa-calculator'
-      case 'crm': return 'fas fa-users'
-      case 'hr': return 'fas fa-user-tie'
-      case 'inventory': return 'fas fa-warehouse'
-      case 'analytics': return 'fas fa-chart-line'
-      case 'ecommerce': return 'fas fa-shopping-cart'
+      case 'مالي': return 'fas fa-file-invoice-dollar'
+      case 'مبيعات': return 'fas fa-users'
+      case 'موارد بشرية': return 'fas fa-user-tie'
+      case 'مخزون': return 'fas fa-warehouse'
+      case 'إدارة': return 'fas fa-tasks'
+      case 'تقني': return 'fas fa-code'
       default: return 'fas fa-cog'
     }
   }
+
+  // دالة لإرجاع لون النظام حسب الفئة
+  const getSystemColor = (category: string) => {
+    switch (category.toLowerCase()) {
+      case 'مالي': return '#ff6b6b'
+      case 'مبيعات': return '#ffd166'
+      case 'موارد بشرية': return '#06d6a0'
+      case 'مخزون': return '#118ab2'
+      case 'إدارة': return '#8338ec'
+      case 'تقني': return '#fb8500'
+      default: return '#0066cc'
+    }
+  }
+
+  // فلترة الأنظمة حسب الفئة المحددة
+  const filteredSystems = activeFilter === 'all'
+    ? systems.filter(system => system.isActive)
+    : systems.filter(system => system.isActive && system.category.toLowerCase() === activeFilter.toLowerCase())
+
+  // الحصول على الفئات الفريدة
+  const categories = [...new Set(systems.map(system => system.category))]
 
   useEffect(() => {
     // تهيئة تأثير الجزيئات المتحركة
@@ -337,18 +358,13 @@ export default function Systems() {
             <Link href="/contact" className="nav-link">تواصل معنا</Link>
           </nav>
           <div className="header-actions">
-            <a
-              href="#"
+            <Link
+              href="/contact?trial=true"
               className="btn btn-free-trial"
-              onClick={(e) => {
-                e.preventDefault()
-                // سيتم ربطه بدومين آخر لاحقاً
-                alert('سيتم توجيهك لصفحة التسجيل قريباً')
-              }}
             >
               <i className="fas fa-gift"></i>
               تجربة مجانية
-            </a>
+            </Link>
           </div>
         </div>
       </header>
@@ -371,34 +387,23 @@ export default function Systems() {
       <section className="systems-section">
         <div className="container">
           <div className="systems-filter">
-            <button className="filter-btn active" data-filter="all">
+            <button
+              className={`filter-btn ${activeFilter === 'all' ? 'active' : ''}`}
+              onClick={() => setActiveFilter('all')}
+            >
               <i className="fas fa-th-large"></i>
               جميع الأنظمة
             </button>
-            <button className="filter-btn" data-filter="accounting">
-              <i className="fas fa-calculator"></i>
-              المحاسبة
-            </button>
-            <button className="filter-btn" data-filter="hr">
-              <i className="fas fa-users-cog"></i>
-              الموارد البشرية
-            </button>
-            <button className="filter-btn" data-filter="crm">
-              <i className="fas fa-user-tie"></i>
-              إدارة العملاء
-            </button>
-            <button className="filter-btn" data-filter="assets">
-              <i className="fas fa-cubes"></i>
-              إدارة الأصول
-            </button>
-            <button className="filter-btn" data-filter="projects">
-              <i className="fas fa-tasks"></i>
-              إدارة المشاريع
-            </button>
-            <button className="filter-btn" data-filter="inventory">
-              <i className="fas fa-warehouse"></i>
-              إدارة المخزون
-            </button>
+            {categories.map((category, index) => (
+              <button
+                key={index}
+                className={`filter-btn ${activeFilter === category ? 'active' : ''}`}
+                onClick={() => setActiveFilter(category)}
+              >
+                <i className={getSystemIcon(category)}></i>
+                {category}
+              </button>
+            ))}
           </div>
 
           <div className="systems-grid" style={{
@@ -407,396 +412,115 @@ export default function Systems() {
             gap: '30px',
             marginBottom: '50px'
           }}>
-            {/* نظام الحسابات والفاتورة الإلكترونية */}
-            <div className="system-card" data-type="accounting" style={{
-              backgroundColor: 'white',
-              borderRadius: '15px',
-              padding: '30px',
-              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
-              transition: 'all 0.4s ease',
-              border: '1px solid rgba(0, 102, 204, 0.1)',
-              display: 'flex',
-              flexDirection: 'column',
-              height: '100%'
-            }}>
-              <div className="system-card-header" style={{ textAlign: 'center', marginBottom: '20px' }}>
-                <i className="fas fa-file-invoice-dollar system-icon" style={{
-                  fontSize: '3rem',
-                  color: '#ff6b6b',
-                  marginBottom: '15px',
-                  display: 'block'
-                }}></i>
+            {loading ? (
+              <div style={{
+                gridColumn: '1 / -1',
+                textAlign: 'center',
+                padding: '60px',
+                color: 'var(--gray-color)'
+              }}>
+                <i className="fas fa-spinner fa-spin" style={{ fontSize: '2rem', marginBottom: '10px' }}></i>
+                <div>جاري تحميل الأنظمة...</div>
               </div>
-              <div className="system-card-body" style={{ flex: 1 }}>
-                <h3 className="system-title" style={{
-                  fontSize: '1.4rem',
-                  fontWeight: '700',
-                  marginBottom: '15px',
-                  color: 'var(--secondary-color)'
-                }}>نظام الحسابات والفاتورة الإلكترونية</h3>
-                <p className="system-description" style={{
-                  color: 'var(--gray-color)',
-                  lineHeight: '1.7',
-                  marginBottom: '20px'
-                }}>نظام متكامل لإدارة الحسابات والفواتير الإلكترونية بكفاءة عالية وفقًا لمتطلبات هيئة الزكاة والضريبة والجمارك.</p>
+            ) : filteredSystems.length === 0 ? (
+              <div style={{
+                gridColumn: '1 / -1',
+                textAlign: 'center',
+                padding: '60px',
+                color: 'var(--gray-color)'
+              }}>
+                <i className="fas fa-cogs" style={{ fontSize: '3rem', marginBottom: '15px' }}></i>
+                <div style={{ fontSize: '1.2rem', fontWeight: '600', marginBottom: '10px' }}>
+                  لا توجد أنظمة متاحة
+                </div>
+                <div>
+                  {activeFilter === 'all'
+                    ? 'لا توجد أنظمة متاحة حالياً'
+                    : `لا توجد أنظمة في فئة "${activeFilter}"`
+                  }
+                </div>
               </div>
-              <div className="system-card-footer">
-                <Link href="/systems/accounting" className="btn btn-primary" style={{
-                  backgroundColor: 'var(--primary-color)',
-                  color: 'white',
-                  padding: '12px 24px',
-                  borderRadius: '8px',
-                  border: 'none',
-                  fontSize: '1rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  width: '100%',
-                  textDecoration: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <i className="fas fa-eye" style={{ marginLeft: '8px' }}></i> عرض التفاصيل
-                </Link>
-              </div>
-            </div>
+            ) : filteredSystems.map((system) => (
+              <div key={system.id} className="system-card" style={{
+                backgroundColor: 'white',
+                borderRadius: '15px',
+                padding: '30px',
+                boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
+                transition: 'all 0.4s ease',
+                border: '1px solid rgba(0, 102, 204, 0.1)',
+                display: 'flex',
+                flexDirection: 'column',
+                height: '100%'
+              }}>
+                <div className="system-card-header" style={{ textAlign: 'center', marginBottom: '20px' }}>
+                  <i className={`${getSystemIcon(system.category)} system-icon`} style={{
+                    fontSize: '3rem',
+                    color: getSystemColor(system.category),
+                    marginBottom: '15px',
+                    display: 'block'
+                  }}></i>
+                </div>
+                <div className="system-card-body" style={{ flex: 1 }}>
+                  <h3 className="system-title" style={{
+                    fontSize: '1.4rem',
+                    fontWeight: '700',
+                    marginBottom: '15px',
+                    color: 'var(--secondary-color)'
+                  }}>{system.name}</h3>
+                  <p className="system-description" style={{
+                    color: 'var(--gray-color)',
+                    lineHeight: '1.7',
+                    marginBottom: '20px'
+                  }}>{system.description}</p>
 
-            {/* نظام إدارة العملاء */}
-            <div className="system-card" data-type="crm" style={{
-              backgroundColor: 'white',
-              borderRadius: '15px',
-              padding: '30px',
-              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
-              transition: 'all 0.4s ease',
-              border: '1px solid rgba(0, 102, 204, 0.1)',
-              display: 'flex',
-              flexDirection: 'column',
-              height: '100%'
-            }}>
-              <div className="system-card-header" style={{ textAlign: 'center', marginBottom: '20px' }}>
-                <i className="fas fa-users system-icon" style={{
-                  fontSize: '3rem',
-                  color: '#ffd166',
-                  marginBottom: '15px',
-                  display: 'block'
-                }}></i>
-              </div>
-              <div className="system-card-body" style={{ flex: 1 }}>
-                <h3 className="system-title" style={{
-                  fontSize: '1.4rem',
-                  fontWeight: '700',
-                  marginBottom: '15px',
-                  color: 'var(--secondary-color)'
-                }}>نظام إدارة العملاء</h3>
-                <p className="system-description" style={{
-                  color: 'var(--gray-color)',
-                  lineHeight: '1.7',
-                  marginBottom: '20px'
-                }}>نظام متكامل لإدارة بيانات العملاء والتواصل معهم بفعالية.</p>
-              </div>
-              <div className="system-card-footer">
-                <Link href="/systems/crm" className="btn btn-primary" style={{
-                  backgroundColor: 'var(--primary-color)',
-                  color: 'white',
-                  padding: '12px 24px',
-                  borderRadius: '8px',
-                  border: 'none',
-                  fontSize: '1rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  width: '100%',
-                  textDecoration: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <i className="fas fa-eye" style={{ marginLeft: '8px' }}></i> عرض التفاصيل
-                </Link>
-              </div>
-            </div>
+                  {/* عرض المميزات */}
+                  {system.features && system.features.length > 0 && (
+                    <div style={{ marginBottom: '20px' }}>
+                      <h4 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '10px', color: 'var(--secondary-color)' }}>
+                        المميزات الرئيسية:
+                      </h4>
+                      <ul style={{ margin: 0, paddingRight: '20px', color: 'var(--gray-color)' }}>
+                        {system.features.slice(0, 3).map((feature, index) => (
+                          <li key={index} style={{ marginBottom: '5px', fontSize: '0.9rem' }}>
+                            {feature}
+                          </li>
+                        ))}
+                        {system.features.length > 3 && (
+                          <li style={{ marginBottom: '5px', fontSize: '0.9rem', color: 'var(--primary-color)' }}>
+                            و {system.features.length - 3} مميزات أخرى...
+                          </li>
+                        )}
+                      </ul>
+                    </div>
+                  )}
 
-            {/* نظام إدارة الموارد البشرية */}
-            <div className="system-card" data-type="hr" style={{
-              backgroundColor: 'white',
-              borderRadius: '15px',
-              padding: '30px',
-              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
-              transition: 'all 0.4s ease',
-              border: '1px solid rgba(0, 102, 204, 0.1)',
-              display: 'flex',
-              flexDirection: 'column',
-              height: '100%'
-            }}>
-              <div className="system-card-header" style={{ textAlign: 'center', marginBottom: '20px' }}>
-                <i className="fas fa-user-tie system-icon" style={{
-                  fontSize: '3rem',
-                  color: '#4ecdc4',
-                  marginBottom: '15px',
-                  display: 'block'
-                }}></i>
-              </div>
-              <div className="system-card-body" style={{ flex: 1 }}>
-                <h3 className="system-title" style={{
-                  fontSize: '1.4rem',
-                  fontWeight: '700',
-                  marginBottom: '15px',
-                  color: 'var(--secondary-color)'
-                }}>نظام إدارة الموارد البشرية</h3>
-                <p className="system-description" style={{
-                  color: 'var(--gray-color)',
-                  lineHeight: '1.7',
-                  marginBottom: '20px'
-                }}>نظام متكامل لإدارة شؤون الموظفين والرواتب والإجازات والتقييمات.</p>
-              </div>
-              <div className="system-card-footer">
-                <Link href="/systems/hr" className="btn btn-primary" style={{
-                  backgroundColor: 'var(--primary-color)',
-                  color: 'white',
-                  padding: '12px 24px',
-                  borderRadius: '8px',
-                  border: 'none',
-                  fontSize: '1rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  width: '100%',
-                  textDecoration: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <i className="fas fa-eye" style={{ marginLeft: '8px' }}></i> عرض التفاصيل
-                </Link>
-              </div>
-            </div>
 
-            {/* نظام إدارة الأصول */}
-            <div className="system-card" data-type="assets" style={{
-              backgroundColor: 'white',
-              borderRadius: '15px',
-              padding: '30px',
-              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
-              transition: 'all 0.4s ease',
-              border: '1px solid rgba(0, 102, 204, 0.1)',
-              display: 'flex',
-              flexDirection: 'column',
-              height: '100%'
-            }}>
-              <div className="system-card-header" style={{ textAlign: 'center', marginBottom: '20px' }}>
-                <i className="fas fa-boxes system-icon" style={{
-                  fontSize: '3rem',
-                  color: '#6a0572',
-                  marginBottom: '15px',
-                  display: 'block'
-                }}></i>
+                </div>
+                <div className="system-card-footer">
+                  <Link href={`/systems/${system.id}`} className="btn btn-primary" style={{
+                    backgroundColor: 'var(--primary-color)',
+                    color: 'white',
+                    padding: '12px 24px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    fontSize: '1rem',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    width: '100%',
+                    textDecoration: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <i className="fas fa-eye" style={{ marginLeft: '8px' }}></i> عرض التفاصيل
+                  </Link>
+                </div>
               </div>
-              <div className="system-card-body" style={{ flex: 1 }}>
-                <h3 className="system-title" style={{
-                  fontSize: '1.4rem',
-                  fontWeight: '700',
-                  marginBottom: '15px',
-                  color: 'var(--secondary-color)'
-                }}>نظام إدارة الأصول</h3>
-                <p className="system-description" style={{
-                  color: 'var(--gray-color)',
-                  lineHeight: '1.7',
-                  marginBottom: '20px'
-                }}>نظام متكامل لإدارة الأصول والممتلكات وتتبع حالتها وصيانتها.</p>
-              </div>
-              <div className="system-card-footer">
-                <Link href="/systems/assets" className="btn btn-primary" style={{
-                  backgroundColor: 'var(--primary-color)',
-                  color: 'white',
-                  padding: '12px 24px',
-                  borderRadius: '8px',
-                  border: 'none',
-                  fontSize: '1rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  width: '100%',
-                  textDecoration: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <i className="fas fa-eye" style={{ marginLeft: '8px' }}></i> عرض التفاصيل
-                </Link>
-              </div>
-            </div>
-
-            {/* نظام إدارة المشاريع */}
-            <div className="system-card" data-type="projects" style={{
-              backgroundColor: 'white',
-              borderRadius: '15px',
-              padding: '30px',
-              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
-              transition: 'all 0.4s ease',
-              border: '1px solid rgba(0, 102, 204, 0.1)',
-              display: 'flex',
-              flexDirection: 'column',
-              height: '100%'
-            }}>
-              <div className="system-card-header" style={{ textAlign: 'center', marginBottom: '20px' }}>
-                <i className="fas fa-tasks system-icon" style={{
-                  fontSize: '3rem',
-                  color: '#1a936f',
-                  marginBottom: '15px',
-                  display: 'block'
-                }}></i>
-              </div>
-              <div className="system-card-body" style={{ flex: 1 }}>
-                <h3 className="system-title" style={{
-                  fontSize: '1.4rem',
-                  fontWeight: '700',
-                  marginBottom: '15px',
-                  color: 'var(--secondary-color)'
-                }}>نظام إدارة المشاريع</h3>
-                <p className="system-description" style={{
-                  color: 'var(--gray-color)',
-                  lineHeight: '1.7',
-                  marginBottom: '20px'
-                }}>نظام متكامل لإدارة المشاريع وتتبع المهام والموارد والجداول الزمنية.</p>
-              </div>
-              <div className="system-card-footer">
-                <Link href="/systems/projects" className="btn btn-primary" style={{
-                  backgroundColor: 'var(--primary-color)',
-                  color: 'white',
-                  padding: '12px 24px',
-                  borderRadius: '8px',
-                  border: 'none',
-                  fontSize: '1rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  width: '100%',
-                  textDecoration: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <i className="fas fa-eye" style={{ marginLeft: '8px' }}></i> عرض التفاصيل
-                </Link>
-              </div>
-            </div>
-
-            {/* نظام إدارة المخزون */}
-            <div className="system-card" data-type="inventory" style={{
-              backgroundColor: 'white',
-              borderRadius: '15px',
-              padding: '30px',
-              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
-              transition: 'all 0.4s ease',
-              border: '1px solid rgba(0, 102, 204, 0.1)',
-              display: 'flex',
-              flexDirection: 'column',
-              height: '100%'
-            }}>
-              <div className="system-card-header" style={{ textAlign: 'center', marginBottom: '20px' }}>
-                <i className="fas fa-warehouse system-icon" style={{
-                  fontSize: '3rem',
-                  color: '#0891b2',
-                  marginBottom: '15px',
-                  display: 'block'
-                }}></i>
-              </div>
-              <div className="system-card-body" style={{ flex: 1 }}>
-                <h3 className="system-title" style={{
-                  fontSize: '1.4rem',
-                  fontWeight: '700',
-                  marginBottom: '15px',
-                  color: 'var(--secondary-color)'
-                }}>نظام إدارة المخزون</h3>
-                <p className="system-description" style={{
-                  color: 'var(--gray-color)',
-                  lineHeight: '1.7',
-                  marginBottom: '20px'
-                }}>نظام متكامل لإدارة المخزون والمستودعات وتتبع المنتجات والجرد وسلاسل التوريد.</p>
-              </div>
-              <div className="system-card-footer">
-                <Link href="/systems/inventory" className="btn btn-primary" style={{
-                  backgroundColor: 'var(--primary-color)',
-                  color: 'white',
-                  padding: '12px 24px',
-                  borderRadius: '8px',
-                  border: 'none',
-                  fontSize: '1rem',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  width: '100%',
-                  textDecoration: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <i className="fas fa-eye" style={{ marginLeft: '8px' }}></i> عرض التفاصيل
-                </Link>
-              </div>
-            </div>
+            ))}
           </div>
 
-          <div className="pagination" style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '10px',
-            marginTop: '50px'
-          }}>
-            <div className="page-item active" style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '50%',
-              backgroundColor: 'var(--primary-color)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: '600',
-              color: 'white',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease'
-            }}>1</div>
-            <div className="page-item" style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '50%',
-              backgroundColor: 'var(--bg-light)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: '600',
-              color: 'var(--secondary-color)',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease'
-            }}>2</div>
-            <div className="page-item" style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '50%',
-              backgroundColor: 'var(--bg-light)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: '600',
-              color: 'var(--secondary-color)',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease'
-            }}>3</div>
-            <div className="page-item" style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '50%',
-              backgroundColor: 'var(--bg-light)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontWeight: '600',
-              color: 'var(--secondary-color)',
-              cursor: 'pointer',
-              transition: 'all 0.3s ease'
-            }}><i className="fas fa-chevron-left"></i></div>
-          </div>
+
         </div>
       </section>
 
@@ -818,7 +542,7 @@ export default function Systems() {
               <div className="stat-icon">
                 <i className="fas fa-layer-group"></i>
               </div>
-              <div className="stat-number" data-suffix="+">7</div>
+              <div className="stat-number" data-suffix="+">{systems.length}</div>
               <div className="stat-title">نظام متكامل</div>
             </div>
 

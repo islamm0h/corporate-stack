@@ -1,92 +1,79 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+
+interface Response {
+  id: string
+  quoteRequest: {
+    id: string
+    lead: {
+      companyName: string
+      contactPerson: string
+    }
+    system: {
+      name: string
+    }
+    requestType: string
+  }
+  responseType: string
+  status: string
+  sentAt: string | null
+  responseBy: {
+    firstName: string
+    lastName: string
+    role: string
+  } | null
+  followUpDate: string | null
+  notes: string | null
+  nextAction: string | null
+  createdAt: string
+  updatedAt: string
+}
 
 export default function ResponsesManagement() {
-  const [responses] = useState([
-    {
-      id: 1,
-      requestId: 1,
-      companyName: 'شركة الرياض للتجارة',
-      contactPerson: 'أحمد محمد السالم',
-      system: 'نظام المحاسبة والفاتورة الإلكترونية',
-      responseType: 'عرض سعر',
-      status: 'sent',
-      sentDate: '2024-01-15 14:30',
-      responseBy: 'سارة أحمد - مدير المبيعات',
-      followUpDate: '2024-01-18',
-      notes: 'تم إرسال عرض سعر مفصل، العميل طلب تعديلات على الباقة',
-      nextAction: 'متابعة بعد 3 أيام'
-    },
-    {
-      id: 2,
-      requestId: 2,
-      companyName: 'مؤسسة جدة للخدمات',
-      contactPerson: 'فاطمة علي أحمد',
-      system: 'نظام إدارة العملاء (CRM)',
-      responseType: 'معلومات إضافية',
-      status: 'pending',
-      sentDate: null,
-      responseBy: 'محمد سالم - مستشار تقني',
-      followUpDate: '2024-01-16',
-      notes: 'العميل يحتاج معلومات تقنية مفصلة عن التكامل',
-      nextAction: 'إرسال الوثائق التقنية'
-    },
-    {
-      id: 3,
-      requestId: 3,
-      companyName: 'شركة الدمام الصناعية',
-      contactPerson: 'محمد يوسف الخالد',
-      system: 'نظام إدارة المخزون',
-      responseType: 'عرض تقديمي',
-      status: 'scheduled',
-      sentDate: '2024-01-14 10:00',
-      responseBy: 'نورا خالد - مدير المنتجات',
-      followUpDate: '2024-01-17',
-      notes: 'تم تحديد موعد العرض التقديمي يوم الأربعاء',
-      nextAction: 'تحضير العرض التقديمي'
-    },
-    {
-      id: 4,
-      requestId: 4,
-      companyName: 'مكتب الخبر الاستشاري',
-      contactPerson: 'نورا سالم العتيبي',
-      system: 'نظام إدارة المشاريع',
-      responseType: 'استشارة',
-      status: 'completed',
-      sentDate: '2024-01-12 09:30',
-      responseBy: 'خالد عبدالله - مستشار أول',
-      followUpDate: '2024-01-20',
-      notes: 'تمت الاستشارة بنجاح، العميل راضي عن الخدمة',
-      nextAction: 'متابعة للحصول على مشاريع مستقبلية'
-    },
-    {
-      id: 5,
-      requestId: 5,
-      companyName: 'شركة المدينة التقنية',
-      contactPerson: 'خالد عبدالله النمر',
-      system: 'نظام إدارة الموارد البشرية',
-      responseType: 'عرض سعر',
-      status: 'draft',
-      sentDate: null,
-      responseBy: 'أحمد محمد - مدير المبيعات',
-      followUpDate: '2024-01-16',
-      notes: 'جاري إعداد عرض السعر، يحتاج مراجعة الإدارة',
-      nextAction: 'إنهاء العرض وإرساله'
+  const [responses, setResponses] = useState<Response[]>([])
+  const [loading, setLoading] = useState(true)
+
+  // جلب الردود من قاعدة البيانات
+  useEffect(() => {
+    const fetchResponses = async () => {
+      try {
+        setLoading(true)
+        const response = await fetch('/api/responses')
+        const result = await response.json()
+
+        if (result.success) {
+          setResponses(result.data)
+        } else {
+          console.error('Error fetching responses:', result.error)
+          setResponses([])
+        }
+      } catch (error) {
+        console.error('Error fetching responses:', error)
+        setResponses([])
+      } finally {
+        setLoading(false)
+      }
     }
-  ])
+
+    fetchResponses()
+  }, [])
 
   const [searchTerm, setSearchTerm] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')
   const [filterType, setFilterType] = useState('all')
 
   const filteredResponses = responses.filter(response => {
-    const matchesSearch = response.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         response.contactPerson.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         response.system.toLowerCase().includes(searchTerm.toLowerCase())
+    const companyName = response.quoteRequest?.lead?.companyName || ''
+    const contactPerson = response.quoteRequest?.lead?.contactPerson || ''
+    const systemName = response.quoteRequest?.system?.name || ''
+
+    const matchesSearch = companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         contactPerson.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         systemName.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesStatus = filterStatus === 'all' || response.status === filterStatus
     const matchesType = filterType === 'all' || response.responseType === filterType
-    
+
     return matchesSearch && matchesStatus && matchesType
   })
 
@@ -254,7 +241,25 @@ export default function ResponsesManagement() {
         </div>
 
         <div style={{ padding: '20px' }}>
-          {filteredResponses.map((response) => (
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '60px', color: 'var(--gray-color)' }}>
+              <i className="fas fa-spinner fa-spin" style={{ fontSize: '2rem', marginBottom: '10px' }}></i>
+              <div>جاري تحميل الردود...</div>
+            </div>
+          ) : filteredResponses.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '60px', color: 'var(--gray-color)' }}>
+              <i className="fas fa-reply" style={{ fontSize: '3rem', marginBottom: '15px' }}></i>
+              <div style={{ fontSize: '1.2rem', fontWeight: '600', marginBottom: '10px' }}>
+                لا توجد ردود
+              </div>
+              <div style={{ marginBottom: '20px' }}>
+                قاعدة البيانات فارغة حالياً. أضف طلبات وردود للبدء.
+              </div>
+              <button className="btn btn-primary">
+                <i className="fas fa-plus"></i> إضافة رد جديد
+              </button>
+            </div>
+          ) : filteredResponses.map((response) => (
             <div key={response.id} style={{
               background: 'white',
               borderRadius: '12px',
@@ -277,11 +282,11 @@ export default function ResponsesManagement() {
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
                 <div>
                   <h4 style={{ margin: '0 0 8px 0', color: 'var(--secondary-color)', fontSize: '1.2rem' }}>
-                    {response.companyName}
+                    {response.quoteRequest?.lead?.companyName || 'غير محدد'}
                   </h4>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '15px', fontSize: '0.9rem', color: 'var(--gray-color)' }}>
-                    <span><i className="fas fa-user"></i> {response.contactPerson}</span>
-                    <span><i className="fas fa-cog"></i> {response.system}</span>
+                    <span><i className="fas fa-user"></i> {response.quoteRequest?.lead?.contactPerson || 'غير محدد'}</span>
+                    <span><i className="fas fa-cog"></i> {response.quoteRequest?.system?.name || 'غير محدد'}</span>
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
@@ -317,23 +322,36 @@ export default function ResponsesManagement() {
                 <div>
                   <div style={{ marginBottom: '10px' }}>
                     <strong style={{ color: 'var(--secondary-color)' }}>المسؤول عن الرد:</strong>
-                    <span style={{ marginRight: '10px', color: 'var(--gray-color)' }}>{response.responseBy}</span>
+                    <span style={{ marginRight: '10px', color: 'var(--gray-color)' }}>
+                      {response.responseBy
+                        ? `${response.responseBy.firstName} ${response.responseBy.lastName} - ${response.responseBy.role}`
+                        : 'غير محدد'
+                      }
+                    </span>
                   </div>
                   <div style={{ marginBottom: '10px' }}>
                     <strong style={{ color: 'var(--secondary-color)' }}>تاريخ الإرسال:</strong>
                     <span style={{ marginRight: '10px', color: 'var(--gray-color)' }}>
-                      {response.sentDate || 'لم يتم الإرسال بعد'}
+                      {response.sentAt
+                        ? new Date(response.sentAt).toLocaleDateString('ar-SA') + ' ' + new Date(response.sentAt).toLocaleTimeString('ar-SA')
+                        : 'لم يتم الإرسال بعد'
+                      }
                     </span>
                   </div>
                 </div>
                 <div>
                   <div style={{ marginBottom: '10px' }}>
                     <strong style={{ color: 'var(--secondary-color)' }}>تاريخ المتابعة:</strong>
-                    <span style={{ marginRight: '10px', color: 'var(--gray-color)' }}>{response.followUpDate}</span>
+                    <span style={{ marginRight: '10px', color: 'var(--gray-color)' }}>
+                      {response.followUpDate
+                        ? new Date(response.followUpDate).toLocaleDateString('ar-SA')
+                        : 'غير محدد'
+                      }
+                    </span>
                   </div>
                   <div>
                     <strong style={{ color: 'var(--secondary-color)' }}>الإجراء التالي:</strong>
-                    <span style={{ marginRight: '10px', color: 'var(--gray-color)' }}>{response.nextAction}</span>
+                    <span style={{ marginRight: '10px', color: 'var(--gray-color)' }}>{response.nextAction || 'غير محدد'}</span>
                   </div>
                 </div>
               </div>
@@ -341,15 +359,15 @@ export default function ResponsesManagement() {
               {/* ملاحظات */}
               <div style={{ marginBottom: '20px' }}>
                 <strong style={{ color: 'var(--secondary-color)', display: 'block', marginBottom: '8px' }}>الملاحظات:</strong>
-                <p style={{ 
-                  margin: 0, 
-                  padding: '15px', 
-                  background: '#f8fafc', 
-                  borderRadius: '8px', 
+                <p style={{
+                  margin: 0,
+                  padding: '15px',
+                  background: '#f8fafc',
+                  borderRadius: '8px',
                   color: 'var(--gray-color)',
                   lineHeight: '1.6'
                 }}>
-                  {response.notes}
+                  {response.notes || 'لا توجد ملاحظات'}
                 </p>
               </div>
 

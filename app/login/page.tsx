@@ -223,6 +223,26 @@ export default function AdminLogin() {
   }
 
   return (
+    <>
+      <style jsx>{`
+        .footer-links a {
+          color: var(--primary-color) !important;
+          text-decoration: none !important;
+        }
+
+        .footer-links a:hover {
+          color: var(--primary-color) !important;
+        }
+
+        .footer-links a:visited {
+          color: var(--primary-color) !important;
+        }
+
+        .footer-links a:active {
+          color: var(--primary-color) !important;
+        }
+      `}</style>
+
     <div className="login-page">
       {/* خلفية الجزيئات المتحركة */}
       <div id="particles-js" className="login-particles"></div>
@@ -392,12 +412,33 @@ export default function AdminLogin() {
           </Link>
 
           <div className="footer-links">
-            <Link href="/contact">تواصل معنا</Link>
+            <Link
+              href="/contact"
+              style={{
+                color: 'var(--primary-color) !important',
+                textDecoration: 'none'
+              }}
+              onMouseEnter={(e) => (e.target as HTMLElement).style.color = 'var(--primary-color)'}
+              onMouseLeave={(e) => (e.target as HTMLElement).style.color = 'var(--primary-color)'}
+            >
+              تواصل معنا
+            </Link>
             <span>|</span>
-            <Link href="/about">من نحن</Link>
+            <Link
+              href="/about"
+              style={{
+                color: 'var(--primary-color) !important',
+                textDecoration: 'none'
+              }}
+              onMouseEnter={(e) => (e.target as HTMLElement).style.color = 'var(--primary-color)'}
+              onMouseLeave={(e) => (e.target as HTMLElement).style.color = 'var(--primary-color)'}
+            >
+              من نحن
+            </Link>
           </div>
         </div>
       </div>
     </div>
+    </>
   )
 }

@@ -2,8 +2,11 @@
 
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'next/navigation'
 
 export default function ContactPage() {
+  const searchParams = useSearchParams()
+  const [isTrial, setIsTrial] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -131,7 +134,17 @@ export default function ContactPage() {
 
   useEffect(() => {
     setMounted(true)
-  }, [])
+    // التحقق من طلب التجربة المجانية
+    const trial = searchParams.get('trial')
+    if (trial === 'true') {
+      setIsTrial(true)
+      setFormData(prev => ({
+        ...prev,
+        subject: 'طلب تجربة مجانية لمدة 14 يوم',
+        message: 'أرغب في الحصول على تجربة مجانية لمدة 14 يوم لأنظمة Corporate Stack. يرجى التواصل معي لترتيب ذلك.'
+      }))
+    }
+  }, [searchParams])
 
   // تبسيط تحميل الجزيئات
   useEffect(() => {
@@ -243,18 +256,15 @@ export default function ContactPage() {
             <Link href="/contact" className="nav-link active">تواصل معنا</Link>
           </nav>
           <div className="header-actions">
-            <a
-              href="#"
-              className="btn btn-free-trial"
-              onClick={(e) => {
-                e.preventDefault()
-                // سيتم ربطه بدومين آخر لاحقاً
-                alert('سيتم توجيهك لصفحة التسجيل قريباً')
-              }}
-            >
-              <i className="fas fa-gift"></i>
-              تجربة مجانية
-            </a>
+            {!isTrial && (
+              <Link
+                href="/contact?trial=true"
+                className="btn btn-free-trial"
+              >
+                <i className="fas fa-gift"></i>
+                تجربة مجانية
+              </Link>
+            )}
           </div>
         </div>
       </header>
@@ -316,7 +326,9 @@ export default function ContactPage() {
             marginBottom: '15px',
             color: 'var(--secondary-color)'
           }}>
-            <span style={{ color: 'var(--primary-color)' }}>تواصل</span> معنا
+            <span style={{ color: 'var(--primary-color)' }}>
+              {isTrial ? 'طلب تجربة مجانية' : 'تواصل'}
+            </span> معنا
           </h1>
           <p style={{
             fontSize: '1.2rem',
@@ -324,7 +336,10 @@ export default function ContactPage() {
             maxWidth: '800px',
             margin: '0 auto'
           }}>
-            نحن هنا للإجابة على استفساراتك وتقديم المساعدة. يمكنك التواصل معنا من خلال النموذج أدناه أو عبر معلومات الاتصال المتاحة.
+            {isTrial
+              ? 'احصل على تجربة مجانية لمدة 14 يوم لجميع أنظمة Corporate Stack. املأ النموذج أدناه وسنتواصل معك خلال 24 ساعة.'
+              : 'نحن هنا للإجابة على استفساراتك وتقديم المساعدة. يمكنك التواصل معنا من خلال النموذج أدناه أو عبر معلومات الاتصال المتاحة.'
+            }
           </p>
         </div>
       </section>
@@ -332,6 +347,40 @@ export default function ContactPage() {
       {/* Contact Section */}
       <section className="contact-section" style={{ padding: '80px 0' }}>
         <div className="container">
+
+          {/* تنبيه التجربة المجانية */}
+          {isTrial && (
+            <div style={{
+              backgroundColor: '#10b981',
+              color: 'white',
+              padding: '20px',
+              borderRadius: '10px',
+              marginBottom: '40px',
+              textAlign: 'center',
+              boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)',
+              position: 'relative',
+              overflow: 'hidden'
+            }}>
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: '-100%',
+                width: '100%',
+                height: '100%',
+                background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
+                animation: 'shine 3s infinite'
+              }}></div>
+              <div style={{ position: 'relative', zIndex: 2 }}>
+                <i className="fas fa-gift" style={{ fontSize: '2rem', marginBottom: '10px', display: 'block' }}></i>
+                <h3 style={{ margin: '0 0 10px 0', fontSize: '1.5rem', fontWeight: '700' }}>
+                  🎉 تجربة مجانية لمدة 14 يوم
+                </h3>
+                <p style={{ margin: 0, fontSize: '1.1rem', opacity: 0.9 }}>
+                  تم تعبئة النموذج مسبقاً لطلب التجربة المجانية. أكمل بياناتك وسنتواصل معك خلال 24 ساعة!
+                </p>
+              </div>
+            </div>
+          )}
           <div style={{
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',

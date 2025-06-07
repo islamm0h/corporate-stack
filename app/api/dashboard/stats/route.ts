@@ -37,6 +37,8 @@ export async function GET(request: NextRequest) {
         return await getCounterStats()
       case 'recent':
         return await getRecentActivity()
+      case 'systems':
+        return await getTopRequestedSystems()
       default:
         return NextResponse.json(
           { success: false, error: 'نوع الإحصائيات غير مدعوم' },
@@ -298,6 +300,59 @@ async function getAverageResponseTime() {
   }, 0)
 
   return Math.round(totalHours / responses.length)
+}
+
+// Get top requested systems
+async function getTopRequestedSystems() {
+  try {
+    // جلب الأنظمة مع عدد الطلبات لكل نظام
+    const systemsWithRequests = await prisma.system.findMany({
+      where: { isActive: true },
+      include: {
+        _count: {
+          select: {
+            quoteRequests: true
+          }
+        }
+      },
+      orderBy: {
+        quoteRequests: {
+          _count: 'desc'
+        }
+      },
+      take: 5
+    })
+
+    // حساب إجمالي الطلبات
+    const totalRequests = systemsWithRequests.reduce((sum, system) => sum + system._count.quoteRequests, 0)
+
+    // تحويل البيانات إلى التنسيق المطلوب
+    const topSystems = systemsWithRequests
+      .filter(system => system._count.quoteRequests > 0) // فقط الأنظمة التي لها طلبات
+      .map(system => ({
+        id: system.id,
+        name: system.name,
+        requestCount: system._count.quoteRequests,
+        percentage: totalRequests > 0 ? Math.round((system._count.quoteRequests / totalRequests) * 100) : 0
+      }))
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        topSystems,
+        totalRequests
+      }
+    })
+  } catch (error) {
+    console.error('Error fetching top requested systems:', error)
+    return NextResponse.json({
+      success: true,
+      data: {
+        topSystems: [],
+        totalRequests: 0
+      }
+    })
+  }
 }
 
 // Helper function to calculate growth rate
