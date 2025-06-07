@@ -142,19 +142,20 @@ export default function AdminLogin() {
     setIsLoading(true)
 
     try {
-      // محاكاة طلب تسجيل الدخول
-      await new Promise(resolve => setTimeout(resolve, 1500))
+      // إرسال طلب تسجيل الدخول إلى API
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          username: formData.username,
+          password: formData.password
+        })
+      })
 
-      // بيانات تسجيل الدخول الافتراضية
-      const validCredentials = [
-        { username: 'admin', password: 'admin123' },
-        { username: 'manager', password: 'manager123' },
-        { username: 'user', password: 'user123' }
-      ]
-
-      const isValid = validCredentials.some(
-        cred => cred.username === formData.username && cred.password === formData.password
-      )
+      const result = await response.json()
+      const isValid = result.success
 
       if (isValid) {
         // تسجيل دخول ناجح
@@ -163,7 +164,11 @@ export default function AdminLogin() {
 
         // حفظ بيانات المستخدم
         const userData = {
-          username: formData.username,
+          id: result.user.id,
+          username: result.user.username,
+          firstName: result.user.firstName,
+          lastName: result.user.lastName,
+          role: result.user.role,
           loginTime: new Date().toISOString(),
           rememberMe: formData.rememberMe
         }
@@ -174,23 +179,23 @@ export default function AdminLogin() {
           sessionStorage.setItem('adminUser', JSON.stringify(userData))
         }
 
-        // إنشاء token وحفظه في الكوكيز
-        const token = btoa(JSON.stringify({
-          username: formData.username,
-          timestamp: Date.now(),
-          rememberMe: formData.rememberMe
-        }))
-
         // تعيين الكوكيز
         const expires = formData.rememberMe
           ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 يوم
           : new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 ساعة
 
-        document.cookie = `admin_token=${token}; expires=${expires.toUTCString()}; path=/; secure; samesite=strict`
+        document.cookie = `admin_token=${result.token}; expires=${expires.toUTCString()}; path=/; secure; samesite=strict`
+        document.cookie = `user_id=${result.user.id}; expires=${expires.toUTCString()}; path=/; secure; samesite=strict`
+        document.cookie = `must_change_password=${result.user.mustChangePassword}; expires=${expires.toUTCString()}; path=/; secure; samesite=strict`
 
-        // توجيه إلى لوحة التحكم
-        const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || '/admin'
-        router.push(redirectUrl)
+        // التحقق من ضرورة تغيير كلمة المرور
+        if (result.user.mustChangePassword) {
+          router.push(`/change-password?userId=${result.user.id}&firstLogin=true`)
+        } else {
+          // توجيه إلى لوحة التحكم
+          const redirectUrl = new URLSearchParams(window.location.search).get('redirect') || '/admin'
+          router.push(redirectUrl)
+        }
       } else {
         // تسجيل دخول فاشل
         const newAttempts = loginAttempts + 1
@@ -206,11 +211,12 @@ export default function AdminLogin() {
         }
 
         setErrors({
-          general: `بيانات تسجيل الدخول غير صحيحة. المحاولات المتبقية: ${5 - newAttempts}`
+          general: result.error || `بيانات تسجيل الدخول غير صحيحة. المحاولات المتبقية: ${5 - newAttempts}`
         })
       }
     } catch (error) {
-      setErrors({ general: 'حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى.' })
+      console.error('Login error:', error)
+      setErrors({ general: 'حدث خطأ في الاتصال بالخادم. يرجى المحاولة مرة أخرى.' })
     } finally {
       setIsLoading(false)
     }
@@ -387,21 +393,7 @@ export default function AdminLogin() {
             </button>
           </form>
 
-          {/* معلومات تجريبية */}
-          <div className="demo-info">
-            <h4>بيانات تجريبية:</h4>
-            <div className="demo-accounts">
-              <div className="demo-account">
-                <strong>مدير عام:</strong> admin / admin123
-              </div>
-              <div className="demo-account">
-                <strong>مدير:</strong> manager / manager123
-              </div>
-              <div className="demo-account">
-                <strong>مستخدم:</strong> user / user123
-              </div>
-            </div>
-          </div>
+
         </div>
 
         {/* روابط إضافية */}
