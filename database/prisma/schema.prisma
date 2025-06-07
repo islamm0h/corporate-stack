@@ -22,6 +22,9 @@ model User {
   isActive      Boolean   @default(true) @map("is_active")
   emailVerified Boolean   @default(false) @map("email_verified")
   lastLogin     DateTime? @map("last_login")
+  mustChangePassword Boolean @default(true) @map("must_change_password") // يجب تغيير كلمة المرور في أول تسجيل دخول
+  lastPasswordChange DateTime? @map("last_password_change") // تاريخ آخر تغيير لكلمة المرور
+  temporaryPassword String? @map("temporary_password") @db.VarChar(255) // كلمة المرور المؤقتة
   assignmentOrder Int     @default(0) @map("assignment_order") // ترتيب التوزيع
   lastAssigned  DateTime? @map("last_assigned") // آخر مرة تم توزيع عميل عليه
   totalAssigned Int       @default(0) @map("total_assigned") // إجمالي العملاء المخصصين

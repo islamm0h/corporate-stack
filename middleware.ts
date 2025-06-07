@@ -5,7 +5,8 @@ export function middleware(request: NextRequest) {
   // التحقق من المسارات المحمية
   const protectedPaths = ['/admin']
   const loginPath = '/login'
-  const publicAdminPaths = ['/login', '/forgot-password']
+  const changePasswordPath = '/change-password'
+  const publicAdminPaths = ['/login', '/forgot-password', '/change-password']
 
   const { pathname } = request.nextUrl
 
@@ -17,6 +18,8 @@ export function middleware(request: NextRequest) {
   if (isProtectedPath) {
     // التحقق من وجود token في الكوكيز أو localStorage (محاكاة)
     const authToken = request.cookies.get('admin_token')?.value
+    const userId = request.cookies.get('user_id')?.value
+    const mustChangePassword = request.cookies.get('must_change_password')?.value
 
     // إذا لم يكن هناك token، توجيه إلى صفحة تسجيل الدخول
     if (!authToken) {
@@ -24,12 +27,30 @@ export function middleware(request: NextRequest) {
       loginUrl.searchParams.set('redirect', pathname)
       return NextResponse.redirect(loginUrl)
     }
+
+    // إذا كان المستخدم يجب عليه تغيير كلمة المرور
+    if (mustChangePassword === 'true' && userId) {
+      const changePasswordUrl = new URL(changePasswordPath, request.url)
+      changePasswordUrl.searchParams.set('userId', userId)
+      changePasswordUrl.searchParams.set('firstLogin', 'true')
+      return NextResponse.redirect(changePasswordUrl)
+    }
   }
 
   // إذا كان المستخدم مسجل دخول ويحاول الوصول لصفحة تسجيل الدخول
   if (pathname === loginPath) {
     const authToken = request.cookies.get('admin_token')?.value
+    const mustChangePassword = request.cookies.get('must_change_password')?.value
+    const userId = request.cookies.get('user_id')?.value
+
     if (authToken) {
+      // إذا كان يجب تغيير كلمة المرور، توجيه إلى صفحة تغيير كلمة المرور
+      if (mustChangePassword === 'true' && userId) {
+        const changePasswordUrl = new URL(changePasswordPath, request.url)
+        changePasswordUrl.searchParams.set('userId', userId)
+        changePasswordUrl.searchParams.set('firstLogin', 'true')
+        return NextResponse.redirect(changePasswordUrl)
+      }
       return NextResponse.redirect(new URL('/admin', request.url))
     }
   }

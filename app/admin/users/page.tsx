@@ -47,7 +47,17 @@ export default function UsersManagement() {
   const [showAddModal, setShowAddModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showPermissionsModal, setShowPermissionsModal] = useState(false)
+  const [showPasswordModal, setShowPasswordModal] = useState(false)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
+  const [newUserData, setNewUserData] = useState<any>(null)
+  const [addUserForm, setAddUserForm] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    username: '',
+    role: 'user'
+  })
 
   // بيانات تجريبية للمستخدمين
   const mockUsers: User[] = [
@@ -196,7 +206,47 @@ export default function UsersManagement() {
 
   const handleAddUser = () => {
     setSelectedUser(null)
+    setAddUserForm({
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      username: '',
+      role: 'user'
+    })
     setShowAddModal(true)
+  }
+
+  const handleCreateUser = async () => {
+    try {
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(addUserForm)
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        setNewUserData(result.data)
+        setShowAddModal(false)
+        setShowPasswordModal(true)
+
+        // إعادة تحميل قائمة المستخدمين
+        const usersResponse = await fetch('/api/users')
+        const usersResult = await usersResponse.json()
+        if (usersResult.success) {
+          setUsers(usersResult.data)
+        }
+      } else {
+        alert(result.error || 'فشل في إنشاء المستخدم')
+      }
+    } catch (error) {
+      console.error('Error creating user:', error)
+      alert('حدث خطأ في إنشاء المستخدم')
+    }
   }
 
   const handleEditUser = (user: User) => {
@@ -525,6 +575,229 @@ export default function UsersManagement() {
                 onClick={() => setShowPermissionsModal(false)}
               >
                 حفظ التغييرات
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* نافذة إضافة مستخدم جديد */}
+      {showAddModal && (
+        <div className="modal-overlay" onClick={() => setShowAddModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>إضافة مستخدم جديد</h3>
+              <button
+                className="modal-close"
+                onClick={() => setShowAddModal(false)}
+              >
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+
+            <div className="modal-body">
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                <div>
+                  <label>الاسم الأول *</label>
+                  <input
+                    type="text"
+                    value={addUserForm.firstName}
+                    onChange={(e) => setAddUserForm({...addUserForm, firstName: e.target.value})}
+                    placeholder="أدخل الاسم الأول"
+                    required
+                  />
+                </div>
+                <div>
+                  <label>الاسم الأخير *</label>
+                  <input
+                    type="text"
+                    value={addUserForm.lastName}
+                    onChange={(e) => setAddUserForm({...addUserForm, lastName: e.target.value})}
+                    placeholder="أدخل الاسم الأخير"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '20px' }}>
+                <div>
+                  <label>البريد الإلكتروني *</label>
+                  <input
+                    type="email"
+                    value={addUserForm.email}
+                    onChange={(e) => setAddUserForm({...addUserForm, email: e.target.value})}
+                    placeholder="أدخل البريد الإلكتروني"
+                    required
+                  />
+                </div>
+                <div>
+                  <label>اسم المستخدم *</label>
+                  <input
+                    type="text"
+                    value={addUserForm.username}
+                    onChange={(e) => setAddUserForm({...addUserForm, username: e.target.value})}
+                    placeholder="أدخل اسم المستخدم"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '20px' }}>
+                <div>
+                  <label>رقم الهاتف</label>
+                  <input
+                    type="tel"
+                    value={addUserForm.phone}
+                    onChange={(e) => setAddUserForm({...addUserForm, phone: e.target.value})}
+                    placeholder="أدخل رقم الهاتف"
+                  />
+                </div>
+                <div>
+                  <label>الدور *</label>
+                  <select
+                    value={addUserForm.role}
+                    onChange={(e) => setAddUserForm({...addUserForm, role: e.target.value})}
+                    required
+                  >
+                    <option value="user">مستخدم</option>
+                    <option value="manager">مدير</option>
+                    <option value="admin">مدير عام</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style={{
+                background: '#f8f9fa',
+                padding: '15px',
+                borderRadius: '8px',
+                marginTop: '20px',
+                border: '1px solid #e9ecef'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                  <i className="fas fa-info-circle" style={{ color: '#0066cc', marginLeft: '8px' }}></i>
+                  <strong>ملاحظة مهمة</strong>
+                </div>
+                <p style={{ margin: 0, color: '#6c757d', fontSize: '0.9rem' }}>
+                  سيتم إنشاء كلمة مرور مؤقتة للمستخدم الجديد. يجب على المستخدم تغيير كلمة المرور في أول تسجيل دخول.
+                </p>
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button
+                className="btn btn-secondary"
+                onClick={() => setShowAddModal(false)}
+              >
+                إلغاء
+              </button>
+              <button
+                className="btn btn-primary"
+                onClick={handleCreateUser}
+                disabled={!addUserForm.firstName || !addUserForm.lastName || !addUserForm.email || !addUserForm.username}
+              >
+                إنشاء المستخدم
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* نافذة عرض كلمة المرور المؤقتة */}
+      {showPasswordModal && newUserData && (
+        <div className="modal-overlay">
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>تم إنشاء المستخدم بنجاح</h3>
+            </div>
+
+            <div className="modal-body">
+              <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                <div style={{
+                  width: '80px',
+                  height: '80px',
+                  background: 'linear-gradient(135deg, #28a745 0%, #20c997 100%)',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 20px',
+                  color: 'white',
+                  fontSize: '2rem'
+                }}>
+                  <i className="fas fa-check"></i>
+                </div>
+                <h4>تم إنشاء حساب {newUserData.firstName} {newUserData.lastName}</h4>
+              </div>
+
+              <div style={{
+                background: '#fff3cd',
+                border: '1px solid #ffeaa7',
+                borderRadius: '8px',
+                padding: '20px',
+                marginBottom: '20px'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
+                  <i className="fas fa-key" style={{ color: '#856404', marginLeft: '10px' }}></i>
+                  <strong style={{ color: '#856404' }}>كلمة المرور المؤقتة</strong>
+                </div>
+                <div style={{
+                  background: 'white',
+                  padding: '15px',
+                  borderRadius: '6px',
+                  border: '2px dashed #ffc107',
+                  textAlign: 'center',
+                  fontSize: '1.5rem',
+                  fontWeight: 'bold',
+                  color: '#856404',
+                  letterSpacing: '2px',
+                  fontFamily: 'monospace'
+                }}>
+                  {newUserData.temporaryPassword}
+                </div>
+                <p style={{ margin: '10px 0 0 0', fontSize: '0.9rem', color: '#856404' }}>
+                  <i className="fas fa-exclamation-triangle" style={{ marginLeft: '5px' }}></i>
+                  احفظ هذه كلمة المرور في مكان آمن. لن تظهر مرة أخرى!
+                </p>
+              </div>
+
+              <div style={{
+                background: '#d1ecf1',
+                border: '1px solid #bee5eb',
+                borderRadius: '8px',
+                padding: '15px'
+              }}>
+                <h5 style={{ color: '#0c5460', marginBottom: '10px' }}>معلومات تسجيل الدخول:</h5>
+                <p style={{ margin: '5px 0', color: '#0c5460' }}>
+                  <strong>البريد الإلكتروني:</strong> {newUserData.email}
+                </p>
+                <p style={{ margin: '5px 0', color: '#0c5460' }}>
+                  <strong>اسم المستخدم:</strong> {newUserData.username}
+                </p>
+                <p style={{ margin: '5px 0', color: '#0c5460' }}>
+                  <strong>رابط تغيير كلمة المرور:</strong>
+                </p>
+                <div style={{
+                  background: 'white',
+                  padding: '10px',
+                  borderRadius: '4px',
+                  fontSize: '0.9rem',
+                  wordBreak: 'break-all',
+                  marginTop: '5px'
+                }}>
+                  {window.location.origin}{newUserData.loginUrl}
+                </div>
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button
+                className="btn btn-primary"
+                onClick={() => {
+                  setShowPasswordModal(false)
+                  setNewUserData(null)
+                }}
+              >
+                تم الحفظ
               </button>
             </div>
           </div>
