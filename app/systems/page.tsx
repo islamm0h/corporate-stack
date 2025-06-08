@@ -6,9 +6,10 @@ import { useEffect, useState } from 'react'
 interface System {
   id: string
   name: string
+  slug: string
   description: string
   category: string
-  price: number
+  price?: number
   features: string[]
   isActive: boolean
 }
@@ -351,13 +352,22 @@ export default function Systems() {
             <img src="/logo.svg" alt="Corporate Stack Logo" className="logo-image" />
             <div className="logo-text">كوربريت ستاك</div>
           </div>
-          <nav className="nav-menu">
+          <nav className="nav-menu" id="navMenu">
             <Link href="/" className="nav-link">الرئيسية</Link>
             <Link href="/about" className="nav-link">من نحن</Link>
             <Link href="/systems" className="nav-link active">الأنظمة</Link>
             <Link href="/contact" className="nav-link">تواصل معنا</Link>
           </nav>
           <div className="header-actions">
+            <button
+              className="mobile-menu-toggle"
+              onClick={() => {
+                const navMenu = document.getElementById('navMenu');
+                navMenu?.classList.toggle('active');
+              }}
+            >
+              <i className="fas fa-bars"></i>
+            </button>
             <Link
               href="/contact?trial=true"
               className="btn btn-free-trial"
@@ -496,8 +506,8 @@ export default function Systems() {
 
 
                 </div>
-                <div className="system-card-footer">
-                  <Link href={`/systems/${system.id}`} className="btn btn-primary" style={{
+                <div className="system-card-footer" style={{ display: 'flex', gap: '10px', flexDirection: 'column' }}>
+                  <Link href={`/systems/${system.slug}`} className="btn btn-primary" style={{
                     backgroundColor: 'var(--primary-color)',
                     color: 'white',
                     padding: '12px 24px',
@@ -514,6 +524,24 @@ export default function Systems() {
                     justifyContent: 'center'
                   }}>
                     <i className="fas fa-eye" style={{ marginLeft: '8px' }}></i> عرض التفاصيل
+                  </Link>
+                  <Link href={`/contact?quote=true&system=${encodeURIComponent(system.name)}&slug=${system.slug}`} className="btn btn-secondary" style={{
+                    backgroundColor: '#f59e0b',
+                    color: 'white',
+                    padding: '12px 24px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    fontSize: '1rem',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s ease',
+                    width: '100%',
+                    textDecoration: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <i className="fas fa-file-invoice-dollar" style={{ marginLeft: '8px' }}></i> طلب عرض سعر
                   </Link>
                 </div>
               </div>
@@ -592,12 +620,12 @@ export default function Systems() {
             <div className="footer-col">
               <h3 className="footer-title">الأنظمة</h3>
               <ul className="footer-links">
-                <li><Link href="/systems/accounting">نظام الحسابات والفاتورة الإلكترونية</Link></li>
-                <li><Link href="/systems/crm">نظام إدارة العملاء</Link></li>
-                <li><Link href="/systems/hr">نظام إدارة الموارد البشرية</Link></li>
-                <li><Link href="/systems/assets">نظام إدارة الأصول</Link></li>
-                <li><Link href="/systems/projects">نظام إدارة المشاريع</Link></li>
-                <li><Link href="/systems/inventory">نظام إدارة المخزون</Link></li>
+                <li><Link href="/systems/accounting-electronic-invoice-system">نظام الحسابات والفاتورة الإلكترونية</Link></li>
+                <li><Link href="/systems/crm-customer-management-system">نظام إدارة العملاء</Link></li>
+                <li><Link href="/systems/hr-human-resources-system">نظام إدارة الموارد البشرية</Link></li>
+                <li><Link href="/systems/inventory-management-system">نظام إدارة المخزون</Link></li>
+                <li><Link href="/systems/project-management-system">نظام إدارة المشاريع</Link></li>
+                <li><Link href="/systems/pos-point-of-sale-system">نظام نقاط البيع</Link></li>
               </ul>
             </div>
 

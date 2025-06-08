@@ -52,11 +52,11 @@ export async function POST(request: NextRequest) {
       data: {
         action: 'restore_settings',
         entityType: 'system_setting',
-        details: {
+        details: JSON.stringify({
           backupVersion: backup.version,
           backupTimestamp: backup.timestamp,
           settingsCount: updates.length
-        }
+        })
       }
     })
 

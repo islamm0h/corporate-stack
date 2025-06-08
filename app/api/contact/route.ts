@@ -11,7 +11,10 @@ const contactSchema = z.object({
   company: z.string().optional(),
   subject: z.string().min(1, 'الموضوع مطلوب'),
   message: z.string().min(10, 'الرسالة يجب أن تكون 10 أحرف على الأقل'),
-  terms: z.boolean().refine(val => val === true, 'يجب الموافقة على الشروط والأحكام')
+  terms: z.boolean().refine(val => val === true, 'يجب الموافقة على الشروط والأحكام'),
+  requestType: z.enum(['CONTACT', 'TRIAL', 'QUOTE']).optional(),
+  systemName: z.string().optional(),
+  systemSlug: z.string().optional()
 })
 
 // Helper function to save data to JSON file
@@ -68,6 +71,11 @@ export async function POST(request: NextRequest) {
       requestNumber
     })
 
+    // Determine request type
+    const requestType = validatedData.requestType ||
+      (validatedData.subject.includes('تجربة مجانية') ? 'TRIAL' :
+       validatedData.subject.includes('عرض سعر') ? 'QUOTE' : 'CONTACT')
+
     // Save to file system as backup storage
     const contactData = {
       requestNumber,
@@ -79,7 +87,10 @@ export async function POST(request: NextRequest) {
       message: validatedData.message,
       source: 'WEBSITE',
       status: 'NEW',
-      type: 'CONTACT_FORM'
+      type: 'CONTACT_FORM',
+      requestType: requestType,
+      systemName: validatedData.systemName || null,
+      systemSlug: validatedData.systemSlug || null
     }
 
     const savedContact = await saveToFile(contactData, 'contacts.json')

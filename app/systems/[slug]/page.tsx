@@ -133,91 +133,126 @@ export default function SystemDetails() {
   }
 
   return (
-    <div style={{ background: 'var(--bg-light)', minHeight: '100vh' }}>
+    <>
       {/* Header */}
-      <div style={{
-        background: 'linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%)',
-        color: 'white',
-        padding: '80px 0 60px',
-        position: 'relative',
-        overflow: 'hidden'
-      }}>
+      <header className="header">
+        <div className="container header-container">
+          <div className="logo">
+            <img src="/logo.svg" alt="Corporate Stack Logo" className="logo-image" />
+            <div className="logo-text">كوربريت ستاك</div>
+          </div>
+          <nav className="nav-menu" id="navMenu">
+            <Link href="/" className="nav-link">الرئيسية</Link>
+            <Link href="/about" className="nav-link">من نحن</Link>
+            <Link href="/systems" className="nav-link active">الأنظمة</Link>
+            <Link href="/contact" className="nav-link">تواصل معنا</Link>
+          </nav>
+          <div className="header-actions">
+            <button
+              className="mobile-menu-toggle"
+              onClick={() => {
+                const navMenu = document.getElementById('navMenu');
+                navMenu?.classList.toggle('active');
+              }}
+            >
+              <i className="fas fa-bars"></i>
+            </button>
+            <Link
+              href="/contact?trial=true"
+              className="btn btn-free-trial"
+            >
+              <i className="fas fa-gift"></i>
+              تجربة مجانية
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      <div style={{ background: 'var(--bg-light)', minHeight: '100vh', marginTop: 'var(--header-height)' }}>
+        {/* Page Header */}
         <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'url("data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.1"%3E%3Ccircle cx="30" cy="30" r="4"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
-          opacity: 0.3
-        }}></div>
-        
-        <div className="container" style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto' }}>
-            <div style={{
-              width: '100px',
-              height: '100px',
-              borderRadius: '50%',
-              background: 'rgba(255, 255, 255, 0.2)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              margin: '0 auto 30px',
-              fontSize: '3rem',
-              color: 'white'
-            }}>
-              <i className={getSystemIcon(system.category)}></i>
-            </div>
-            
-            <h1 style={{
-              fontSize: '3rem',
-              fontWeight: '700',
-              margin: '0 0 20px 0',
-              textShadow: '0 2px 4px rgba(0,0,0,0.3)'
-            }}>
-              {system.name}
-            </h1>
-            
-            <p style={{
-              fontSize: '1.3rem',
-              opacity: 0.9,
-              lineHeight: '1.6',
-              margin: '0 0 30px 0'
-            }}>
-              {system.description}
-            </p>
-            
-            <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '15px',
-              background: 'rgba(255, 255, 255, 0.2)',
-              padding: '12px 24px',
-              borderRadius: '50px',
-              backdropFilter: 'blur(10px)'
-            }}>
-              <span style={{
-                padding: '6px 16px',
-                background: getSystemColor(system.category),
-                borderRadius: '20px',
-                fontSize: '0.9rem',
-                fontWeight: '600'
+          background: 'linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%)',
+          color: 'white',
+          padding: '80px 0 60px',
+          position: 'relative',
+          overflow: 'hidden'
+        }}>
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'url("data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.1"%3E%3Ccircle cx="30" cy="30" r="4"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
+            opacity: 0.3
+          }}></div>
+
+          <div className="container" style={{ position: 'relative', zIndex: 1 }}>
+            <div style={{ textAlign: 'center', maxWidth: '800px', margin: '0 auto' }}>
+              <div style={{
+                width: '100px',
+                height: '100px',
+                borderRadius: '50%',
+                background: 'rgba(255, 255, 255, 0.2)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 30px',
+                fontSize: '3rem',
+                color: 'white'
               }}>
-                {system.category}
-              </span>
-              <span style={{ fontSize: '0.9rem', opacity: 0.8 }}>
-                نظام متكامل وموثوق
-              </span>
+                <i className={getSystemIcon(system.category)}></i>
+              </div>
+
+              <h1 style={{
+                fontSize: '3rem',
+                fontWeight: '700',
+                margin: '0 0 20px 0',
+                textShadow: '0 2px 4px rgba(0,0,0,0.3)'
+              }}>
+                {system.name}
+              </h1>
+
+              <p style={{
+                fontSize: '1.3rem',
+                opacity: 0.9,
+                lineHeight: '1.6',
+                margin: '0 0 30px 0'
+              }}>
+                {system.description}
+              </p>
+
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '15px',
+                background: 'rgba(255, 255, 255, 0.2)',
+                padding: '12px 24px',
+                borderRadius: '50px',
+                backdropFilter: 'blur(10px)'
+              }}>
+                <span style={{
+                  padding: '6px 16px',
+                  background: getSystemColor(system.category),
+                  borderRadius: '20px',
+                  fontSize: '0.9rem',
+                  fontWeight: '600'
+                }}>
+                  {system.category}
+                </span>
+                <span style={{ fontSize: '0.9rem', opacity: 0.8 }}>
+                  نظام متكامل وموثوق
+                </span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Content */}
-      <div className="container" style={{ padding: '60px 20px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '40px', maxWidth: '1200px', margin: '0 auto' }}>
-          {/* Main Content */}
-          <div>
+        {/* Content */}
+        <div className="container" style={{ padding: '60px 20px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '40px', maxWidth: '1200px', margin: '0 auto' }}>
+            {/* Main Content */}
+            <div>
             {/* Features Section */}
             <div style={{
               background: 'white',
@@ -317,11 +352,11 @@ export default function SystemDetails() {
                   ))}
                 </div>
               </div>
-            )}
-          </div>
+              )}
+            </div>
 
-          {/* Sidebar */}
-          <div>
+            {/* Sidebar */}
+            <div>
             {/* CTA Card */}
             <div style={{
               background: 'linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%)',
@@ -345,7 +380,7 @@ export default function SystemDetails() {
               }}>
                 احصل على عرض سعر مخصص لاحتياجاتك
               </p>
-              <Link href="/quote" style={{
+              <Link href={`/contact?quote=true&system=${encodeURIComponent(system.name)}&slug=${system.slug}`} style={{
                 display: 'inline-block',
                 background: 'white',
                 color: 'var(--primary-color)',
@@ -419,11 +454,83 @@ export default function SystemDetails() {
                   <i className="fas fa-info-circle"></i>
                   من نحن
                 </Link>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+
+      {/* Footer */}
+      <footer className="footer">
+        <div className="container">
+          <div className="footer-container">
+            <div className="footer-col">
+              <div className="footer-logo">
+                <img src="/logo.svg" alt="Corporate Stack Logo" className="footer-logo-image" />
+                <div className="footer-logo-text">كوربريت ستاك</div>
+              </div>
+              <p className="footer-about">
+                نقدم حلولاً متكاملة لإدارة الأعمال تساعدك على تحسين الكفاءة وزيادة الإنتاجية وتحقيق النمو المستدام.
+              </p>
+            </div>
+
+            <div className="footer-col">
+              <h3 className="footer-title">روابط سريعة</h3>
+              <ul className="footer-links">
+                <li><Link href="/">الرئيسية</Link></li>
+                <li><Link href="/about">من نحن</Link></li>
+                <li><Link href="/systems">الأنظمة</Link></li>
+                <li><Link href="/contact">تواصل معنا</Link></li>
+              </ul>
+            </div>
+
+            <div className="footer-col">
+              <h3 className="footer-title">الأنظمة</h3>
+              <ul className="footer-links">
+                <li><Link href="/systems/accounting-electronic-invoice-system">نظام الحسابات والفاتورة الإلكترونية</Link></li>
+                <li><Link href="/systems/crm-customer-management-system">نظام إدارة العملاء</Link></li>
+                <li><Link href="/systems/hr-human-resources-system">نظام إدارة الموارد البشرية</Link></li>
+                <li><Link href="/systems/inventory-management-system">نظام إدارة المخزون</Link></li>
+                <li><Link href="/systems/project-management-system">نظام إدارة المشاريع</Link></li>
+                <li><Link href="/systems/pos-point-of-sale-system">نظام نقاط البيع</Link></li>
+              </ul>
+            </div>
+
+            <div className="footer-col">
+              <h3 className="footer-title">
+                <i className="fas fa-headset footer-icon"></i>
+                تواصل معنا
+              </h3>
+              <ul className="footer-contact">
+                <li>
+                  <i className="fas fa-envelope"></i>
+                  <span>info@corporatestack.com</span>
+                </li>
+                <li>
+                  <i className="fas fa-clock"></i>
+                  <span>الأحد - الخميس، 9:00 صباحاً - 5:00 مساءً</span>
+                </li>
+              </ul>
+              <div className="footer-social">
+                <a href="#" className="social-icon"><i className="fab fa-facebook-f"></i></a>
+                <a href="#" className="social-icon"><i className="fab fa-twitter"></i></a>
+                <a href="#" className="social-icon"><i className="fab fa-linkedin-in"></i></a>
+                <a href="#" className="social-icon"><i className="fab fa-instagram"></i></a>
+              </div>
+            </div>
+          </div>
+
+          <div className="footer-bottom">
+            <p>جميع الحقوق محفوظة &copy; 2025 كوربريت ستاك</p>
+          </div>
+        </div>
+      </footer>
+
+      {/* Back to Top Button */}
+      <a href="#" className="back-to-top">
+        <i className="fas fa-arrow-up"></i>
+      </a>
+    </>
   )
 }

@@ -7,6 +7,8 @@ import { useSearchParams } from 'next/navigation'
 export default function ContactPage() {
   const searchParams = useSearchParams()
   const [isTrial, setIsTrial] = useState(false)
+  const [isQuote, setIsQuote] = useState(false)
+  const [systemName, setSystemName] = useState('')
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -87,12 +89,21 @@ export default function ContactPage() {
 
     try {
       console.log('Sending request to API...')
+
+      // Prepare data with request type
+      const submitData = {
+        ...formData,
+        requestType: isTrial ? 'TRIAL' : isQuote ? 'QUOTE' : 'CONTACT',
+        systemName: isQuote ? systemName : undefined,
+        systemSlug: isQuote ? searchParams.get('slug') : undefined
+      }
+
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(submitData)
       })
 
       console.log('Response received:', response.status)
@@ -134,6 +145,7 @@ export default function ContactPage() {
 
   useEffect(() => {
     setMounted(true)
+
     // التحقق من طلب التجربة المجانية
     const trial = searchParams.get('trial')
     if (trial === 'true') {
@@ -142,6 +154,29 @@ export default function ContactPage() {
         ...prev,
         subject: 'طلب تجربة مجانية لمدة 14 يوم',
         message: 'أرغب في الحصول على تجربة مجانية لمدة 14 يوم لأنظمة Corporate Stack. يرجى التواصل معي لترتيب ذلك.'
+      }))
+    }
+
+    // التحقق من طلب عرض سعر
+    const quote = searchParams.get('quote')
+    const system = searchParams.get('system')
+    const slug = searchParams.get('slug')
+
+    if (quote === 'true' && system) {
+      setIsQuote(true)
+      setSystemName(system)
+      setFormData(prev => ({
+        ...prev,
+        subject: `طلب عرض سعر - ${system}`,
+        message: `أرغب في الحصول على عرض سعر مفصل لنظام "${system}". يرجى تزويدي بالتفاصيل التالية:
+
+- الأسعار والباقات المتاحة
+- مدة التنفيذ
+- التدريب والدعم الفني
+- إمكانيات التخصيص
+- طرق الدفع المتاحة
+
+أتطلع لتلقي عرضكم في أقرب وقت ممكن.`
       }))
     }
   }, [searchParams])
@@ -208,6 +243,19 @@ export default function ContactPage() {
           100% {
             box-shadow: 0 0 0 0 rgba(0, 102, 204, 0);
           }
+
+          /* إضافة CSS إضافي للتأكد من العرض الصحيح */
+          .contact-container > div {
+            width: 100% !important;
+            max-width: 100% !important;
+            flex-basis: auto !important;
+          }
+
+          /* إخفاء أي عناصر قد تسبب مشاكل في التخطيط */
+          .contact-container::before,
+          .contact-container::after {
+            display: none !important;
+          }
         }
 
         @keyframes shine {
@@ -235,21 +283,29 @@ export default function ContactPage() {
           color: #94a3b8;
         }
 
-        /* تحسينات للهاتف المحمول */
+        /* إجبار الوضوح على الهاتف المحمول */
         @media (max-width: 992px) {
           .contact-container {
             grid-template-columns: 1fr !important;
             gap: 30px !important;
+            /* ترتيب العناصر: النموذج أولاً ثم معلومات الاتصال */
           }
 
           .contact-form {
             padding: 25px !important;
             margin: 0 !important;
+            background-color: #ffffff !important;
+            border: 3px solid #e2e8f0 !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+            order: 1 !important; /* النموذج أولاً */
           }
 
           .contact-info {
             padding: 25px !important;
             margin-bottom: 20px !important;
+            background-color: #0066cc !important;
+            color: #ffffff !important;
+            order: 2 !important; /* معلومات الاتصال ثانياً */
           }
 
           .page-header {
@@ -259,101 +315,46 @@ export default function ContactPage() {
 
           .page-header h1 {
             font-size: 2rem !important;
+            color: #ffffff !important;
           }
 
           .page-header p {
             font-size: 1rem !important;
             padding: 0 15px !important;
+            color: #ffffff !important;
           }
         }
 
-        @media (max-width: 768px) {
-          .contact-form input,
-          .contact-form textarea,
-          .contact-form select {
-            padding: 15px !important;
-            font-size: 16px !important; /* منع التكبير التلقائي على iOS */
-            border: 2px solid #e2e8f0 !important;
-            border-radius: 10px !important;
-            background-color: #ffffff !important;
-            color: #1e293b !important;
+        /* CSS بسيط وفعال للهاتف */
+        @media screen and (max-width: 768px) {
+          /* إخفاء التخطيط المكتبي تماماً */
+          .desktop-only {
+            display: none !important;
           }
 
-          .contact-form input:focus,
-          .contact-form textarea:focus {
-            border-color: #0066cc !important;
-            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1) !important;
-            background-color: #ffffff !important;
+          /* إظهار التخطيط المحمول */
+          .mobile-only {
+            display: block !important;
           }
 
-          .contact-form label {
-            font-size: 1rem !important;
-            font-weight: 600 !important;
-            color: #1e293b !important;
-            margin-bottom: 10px !important;
-          }
-
-          .contact-form button {
-            padding: 18px !important;
-            font-size: 1.1rem !important;
-            border-radius: 10px !important;
-            margin-top: 10px !important;
-          }
-
-          .contact-section {
-            padding: 40px 0 !important;
-          }
-
-          .container {
-            padding: 0 15px !important;
-          }
         }
 
-        @media (max-width: 480px) {
-          .contact-form {
-            padding: 20px !important;
-            border-radius: 15px !important;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1) !important;
+
+
+
+
+        /* CSS بسيط للتخطيط المحمول */
+        .mobile-only {
+          display: none;
+        }
+
+        @media screen and (max-width: 768px) {
+          .desktop-only {
+            display: none !important;
           }
 
-          .contact-info {
-            padding: 20px !important;
-            border-radius: 15px !important;
-          }
-
-          .contact-form input,
-          .contact-form textarea {
-            padding: 16px !important;
-            font-size: 16px !important;
-            border-width: 2px !important;
-          }
-
-          .contact-form input:focus,
-          .contact-form textarea:focus {
-            transform: scale(1.02) !important;
-            box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.15) !important;
-          }
-
-          .page-header {
-            height: 35vh !important;
-            padding: 30px 0 !important;
-          }
-
-          .page-header h1 {
-            font-size: 1.8rem !important;
-          }
-
-          .contact-form button {
-            padding: 20px !important;
-            font-size: 1.2rem !important;
-            font-weight: 700 !important;
-            border-radius: 12px !important;
-            box-shadow: 0 4px 15px rgba(0, 102, 204, 0.3) !important;
-          }
-
-          .contact-form button:hover {
-            transform: translateY(-2px) !important;
-            box-shadow: 0 6px 20px rgba(0, 102, 204, 0.4) !important;
+          .mobile-only {
+            display: block !important;
           }
         }
       `}</style>
@@ -365,14 +366,23 @@ export default function ContactPage() {
             <img src="/logo.svg" alt="Corporate Stack Logo" className="logo-image" />
             <div className="logo-text">كوربريت ستاك</div>
           </div>
-          <nav className="nav-menu">
+          <nav className="nav-menu" id="navMenu">
             <Link href="/" className="nav-link">الرئيسية</Link>
             <Link href="/about" className="nav-link">من نحن</Link>
             <Link href="/systems" className="nav-link">الأنظمة</Link>
             <Link href="/contact" className="nav-link active">تواصل معنا</Link>
           </nav>
           <div className="header-actions">
-            {!isTrial && (
+            <button
+              className="mobile-menu-toggle"
+              onClick={() => {
+                const navMenu = document.getElementById('navMenu');
+                navMenu?.classList.toggle('active');
+              }}
+            >
+              <i className="fas fa-bars"></i>
+            </button>
+            {!isTrial && !isQuote && (
               <Link
                 href="/contact?trial=true"
                 className="btn btn-free-trial"
@@ -443,7 +453,7 @@ export default function ContactPage() {
             color: 'var(--secondary-color)'
           }}>
             <span style={{ color: 'var(--primary-color)' }}>
-              {isTrial ? 'طلب تجربة مجانية' : 'تواصل'}
+              {isTrial ? 'طلب تجربة مجانية' : isQuote ? 'طلب عرض سعر' : 'تواصل'}
             </span> معنا
           </h1>
           <p style={{
@@ -454,6 +464,8 @@ export default function ContactPage() {
           }}>
             {isTrial
               ? 'احصل على تجربة مجانية لمدة 14 يوم لجميع أنظمة Corporate Stack. املأ النموذج أدناه وسنتواصل معك خلال 24 ساعة.'
+              : isQuote
+              ? `احصل على عرض سعر مفصل ومخصص لنظام "${systemName}". املأ النموذج أدناه وسنرسل لك عرضاً شاملاً خلال 24 ساعة.`
               : 'نحن هنا للإجابة على استفساراتك وتقديم المساعدة. يمكنك التواصل معنا من خلال النموذج أدناه أو عبر معلومات الاتصال المتاحة.'
             }
           </p>
@@ -497,13 +509,347 @@ export default function ContactPage() {
               </div>
             </div>
           )}
-          <div className="contact-container" style={{
+
+          {/* تنبيه طلب عرض السعر */}
+          {isQuote && (
+            <div style={{
+              backgroundColor: '#f59e0b',
+              color: 'white',
+              padding: '20px',
+              borderRadius: '10px',
+              marginBottom: '40px',
+              textAlign: 'center',
+              boxShadow: '0 4px 15px rgba(245, 158, 11, 0.3)',
+              position: 'relative',
+              overflow: 'hidden'
+            }}>
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: '-100%',
+                width: '100%',
+                height: '100%',
+                background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
+                animation: 'shine 3s infinite'
+              }}></div>
+              <div style={{ position: 'relative', zIndex: 2 }}>
+                <i className="fas fa-file-invoice-dollar" style={{ fontSize: '2rem', marginBottom: '10px', display: 'block' }}></i>
+                <h3 style={{ margin: '0 0 10px 0', fontSize: '1.5rem', fontWeight: '700' }}>
+                  💰 طلب عرض سعر مخصص
+                </h3>
+                <p style={{ margin: 0, fontSize: '1.1rem', opacity: 0.9 }}>
+                  تم تعبئة النموذج مسبقاً لطلب عرض سعر لنظام "{systemName}". أكمل بياناتك وسنرسل لك عرضاً مفصلاً خلال 24 ساعة!
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* تخطيط للكمبيوتر فقط - مخفي على الهاتف */}
+          <div className="desktop-only" style={{
             display: 'grid',
             gridTemplateColumns: '1fr 1fr',
             gap: '50px'
           }}>
 
-            {/* Contact Info */}
+            {/* Contact Form */}
+            <div className="contact-form" style={{
+              backgroundColor: 'white',
+              padding: '40px',
+              borderRadius: '10px',
+              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.05)'
+            }}>
+              <h2 style={{
+                fontSize: '1.8rem',
+                fontWeight: '700',
+                marginBottom: '30px',
+                color: 'var(--secondary-color)',
+                position: 'relative',
+                paddingBottom: '15px'
+              }}>
+                <i className="fas fa-paper-plane"></i> أرسل <span style={{ color: 'var(--primary-color)', fontWeight: '700' }}>رسالة</span>
+                <div style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  right: 0,
+                  width: '50px',
+                  height: '3px',
+                  backgroundColor: 'var(--primary-color)',
+                  borderRadius: '3px'
+                }}></div>
+              </h2>
+
+              <form onSubmit={handleSubmit} style={{ marginBottom: 0 }}>
+                {submitError && (
+                  <div style={{
+                    backgroundColor: '#fee2e2',
+                    border: '1px solid #fecaca',
+                    color: '#dc2626',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    marginBottom: '20px',
+                    fontSize: '0.9rem'
+                  }}>
+                    <i className="fas fa-exclamation-triangle" style={{ marginLeft: '8px' }}></i>
+                    {submitError}
+                  </div>
+                )}
+
+                <div style={{ marginBottom: '20px' }}>
+                  <label htmlFor="name" style={{
+                    display: 'block',
+                    marginBottom: '8px',
+                    fontWeight: '500',
+                    color: 'var(--secondary-color)'
+                  }}>الاسم الكامل</label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    placeholder="أدخل اسمك الكامل"
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '12px 15px',
+                      borderRadius: '8px',
+                      border: '1px solid #e2e8f0',
+                      fontFamily: 'Tajawal, sans-serif',
+                      fontSize: '1rem',
+                      transition: 'all 0.3s ease',
+                      backgroundColor: '#ffffff',
+                      color: '#000000',
+                      WebkitTextFillColor: '#000000',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+
+                <div style={{ marginBottom: '20px' }}>
+                  <label htmlFor="company" style={{
+                    display: 'block',
+                    marginBottom: '8px',
+                    fontWeight: '500',
+                    color: 'var(--secondary-color)'
+                  }}>اسم الشركة/المؤسسة</label>
+                  <input
+                    type="text"
+                    id="company"
+                    name="company"
+                    value={formData.company}
+                    onChange={handleInputChange}
+                    placeholder="أدخل اسم الشركة أو المؤسسة"
+                    style={{
+                      width: '100%',
+                      padding: '12px 15px',
+                      borderRadius: '8px',
+                      border: '1px solid #e2e8f0',
+                      fontFamily: 'Tajawal, sans-serif',
+                      fontSize: '1rem',
+                      transition: 'all 0.3s ease',
+                      backgroundColor: '#ffffff',
+                      color: '#000000',
+                      WebkitTextFillColor: '#000000',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+
+                <div style={{ marginBottom: '20px' }}>
+                  <label htmlFor="email" style={{
+                    display: 'block',
+                    marginBottom: '8px',
+                    fontWeight: '500',
+                    color: 'var(--secondary-color)'
+                  }}>البريد الإلكتروني</label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    placeholder="أدخل بريدك الإلكتروني"
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '12px 15px',
+                      borderRadius: '8px',
+                      border: '1px solid #e2e8f0',
+                      fontFamily: 'Tajawal, sans-serif',
+                      fontSize: '1rem',
+                      transition: 'all 0.3s ease',
+                      backgroundColor: '#ffffff',
+                      color: '#000000',
+                      WebkitTextFillColor: '#000000',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+
+                <div style={{ marginBottom: '20px' }}>
+                  <label htmlFor="phone" style={{
+                    display: 'block',
+                    marginBottom: '8px',
+                    fontWeight: '500',
+                    color: 'var(--secondary-color)'
+                  }}>رقم الجوال</label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    placeholder="أدخل رقم جوالك"
+                    dir="ltr"
+                    style={{
+                      width: '100%',
+                      padding: '12px 15px',
+                      borderRadius: '8px',
+                      border: '1px solid #e2e8f0',
+                      fontFamily: 'Tajawal, sans-serif',
+                      fontSize: '1rem',
+                      transition: 'all 0.3s ease',
+                      backgroundColor: '#ffffff',
+                      color: '#000000',
+                      WebkitTextFillColor: '#000000',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+
+                <div style={{ marginBottom: '20px' }}>
+                  <label htmlFor="subject" style={{
+                    display: 'block',
+                    marginBottom: '8px',
+                    fontWeight: '500',
+                    color: 'var(--secondary-color)'
+                  }}>الموضوع</label>
+                  <input
+                    type="text"
+                    id="subject"
+                    name="subject"
+                    value={formData.subject}
+                    onChange={handleInputChange}
+                    placeholder="أدخل موضوع الرسالة"
+                    required
+                    style={{
+                      width: '100%',
+                      padding: '12px 15px',
+                      borderRadius: '8px',
+                      border: '1px solid #e2e8f0',
+                      fontFamily: 'Tajawal, sans-serif',
+                      fontSize: '1rem',
+                      transition: 'all 0.3s ease',
+                      backgroundColor: '#ffffff',
+                      color: '#000000',
+                      WebkitTextFillColor: '#000000',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+
+                <div style={{ marginBottom: '20px' }}>
+                  <label htmlFor="message" style={{
+                    display: 'block',
+                    marginBottom: '8px',
+                    fontWeight: '500',
+                    color: 'var(--secondary-color)'
+                  }}>الرسالة</label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    value={formData.message}
+                    onChange={handleInputChange}
+                    placeholder="اكتب رسالتك هنا..."
+                    required
+                    style={{
+                      width: '100%',
+                      height: '150px',
+                      padding: '12px 15px',
+                      borderRadius: '8px',
+                      border: '1px solid #e2e8f0',
+                      fontFamily: 'Tajawal, sans-serif',
+                      fontSize: '1rem',
+                      transition: 'all 0.3s ease',
+                      resize: 'vertical',
+                      backgroundColor: '#ffffff',
+                      color: '#000000',
+                      WebkitTextFillColor: '#000000',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+
+                <div style={{ marginBottom: '20px' }}>
+                  <label style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    cursor: 'pointer',
+                    fontSize: '0.9rem',
+                    color: 'var(--secondary-color)'
+                  }}>
+                    <input
+                      type="checkbox"
+                      name="terms"
+                      checked={formData.terms}
+                      onChange={handleInputChange}
+                      required
+                      style={{
+                        width: '18px',
+                        height: '18px',
+                        accentColor: 'var(--primary-color)'
+                      }}
+                    />
+                    <span>
+                      أوافق على <a href="#" style={{ color: 'var(--primary-color)', textDecoration: 'underline' }}>الشروط والأحكام</a> و <a href="#" style={{ color: 'var(--primary-color)', textDecoration: 'underline' }}>سياسة الخصوصية</a>
+                    </span>
+                  </label>
+                  {errors.terms && (
+                    <div style={{
+                      color: '#dc2626',
+                      fontSize: '0.8rem',
+                      marginTop: '5px'
+                    }}>
+                      {errors.terms}
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  disabled={isSubmitting}
+                  style={{
+                    width: '100%',
+                    padding: '15px',
+                    fontSize: '1.1rem',
+                    fontWeight: '600',
+                    borderRadius: '8px',
+                    border: 'none',
+                    backgroundColor: isSubmitting ? '#94a3b8' : 'var(--primary-color)',
+                    color: 'white',
+                    cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                    transition: 'all 0.3s ease',
+                    opacity: isSubmitting ? 0.7 : 1
+                  }}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <i className="fas fa-spinner fa-spin" style={{ marginLeft: '8px' }}></i>
+                      جاري الإرسال...
+                    </>
+                  ) : (
+                    <>
+                      <i className="fas fa-paper-plane" style={{ marginLeft: '8px' }}></i>
+                      إرسال الرسالة
+                    </>
+                  )}
+                </button>
+              </form>
+            </div>
+
+            {/* Contact Info - يظهر ثانياً على الهاتف */}
             <div className="contact-info" style={{
               backgroundColor: 'var(--primary-color)',
               color: 'white',
@@ -728,12 +1074,17 @@ export default function ContactPage() {
               </div>
             </div>
 
-            {/* Contact Form */}
+          </div>
+
+          {/* تخطيط منفصل للهاتف فقط */}
+          <div className="mobile-only">
+            {/* النموذج أولاً على الهاتف */}
             <div className="contact-form" style={{
               backgroundColor: 'white',
               padding: '40px',
               borderRadius: '10px',
-              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.05)'
+              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.05)',
+              marginBottom: '30px'
             }}>
               <h2 style={{
                 fontSize: '1.8rem',
@@ -772,7 +1123,7 @@ export default function ContactPage() {
                 )}
 
                 <div style={{ marginBottom: '20px' }}>
-                  <label htmlFor="name" style={{
+                  <label htmlFor="mobile-name" style={{
                     display: 'block',
                     marginBottom: '8px',
                     fontWeight: '500',
@@ -780,7 +1131,7 @@ export default function ContactPage() {
                   }}>الاسم الكامل</label>
                   <input
                     type="text"
-                    id="name"
+                    id="mobile-name"
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
@@ -795,14 +1146,15 @@ export default function ContactPage() {
                       fontSize: '1rem',
                       transition: 'all 0.3s ease',
                       backgroundColor: '#ffffff',
-                      color: '#1e293b',
+                      color: '#000000',
+                      WebkitTextFillColor: '#000000',
                       boxSizing: 'border-box'
                     }}
                   />
                 </div>
 
                 <div style={{ marginBottom: '20px' }}>
-                  <label htmlFor="company" style={{
+                  <label htmlFor="mobile-company" style={{
                     display: 'block',
                     marginBottom: '8px',
                     fontWeight: '500',
@@ -810,7 +1162,7 @@ export default function ContactPage() {
                   }}>اسم الشركة/المؤسسة</label>
                   <input
                     type="text"
-                    id="company"
+                    id="mobile-company"
                     name="company"
                     value={formData.company}
                     onChange={handleInputChange}
@@ -824,14 +1176,15 @@ export default function ContactPage() {
                       fontSize: '1rem',
                       transition: 'all 0.3s ease',
                       backgroundColor: '#ffffff',
-                      color: '#1e293b',
+                      color: '#000000',
+                      WebkitTextFillColor: '#000000',
                       boxSizing: 'border-box'
                     }}
                   />
                 </div>
 
                 <div style={{ marginBottom: '20px' }}>
-                  <label htmlFor="email" style={{
+                  <label htmlFor="mobile-email" style={{
                     display: 'block',
                     marginBottom: '8px',
                     fontWeight: '500',
@@ -839,7 +1192,7 @@ export default function ContactPage() {
                   }}>البريد الإلكتروني</label>
                   <input
                     type="email"
-                    id="email"
+                    id="mobile-email"
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
@@ -854,14 +1207,15 @@ export default function ContactPage() {
                       fontSize: '1rem',
                       transition: 'all 0.3s ease',
                       backgroundColor: '#ffffff',
-                      color: '#1e293b',
+                      color: '#000000',
+                      WebkitTextFillColor: '#000000',
                       boxSizing: 'border-box'
                     }}
                   />
                 </div>
 
                 <div style={{ marginBottom: '20px' }}>
-                  <label htmlFor="phone" style={{
+                  <label htmlFor="mobile-phone" style={{
                     display: 'block',
                     marginBottom: '8px',
                     fontWeight: '500',
@@ -869,7 +1223,7 @@ export default function ContactPage() {
                   }}>رقم الجوال</label>
                   <input
                     type="tel"
-                    id="phone"
+                    id="mobile-phone"
                     name="phone"
                     value={formData.phone}
                     onChange={handleInputChange}
@@ -884,14 +1238,15 @@ export default function ContactPage() {
                       fontSize: '1rem',
                       transition: 'all 0.3s ease',
                       backgroundColor: '#ffffff',
-                      color: '#1e293b',
+                      color: '#000000',
+                      WebkitTextFillColor: '#000000',
                       boxSizing: 'border-box'
                     }}
                   />
                 </div>
 
                 <div style={{ marginBottom: '20px' }}>
-                  <label htmlFor="subject" style={{
+                  <label htmlFor="mobile-subject" style={{
                     display: 'block',
                     marginBottom: '8px',
                     fontWeight: '500',
@@ -899,7 +1254,7 @@ export default function ContactPage() {
                   }}>الموضوع</label>
                   <input
                     type="text"
-                    id="subject"
+                    id="mobile-subject"
                     name="subject"
                     value={formData.subject}
                     onChange={handleInputChange}
@@ -914,21 +1269,22 @@ export default function ContactPage() {
                       fontSize: '1rem',
                       transition: 'all 0.3s ease',
                       backgroundColor: '#ffffff',
-                      color: '#1e293b',
+                      color: '#000000',
+                      WebkitTextFillColor: '#000000',
                       boxSizing: 'border-box'
                     }}
                   />
                 </div>
 
                 <div style={{ marginBottom: '20px' }}>
-                  <label htmlFor="message" style={{
+                  <label htmlFor="mobile-message" style={{
                     display: 'block',
                     marginBottom: '8px',
                     fontWeight: '500',
                     color: 'var(--secondary-color)'
                   }}>الرسالة</label>
                   <textarea
-                    id="message"
+                    id="mobile-message"
                     name="message"
                     value={formData.message}
                     onChange={handleInputChange}
@@ -945,7 +1301,8 @@ export default function ContactPage() {
                       transition: 'all 0.3s ease',
                       resize: 'vertical',
                       backgroundColor: '#ffffff',
-                      color: '#1e293b',
+                      color: '#000000',
+                      WebkitTextFillColor: '#000000',
                       boxSizing: 'border-box'
                     }}
                   />
@@ -1018,6 +1375,183 @@ export default function ContactPage() {
                   )}
                 </button>
               </form>
+            </div>
+
+            {/* معلومات الاتصال ثانياً على الهاتف */}
+            <div className="contact-info" style={{
+              backgroundColor: 'var(--primary-color)',
+              color: 'white',
+              padding: '40px',
+              borderRadius: '10px',
+              boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
+              position: 'relative',
+              overflow: 'hidden'
+            }}>
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                background: 'linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent)',
+                transform: 'translateX(-100%)',
+                animation: 'shine 3s infinite'
+              }}></div>
+
+              <h2 style={{
+                fontSize: '1.8rem',
+                fontWeight: '700',
+                marginBottom: '30px',
+                position: 'relative',
+                paddingBottom: '15px'
+              }}>
+                <i className="fas fa-info-circle"></i> معلومات <span style={{ color: '#ffffff', fontWeight: '700' }}>الاتصال</span>
+                <div style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  right: 0,
+                  width: '50px',
+                  height: '3px',
+                  backgroundColor: 'white',
+                  borderRadius: '3px'
+                }}></div>
+              </h2>
+
+              <p style={{
+                marginBottom: '30px',
+                lineHeight: '1.8',
+                opacity: '0.9'
+              }}>
+                نحن نسعى دائماً لتقديم أفضل خدمة لعملائنا. يمكنك التواصل معنا في أي وقت وسنقوم بالرد عليك في أقرب وقت ممكن.
+              </p>
+
+              <ul style={{
+                listStyle: 'none',
+                marginBottom: '30px',
+                padding: 0
+              }}>
+                <li style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '15px',
+                  marginBottom: '20px'
+                }}>
+                  <i className="fas fa-map-marker-alt" style={{
+                    fontSize: '1.5rem',
+                    color: 'white',
+                    opacity: '0.9'
+                  }}></i>
+                  <span style={{ lineHeight: '1.6' }}>
+                    <strong>الإمارات العربية المتحدة</strong><br />
+                    مكتب ٥٠١، الطابق الخامس، مكاتب ٢، مجمع الأعمال، مدينة دبي للإنتاج، دبي، الإمارات العربية المتحدة
+                  </span>
+                </li>
+                <li style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '15px',
+                  marginBottom: '20px'
+                }}>
+                  <i className="fas fa-phone-alt" style={{
+                    fontSize: '1.5rem',
+                    color: 'white',
+                    opacity: '0.9'
+                  }}></i>
+                  <span style={{ lineHeight: '1.6' }} dir="ltr">+971 4 123 4567</span>
+                </li>
+                <li style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '15px',
+                  marginBottom: '20px'
+                }}>
+                  <i className="fas fa-envelope" style={{
+                    fontSize: '1.5rem',
+                    color: 'white',
+                    opacity: '0.9'
+                  }}></i>
+                  <span style={{ lineHeight: '1.6' }}>info@corporatestack.com</span>
+                </li>
+                <li style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '15px',
+                  marginBottom: '20px'
+                }}>
+                  <i className="fas fa-clock" style={{
+                    fontSize: '1.5rem',
+                    color: 'white',
+                    opacity: '0.9'
+                  }}></i>
+                  <span style={{ lineHeight: '1.6' }}>ساعات العمل: الأحد - الخميس، 9:00 صباحاً - 5:00 مساءً</span>
+                </li>
+              </ul>
+
+              <div style={{
+                display: 'flex',
+                gap: '15px'
+              }}>
+                <a href="#" style={{
+                  width: '40px',
+                  height: '40px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontSize: '1.2rem',
+                  transition: 'all 0.3s ease',
+                  textDecoration: 'none'
+                }}>
+                  <i className="fab fa-facebook-f"></i>
+                </a>
+                <a href="#" style={{
+                  width: '40px',
+                  height: '40px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontSize: '1.2rem',
+                  transition: 'all 0.3s ease',
+                  textDecoration: 'none'
+                }}>
+                  <i className="fab fa-twitter"></i>
+                </a>
+                <a href="#" style={{
+                  width: '40px',
+                  height: '40px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontSize: '1.2rem',
+                  transition: 'all 0.3s ease',
+                  textDecoration: 'none'
+                }}>
+                  <i className="fab fa-linkedin-in"></i>
+                </a>
+                <a href="#" style={{
+                  width: '40px',
+                  height: '40px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontSize: '1.2rem',
+                  transition: 'all 0.3s ease',
+                  textDecoration: 'none'
+                }}>
+                  <i className="fab fa-instagram"></i>
+                </a>
+              </div>
             </div>
           </div>
         </div>

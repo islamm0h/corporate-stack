@@ -24,7 +24,6 @@ export async function POST(request: NextRequest) {
       await prisma.system.deleteMany({})
       await prisma.activityLog.deleteMany({})
       await prisma.fileUpload.deleteMany({})
-      await prisma.backup.deleteMany({})
       await prisma.dailyStat.deleteMany({})
       // await prisma.systemSetting.deleteMany({}) // تم تعطيله لأن الجدول غير موجود
       await prisma.user.deleteMany({})

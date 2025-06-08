@@ -38,16 +38,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // إذا كان أول تسجيل دخول، تحقق من كلمة المرور المؤقتة
-    if (isFirstLogin && user.temporaryPassword) {
-      const isTempPasswordValid = await bcrypt.compare(currentPassword, user.temporaryPassword)
-      if (!isTempPasswordValid) {
-        return NextResponse.json({
-          success: false,
-          error: 'كلمة المرور المؤقتة غير صحيحة'
-        }, { status: 400 })
-      }
-    }
+    // إذا كان أول تسجيل دخول، لا حاجة للتحقق من كلمة مرور مؤقتة
+    // في النظام الجديد نستخدم mustChangePassword فقط
 
     // تشفير كلمة المرور الجديدة
     const saltRounds = 12
@@ -60,7 +52,6 @@ export async function POST(request: NextRequest) {
         passwordHash: hashedNewPassword,
         mustChangePassword: false,
         lastPasswordChange: new Date(),
-        temporaryPassword: null, // إزالة كلمة المرور المؤقتة
         updatedAt: new Date()
       }
     })
@@ -102,8 +93,7 @@ export async function GET(request: NextRequest) {
         lastName: true,
         email: true,
         mustChangePassword: true,
-        lastPasswordChange: true,
-        temporaryPassword: true
+        lastPasswordChange: true
       }
     })
 
@@ -118,7 +108,7 @@ export async function GET(request: NextRequest) {
       success: true,
       data: {
         ...user,
-        hasTemporaryPassword: !!user.temporaryPassword
+        hasTemporaryPassword: false // لا نستخدم كلمات مرور مؤقتة في النظام الجديد
       }
     })
 

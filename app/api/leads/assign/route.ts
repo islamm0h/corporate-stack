@@ -95,10 +95,10 @@ export async function POST(request: NextRequest) {
         action: 'LEAD_ASSIGNED',
         entityType: 'LEAD',
         entityId: leadId,
-        details: {
+        details: JSON.stringify({
           leadCompany: updatedLead.companyName,
           assignmentMethod: 'ROUND_ROBIN'
-        }
+        })
       }
     })
 

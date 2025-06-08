@@ -389,13 +389,22 @@ export default function About() {
             <img src="/logo.svg" alt="Corporate Stack Logo" className="logo-image" />
             <div className="logo-text">كوربريت ستاك</div>
           </div>
-          <nav className="nav-menu">
+          <nav className="nav-menu" id="navMenu">
             <Link href="/" className="nav-link">الرئيسية</Link>
             <Link href="/about" className="nav-link active">من نحن</Link>
             <Link href="/systems" className="nav-link">الأنظمة</Link>
             <Link href="/contact" className="nav-link">تواصل معنا</Link>
           </nav>
           <div className="header-actions">
+            <button
+              className="mobile-menu-toggle"
+              onClick={() => {
+                const navMenu = document.getElementById('navMenu');
+                navMenu?.classList.toggle('active');
+              }}
+            >
+              <i className="fas fa-bars"></i>
+            </button>
             <Link
               href="/contact?trial=true"
               className="btn btn-free-trial"

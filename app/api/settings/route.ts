@@ -90,11 +90,11 @@ export async function POST(request: NextRequest) {
         action: 'update_setting',
         entityType: 'system_setting',
         entityId: setting.id,
-        details: {
+        details: JSON.stringify({
           category: setting.category,
           key: setting.key,
           value: setting.value
-        }
+        })
       }
     })
 
@@ -163,10 +163,10 @@ export async function PUT(request: NextRequest) {
       data: {
         action: 'bulk_update_settings',
         entityType: 'system_setting',
-        details: {
+        details: JSON.stringify({
           categories: Object.keys(settings),
           settingsCount: updates.length
-        }
+        })
       }
     })
 
@@ -222,10 +222,10 @@ export async function DELETE(request: NextRequest) {
         action: 'delete_setting',
         entityType: 'system_setting',
         entityId: setting.id,
-        details: {
+        details: JSON.stringify({
           category: setting.category,
           key: setting.key
-        }
+        })
       }
     })
 

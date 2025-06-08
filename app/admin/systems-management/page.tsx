@@ -422,6 +422,55 @@ export default function SystemsManagement() {
 
   const categories = [...new Set(systems.map(s => s.category))]
 
+  // دالة إضافة الأنظمة الأساسية
+  const handleInitializeBasicSystems = async () => {
+    if (confirm('هل تريد إضافة الأنظمة الأساسية؟ سيتم إضافة 5 أنظمة أساسية جاهزة للتعديل.')) {
+      try {
+        const response = await fetch('/api/admin/systems/initialize', {
+          method: 'POST',
+        })
+
+        const result = await response.json()
+
+        if (result.success) {
+          // إعادة جلب الأنظمة لضمان التحديث
+          const systemsResponse = await fetch('/api/systems')
+          const systemsResult = await systemsResponse.json()
+          if (systemsResult.success) {
+            // تحويل البيانات إلى التنسيق المطلوب
+            const formattedSystems = systemsResult.data.map((system: any) => ({
+              id: system.id,
+              name: system.name,
+              description: system.description || '',
+              version: '1.0.0',
+              status: system.isActive ? 'active' : 'inactive',
+              category: system.category || 'غير محدد',
+              features: system.features || [],
+              seo: system.seoTitle ? {
+                title: system.seoTitle,
+                description: system.seoDescription || '',
+                keywords: system.seoKeywords || [],
+                metaDescription: system.seoDescription || '',
+                slug: system.slug || '',
+                focusKeyword: system.seoKeywords?.[0] || ''
+              } : undefined,
+              files: [],
+              createdAt: system.createdAt,
+              updatedAt: system.updatedAt
+            }))
+            setSystems(formattedSystems)
+          }
+          alert(`تم إضافة ${result.count} أنظمة أساسية بنجاح!`)
+        } else {
+          alert('فشل في إضافة الأنظمة الأساسية: ' + result.error)
+        }
+      } catch (error) {
+        console.error('Error initializing basic systems:', error)
+        alert('حدث خطأ أثناء إضافة الأنظمة الأساسية')
+      }
+    }
+  }
+
   // دالة حساب النسبة المئوية للكلمات المفتاحية
   const calculateKeywordDensity = (text: string, keyword: string) => {
     if (!text || !keyword) return 0
@@ -562,7 +611,14 @@ export default function SystemsManagement() {
       <div className="data-table-container">
         <div className="data-table-header">
           <h3 className="data-table-title">إدارة الأنظمة</h3>
-          <div className="data-table-actions">
+          <div className="data-table-actions" style={{ display: 'flex', gap: '10px' }}>
+            <button
+              className="btn btn-secondary"
+              style={{ fontSize: '0.9rem', padding: '10px 20px' }}
+              onClick={handleInitializeBasicSystems}
+            >
+              <i className="fas fa-download"></i> إضافة الأنظمة الأساسية
+            </button>
             <button
               className="btn btn-primary"
               style={{ fontSize: '0.9rem', padding: '10px 20px' }}
@@ -652,12 +708,20 @@ export default function SystemsManagement() {
                   : 'لا توجد أنظمة في قاعدة البيانات. أضف نظام جديد للبدء.'
                 }
               </div>
-              <button
-                className="btn btn-primary"
-                onClick={() => setShowAddSystem(true)}
-              >
-                <i className="fas fa-plus"></i> إضافة نظام جديد
-              </button>
+              <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                <button
+                  className="btn btn-secondary"
+                  onClick={handleInitializeBasicSystems}
+                >
+                  <i className="fas fa-download"></i> إضافة الأنظمة الأساسية
+                </button>
+                <button
+                  className="btn btn-primary"
+                  onClick={() => setShowAddSystem(true)}
+                >
+                  <i className="fas fa-plus"></i> إضافة نظام جديد
+                </button>
+              </div>
             </div>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '25px' }}>

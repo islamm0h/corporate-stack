@@ -1,5 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ma/d/prisma-schema
+// CS Leads System - Database Schema
+// مخطط قاعدة البيانات لنظام إدارة العملاء المحتملين
 
 generator client {
   provider = "prisma-client-js"
@@ -10,6 +10,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// نموذج المستخدمين - Users Model
 model User {
   id            String    @id @default(uuid()) @db.Uuid
   username      String    @unique @db.VarChar(50)
@@ -22,12 +23,11 @@ model User {
   isActive      Boolean   @default(true) @map("is_active")
   emailVerified Boolean   @default(false) @map("email_verified")
   lastLogin     DateTime? @map("last_login")
-  mustChangePassword Boolean @default(true) @map("must_change_password") // يجب تغيير كلمة المرور في أول تسجيل دخول
-  lastPasswordChange DateTime? @map("last_password_change") // تاريخ آخر تغيير لكلمة المرور
-  temporaryPassword String? @map("temporary_password") @db.VarChar(255) // كلمة المرور المؤقتة
-  assignmentOrder Int     @default(0) @map("assignment_order") // ترتيب التوزيع
-  lastAssigned  DateTime? @map("last_assigned") // آخر مرة تم توزيع عميل عليه
-  totalAssigned Int       @default(0) @map("total_assigned") // إجمالي العملاء المخصصين
+  mustChangePassword Boolean @default(true) @map("must_change_password")
+  lastPasswordChange DateTime? @map("last_password_change")
+  assignmentOrder Int     @default(0) @map("assignment_order")
+  lastAssigned  DateTime? @map("last_assigned")
+  totalAssigned Int       @default(0) @map("total_assigned")
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
 
@@ -37,12 +37,12 @@ model User {
   responses        Response[]
   activityLogs     ActivityLog[]
   fileUploads      FileUpload[]
-  backups          Backup[]
   systemFiles      SystemFile[]     @relation("SystemFileUploader")
 
   @@map("users")
 }
 
+// نموذج العملاء المحتملين - Leads Model
 model Lead {
   id            String      @id @default(uuid()) @db.Uuid
   companyName   String      @map("company_name") @db.VarChar(100)
@@ -68,6 +68,7 @@ model Lead {
   @@map("leads")
 }
 
+// نموذج الأنظمة - Systems Model
 model System {
   id               String    @id @default(uuid()) @db.Uuid
   name             String    @db.VarChar(100)
@@ -86,11 +87,10 @@ model System {
   seoTitle         String?   @map("seo_title") @db.VarChar(255)
   seoDescription   String?   @map("seo_description") @db.VarChar(500)
   seoKeywords      String[]  @map("seo_keywords")
-  // إضافة حقول إدارة الأنظمة
   version          String?   @default("1.0.0") @db.VarChar(20)
   icon             String?   @default("fas fa-cog") @db.VarChar(50)
   color            String?   @default("#0066cc") @db.VarChar(20)
-  status           String?   @default("active") @db.VarChar(20) // active, inactive, maintenance, updating
+  status           String?   @default("active") @db.VarChar(20)
   users            Int?      @default(0)
   uptime           String?   @default("99.9%") @db.VarChar(10)
   createdAt        DateTime  @default(now()) @map("created_at")
@@ -103,12 +103,13 @@ model System {
   @@map("systems")
 }
 
+// نموذج ملفات الأنظمة - System Files Model
 model SystemFile {
   id           String   @id @default(uuid()) @db.Uuid
   systemId     String   @map("system_id") @db.Uuid
   fileName     String   @map("file_name") @db.VarChar(255)
   originalName String   @map("original_name") @db.VarChar(255)
-  fileType     String   @map("file_type") @db.VarChar(20) // pdf, image, video
+  fileType     String   @map("file_type") @db.VarChar(20)
   fileSize     BigInt   @map("file_size")
   filePath     String   @map("file_path") @db.VarChar(500)
   mimeType     String   @map("mime_type") @db.VarChar(100)
@@ -125,6 +126,7 @@ model SystemFile {
   @@map("system_files")
 }
 
+// نموذج طلبات الأسعار - Quote Requests Model
 model QuoteRequest {
   id           String      @id @default(uuid()) @db.Uuid
   leadId       String      @map("lead_id") @db.Uuid
@@ -149,6 +151,7 @@ model QuoteRequest {
   @@map("quote_requests")
 }
 
+// نموذج الردود - Responses Model
 model Response {
   id           String       @id @default(uuid()) @db.Uuid
   requestId    String       @map("request_id") @db.Uuid
@@ -169,6 +172,7 @@ model Response {
   @@map("responses")
 }
 
+// نموذج إعدادات النظام - System Settings Model
 model SystemSetting {
   id          String   @id @default(uuid()) @db.Uuid
   category    String   @db.VarChar(50)
@@ -183,6 +187,7 @@ model SystemSetting {
   @@map("system_settings")
 }
 
+// نموذج سجل الأنشطة - Activity Log Model
 model ActivityLog {
   id         String   @id @default(uuid()) @db.Uuid
   userId     String?  @map("user_id") @db.Uuid
@@ -200,6 +205,7 @@ model ActivityLog {
   @@map("activity_logs")
 }
 
+// نموذج الإحصائيات اليومية - Daily Statistics Model
 model DailyStat {
   id                   String   @id @default(uuid()) @db.Uuid
   date                 DateTime @unique @db.Date
@@ -221,6 +227,7 @@ model DailyStat {
   @@map("daily_stats")
 }
 
+// نموذج رفع الملفات - File Upload Model
 model FileUpload {
   id           String   @id @default(uuid()) @db.Uuid
   originalName String   @map("original_name") @db.VarChar(255)
@@ -240,23 +247,7 @@ model FileUpload {
   @@map("file_uploads")
 }
 
-model Backup {
-  id         String     @id @default(uuid()) @db.Uuid
-  backupName String     @map("backup_name") @db.VarChar(255)
-  backupType BackupType @default(FULL) @map("backup_type")
-  filePath   String     @map("file_path") @db.VarChar(500)
-  fileSize   BigInt?    @map("file_size")
-  status     BackupStatus @default(COMPLETED)
-  createdById String?   @map("created_by") @db.Uuid
-  createdAt  DateTime   @default(now()) @map("created_at")
-
-  // Relations
-  createdBy User? @relation(fields: [createdById], references: [id])
-
-  @@map("backups")
-}
-
-// Enums
+// التعدادات - Enums
 enum Role {
   ADMIN  @map("admin")
   MANAGER @map("manager")
@@ -324,16 +315,4 @@ enum ResponseStatus {
   DELIVERED @map("delivered")
   READ      @map("read")
   REPLIED   @map("replied")
-}
-
-enum BackupType {
-  FULL         @map("full")
-  INCREMENTAL  @map("incremental")
-  DIFFERENTIAL @map("differential")
-}
-
-enum BackupStatus {
-  IN_PROGRESS @map("in_progress")
-  COMPLETED   @map("completed")
-  FAILED      @map("failed")
 }

@@ -38,7 +38,7 @@ export async function disconnectFromDatabase() {
 // Health check function
 export async function checkDatabaseHealth() {
   try {
-    await prisma.$queryRaw`SELECT 1`
+    await prisma.$queryRaw`SELECT 1 as test`
     return { status: 'healthy', timestamp: new Date() }
   } catch (error) {
     return { status: 'unhealthy', error: error.message, timestamp: new Date() }
@@ -76,30 +76,32 @@ export async function getDatabaseStats() {
   }
 }
 
-// Backup database function
+// Simple database backup function for SQLite
 export async function createDatabaseBackup(backupName: string, userId?: string) {
   try {
-    const backup = await prisma.backup.create({
-      data: {
-        backupName,
-        backupType: 'FULL',
-        filePath: `/backups/${backupName}.sql`,
-        status: 'IN_PROGRESS',
-        createdById: userId
-      }
-    })
+    console.log(`📦 إنشاء نسخة احتياطية: ${backupName}`)
 
-    // Here you would implement the actual backup logic
-    // For now, we'll just update the status to completed
-    await prisma.backup.update({
-      where: { id: backup.id },
-      data: {
-        status: 'COMPLETED',
-        fileSize: BigInt(1024 * 1024) // 1MB placeholder
-      }
-    })
+    // For SQLite, we can simply copy the database file
+    const fs = require('fs')
+    const path = require('path')
 
-    return backup
+    const sourceDb = './database/cs_leads_system.db'
+    const backupDir = './backups'
+    const backupFile = path.join(backupDir, `${backupName}.db`)
+
+    // Create backup directory if it doesn't exist
+    if (!fs.existsSync(backupDir)) {
+      fs.mkdirSync(backupDir, { recursive: true })
+    }
+
+    // Copy database file
+    if (fs.existsSync(sourceDb)) {
+      fs.copyFileSync(sourceDb, backupFile)
+      console.log(`✅ تم إنشاء النسخة الاحتياطية: ${backupFile}`)
+      return { success: true, filePath: backupFile, timestamp: new Date() }
+    } else {
+      throw new Error('Database file not found')
+    }
   } catch (error) {
     console.error('Error creating database backup:', error)
     throw error

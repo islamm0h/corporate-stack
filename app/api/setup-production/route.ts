@@ -49,8 +49,7 @@ export async function POST(request: NextRequest) {
           isActive: true,
           mustChangePassword: true
         }
-      ],
-      skipDuplicates: true
+      ]
     })
 
     // إنشاء الأنظمة
@@ -138,8 +137,7 @@ export async function POST(request: NextRequest) {
           }),
           isActive: true
         }
-      ],
-      skipDuplicates: true
+      ]
     })
 
     // إنشاء بعض العملاء المحتملين التجريبيين
@@ -171,8 +169,7 @@ export async function POST(request: NextRequest) {
           status: 'CONTACTED',
           leadScore: 75
         }
-      ],
-      skipDuplicates: true
+      ]
     })
 
     return NextResponse.json({

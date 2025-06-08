@@ -35,9 +35,6 @@ export async function POST(request: NextRequest) {
     console.log('🗑️ Deleting file uploads...')
     await prisma.fileUpload.deleteMany({})
 
-    console.log('🗑️ Deleting backups...')
-    await prisma.backup.deleteMany({})
-
     console.log('🗑️ Deleting daily stats...')
     await prisma.dailyStat.deleteMany({})
 
@@ -56,13 +53,11 @@ export async function POST(request: NextRequest) {
     // إحصائيات ما تم حذفه
     const deletedCounts = {
       responses: 'All',
-      quoteRequests: 'All', 
+      quoteRequests: 'All',
       leads: 'All',
-      notifications: 'All',
       systems: 'All',
       activityLogs: 'All',
       fileUploads: 'All',
-      backups: 'All',
       dailyStats: 'All',
       userStatsReset: 'All users statistics reset'
     }

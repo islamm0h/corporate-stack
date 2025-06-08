@@ -115,9 +115,8 @@ export async function POST(request: NextRequest) {
         email,
         phone,
         username,
-        passwordHash: hashedTempPassword, // استخدام passwordHash بدلاً من temporaryPassword
+        passwordHash: hashedTempPassword,
         role: role?.toUpperCase() || 'USER',
-        temporaryPassword: hashedTempPassword,
         mustChangePassword: true,
         isActive: true,
         emailVerified: false

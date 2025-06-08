@@ -117,13 +117,13 @@ export async function POST(request: NextRequest) {
         action: 'quote_request_submission',
         entityType: 'quote_request',
         entityId: quoteRequest.id,
-        details: {
+        details: JSON.stringify({
           name: validatedData.name,
           company: validatedData.company,
           email: validatedData.email,
           systemType: validatedData.systemType,
           employees: validatedData.employees
-        }
+        })
       }
     })
 

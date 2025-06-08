@@ -175,11 +175,11 @@ export async function POST(request: NextRequest) {
         action: 'create_lead',
         entityType: 'lead',
         entityId: lead.id,
-        details: {
+        details: JSON.stringify({
           companyName: lead.companyName,
           contactPerson: lead.contactPerson,
           email: lead.email
-        }
+        })
       }
     })
 
@@ -249,10 +249,10 @@ export async function PUT(request: NextRequest) {
         action: 'update_lead',
         entityType: 'lead',
         entityId: lead.id,
-        details: {
+        details: JSON.stringify({
           updatedFields: Object.keys(validatedData),
           companyName: lead.companyName
-        }
+        })
       }
     })
 
@@ -312,10 +312,10 @@ export async function DELETE(request: NextRequest) {
         action: 'delete_lead',
         entityType: 'lead',
         entityId: id,
-        details: {
+        details: JSON.stringify({
           companyName: lead.companyName,
           contactPerson: lead.contactPerson
-        }
+        })
       }
     })
 
