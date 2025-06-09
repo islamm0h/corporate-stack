@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { useRequestNumber } from '../../hooks/useClientOnly'
+import { useRequestNumber } from '../../../hooks/useClientOnly'
 
 export default function AssetsSystemDetails() {
   const [formData, setFormData] = useState({
