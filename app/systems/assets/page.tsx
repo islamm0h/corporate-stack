@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
+import { useRequestNumber } from '../../hooks/useClientOnly'
 
 export default function AssetsSystemDetails() {
   const [formData, setFormData] = useState({
@@ -24,7 +25,9 @@ export default function AssetsSystemDetails() {
     terms?: string;
   }>({})
   const [showModal, setShowModal] = useState(false)
-  const [requestNumber, setRequestNumber] = useState('')
+  const { requestNumber, generateRequestNumber } = useRequestNumber()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target
@@ -59,6 +62,10 @@ export default function AssetsSystemDetails() {
       newErrors.employees = 'يرجى اختيار عدد الموظفين'
     }
 
+    if (!formData.message.trim() || formData.message.trim().length < 10) {
+      newErrors.message = 'يرجى إدخال رسالة تحتوي على 10 أحرف على الأقل'
+    }
+
     if (!formData.terms) {
       newErrors.terms = 'يجب الموافقة على الشروط والأحكام'
     }
@@ -67,25 +74,62 @@ export default function AssetsSystemDetails() {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setSubmitError('')
 
-    if (validateForm()) {
-      const reqNumber = Math.floor(100000 + Math.random() * 900000).toString()
-      setRequestNumber(reqNumber)
-      setShowModal(true)
+    if (!validateForm()) {
+      return
+    }
 
-      // إعادة تعيين النموذج
-      setFormData({
-        name: '',
-        company: '',
-        email: '',
-        phone: '',
-        employees: '',
-        message: '',
-        terms: false
+    setIsSubmitting(true)
+
+    try {
+      const response = await fetch('/api/quote-requests', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          systemType: 'نظام إدارة الأصول',
+          budgetRange: 'غير محدد',
+          timeline: 'غير محدد'
+        })
       })
-      setErrors({})
+
+      const result = await response.json()
+
+      if (result.success) {
+        generateRequestNumber()
+        setShowModal(true)
+
+        // إعادة تعيين النموذج
+        setFormData({
+          name: '',
+          company: '',
+          email: '',
+          phone: '',
+          employees: '',
+          message: '',
+          terms: false
+        })
+        setErrors({})
+      } else {
+        setSubmitError(result.error || 'حدث خطأ في إرسال الطلب')
+        if (result.details) {
+          const newErrors: any = {}
+          result.details.forEach((detail: any) => {
+            newErrors[detail.field] = detail.message
+          })
+          setErrors(newErrors)
+        }
+      }
+    } catch (error) {
+      console.error('Error submitting form:', error)
+      setSubmitError('حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى')
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -284,7 +328,7 @@ export default function AssetsSystemDetails() {
                   <div className="form-group">
                     <label htmlFor="message">
                       <i className="fas fa-message"></i>
-                      متطلبات إضافية
+                      متطلبات إضافية <span className="required">*</span>
                     </label>
                     <textarea
                       id="message"
@@ -292,7 +336,9 @@ export default function AssetsSystemDetails() {
                       value={formData.message}
                       onChange={handleInputChange}
                       placeholder="أدخل أي متطلبات أو استفسارات إضافية"
+                      className={errors.message ? 'error' : ''}
                     />
+                    {errors.message && <small className="error-message">{errors.message}</small>}
                   </div>
 
                   <div className="form-group checkbox-group">
@@ -312,9 +358,15 @@ export default function AssetsSystemDetails() {
                     {errors.terms && <small className="error-message">{errors.terms}</small>}
                   </div>
 
-                  <button type="submit" className="btn btn-primary submit-btn">
-                    <i className="fas fa-paper-plane"></i>
-                    طلب عرض سعر
+                  {submitError && (
+                    <div className="error-message" style={{ marginBottom: '15px', textAlign: 'center' }}>
+                      {submitError}
+                    </div>
+                  )}
+
+                  <button type="submit" className="btn btn-primary submit-btn" disabled={isSubmitting}>
+                    <i className={isSubmitting ? "fas fa-spinner fa-spin" : "fas fa-paper-plane"}></i>
+                    {isSubmitting ? 'جاري الإرسال...' : 'طلب عرض سعر'}
                   </button>
 
                   <p className="form-note">

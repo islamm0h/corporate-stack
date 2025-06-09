@@ -8,7 +8,7 @@ const quoteRequestSchema = z.object({
   company: z.string().min(2, 'اسم الشركة مطلوب'),
   email: z.string().email('البريد الإلكتروني غير صحيح'),
   phone: z.string().min(10, 'رقم الهاتف غير صحيح'),
-  employees: z.string().optional(),
+  employees: z.string().min(1, 'عدد الموظفين مطلوب'),
   systemType: z.string().min(1, 'نوع النظام مطلوب'),
   message: z.string().min(10, 'الرسالة يجب أن تكون 10 أحرف على الأقل'),
   terms: z.boolean().refine(val => val === true, 'يجب الموافقة على الشروط والأحكام'),
