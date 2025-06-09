@@ -23,138 +23,78 @@ export async function GET(request: NextRequest) {
       })
 
       console.log(`✅ Found ${systems.length} systems from database`)
-      
+
+      // معالجة البيانات لإصلاح مشاكل JSON والترميز
+      const processedSystems = systems.map(system => {
+        let features = []
+        let specifications = {}
+        let seoKeywords = []
+
+        // معالجة features
+        if (system.features) {
+          try {
+            if (typeof system.features === 'string') {
+              features = JSON.parse(system.features)
+            } else if (Array.isArray(system.features)) {
+              features = system.features
+            }
+          } catch (e) {
+            console.warn('Failed to parse features for system:', system.name)
+            features = []
+          }
+        }
+
+        // معالجة specifications
+        if (system.specifications) {
+          try {
+            if (typeof system.specifications === 'string') {
+              specifications = JSON.parse(system.specifications)
+            } else if (typeof system.specifications === 'object') {
+              specifications = system.specifications
+            }
+          } catch (e) {
+            console.warn('Failed to parse specifications for system:', system.name)
+            specifications = {}
+          }
+        }
+
+        // معالجة seoKeywords
+        if (system.seoKeywords) {
+          try {
+            if (typeof system.seoKeywords === 'string') {
+              seoKeywords = JSON.parse(system.seoKeywords)
+            } else if (Array.isArray(system.seoKeywords)) {
+              seoKeywords = system.seoKeywords
+            }
+          } catch (e) {
+            console.warn('Failed to parse seoKeywords for system:', system.name)
+            seoKeywords = []
+          }
+        }
+
+        return {
+          ...system,
+          features,
+          specifications,
+          seoKeywords
+        }
+      })
+
       await prisma.$disconnect()
 
       return NextResponse.json({
         success: true,
-        data: systems
+        data: processedSystems
       })
     } catch (dbError) {
       console.error('❌ Database error:', dbError)
-      
-      // في حالة فشل قاعدة البيانات، استخدم البيانات التجريبية
-      const mockSystems = [
-        {
-          id: '1',
-          name: 'نظام المحاسبة والفاتورة الإلكترونية',
-          description: 'نظام متكامل لإدارة الحسابات والفواتير الإلكترونية مع ربط هيئة الزكاة والضريبة والدعم الكامل للمعايير السعودية',
-          category: 'مالي',
-          features: [
-            'فواتير إلكترونية معتمدة',
-            'ربط هيئة الزكاة والضريبة',
-            'تقارير مالية شاملة',
-            'إدارة العملاء والموردين',
-            'نظام الخزينة والبنوك',
-            'التكامل مع البنوك السعودية'
-          ],
-          isActive: true,
-          slug: 'accounting-electronic-invoice-system'
-        },
-        {
-          id: '2',
-          name: 'نظام إدارة العملاء (CRM)',
-          description: 'نظام شامل لإدارة العلاقات مع العملاء وتتبع المبيعات والفرص التجارية مع أدوات تسويق متقدمة',
-          category: 'مبيعات',
-          features: [
-            'إدارة جهات الاتصال',
-            'تتبع الفرص التجارية',
-            'تقارير المبيعات المتقدمة',
-            'أتمتة التسويق',
-            'إدارة خط المبيعات',
-            'تحليلات العملاء'
-          ],
-          isActive: true,
-          slug: 'crm-customer-management-system'
-        },
-        {
-          id: '3',
-          name: 'نظام إدارة الموارد البشرية',
-          description: 'نظام متكامل لإدارة شؤون الموظفين والرواتب والحضور والانصراف مع نظام تقييم الأداء',
-          category: 'موارد بشرية',
-          features: [
-            'إدارة بيانات الموظفين',
-            'نظام الرواتب والمكافآت',
-            'الحضور والانصراف',
-            'تقييم الأداء',
-            'إدارة الإجازات',
-            'التقارير الحكومية'
-          ],
-          isActive: true,
-          slug: 'hr-human-resources-system'
-        },
-        {
-          id: '4',
-          name: 'نظام إدارة المخزون',
-          description: 'نظام متطور لإدارة المخزون والمواد مع تتبع المستويات والتنبيهات التلقائية وإدارة المستودعات',
-          category: 'مخزون',
-          features: [
-            'تتبع المخزون الفوري',
-            'إدارة المستودعات المتعددة',
-            'تقارير الجرد التفصيلية',
-            'تنبيهات النفاد التلقائية',
-            'إدارة الموردين',
-            'نظام الباركود'
-          ],
-          isActive: true,
-          slug: 'inventory-management-system'
-        },
-        {
-          id: '5',
-          name: 'نظام إدارة المشاريع',
-          description: 'نظام شامل لإدارة المشاريع وتتبع المهام والموارد مع أدوات التعاون والتقارير المتقدمة',
-          category: 'إدارة',
-          features: [
-            'إدارة المشاريع والمهام',
-            'تتبع الوقت والموارد',
-            'أدوات التعاون الجماعي',
-            'تقارير الأداء',
-            'إدارة الميزانيات',
-            'تقويم المشاريع'
-          ],
-          isActive: true,
-          slug: 'project-management-system'
-        },
-        {
-          id: '6',
-          name: 'نظام نقاط البيع (POS)',
-          description: 'نظام نقاط بيع متطور للمتاجر والمطاعم مع دعم الفواتير الإلكترونية وإدارة المخزون',
-          category: 'مبيعات',
-          features: [
-            'واجهة بيع سريعة وسهلة',
-            'دعم الفواتير الإلكترونية',
-            'إدارة المخزون المتكاملة',
-            'تقارير المبيعات اليومية',
-            'دعم طرق الدفع المتعددة',
-            'نظام الولاء والخصومات'
-          ],
-          isActive: true,
-          slug: 'pos-point-of-sale-system'
-        },
-        {
-          id: '7',
-          name: 'نظام إدارة المحتوى (CMS)',
-          description: 'نظام إدارة محتوى متطور لإنشاء وإدارة المواقع الإلكترونية مع أدوات SEO متقدمة',
-          category: 'تقني',
-          features: [
-            'محرر محتوى متقدم',
-            'إدارة الصفحات والمقالات',
-            'أدوات SEO متكاملة',
-            'إدارة الوسائط',
-            'نظام التعليقات',
-            'قوالب متجاوبة'
-          ],
-          isActive: true,
-          slug: 'cms-content-management-system'
-        }
-      ]
 
-      console.log(`⚠️ Using ${mockSystems.length} fallback systems`)
-
+      // إرجاع خطأ بدلاً من البيانات الثابتة
       return NextResponse.json({
-        success: true,
-        data: mockSystems
-      })
+        success: false,
+        error: 'فشل في الاتصال بقاعدة البيانات',
+        data: []
+      }, { status: 500 })
     }
   } catch (error) {
     console.error('❌ Error in systems API:', error)
